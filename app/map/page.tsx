@@ -49,10 +49,10 @@ export default function Map() {
         style: DEFAULT_STYLE,
         center: DEFAULT_CENTER,
         zoom: DEFAULT_ZOOM,
-        // maxBounds: [
-        //   [123.86601, 10.30209],
-        //   [124.02689, 10.37254],
-        // ],
+        maxBounds: [
+          [123.86601, 10.30209],
+          [124.02689, 10.37254],
+        ],
       });
       mapRef.current = map;
 
