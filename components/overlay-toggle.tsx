@@ -20,9 +20,6 @@ export function OverlayToggle({
         onCheckedChange={onToggle}
         size="lg"
       />
-      <Label htmlFor="overlay-toggle" className="text-sm font-medium">
-        View
-      </Label>
     </div>
   );
 }

@@ -70,13 +70,11 @@ export function ControlPanel({
           />
         </div>
 
-        <div className="flex flex-1 gap-4 p-3">
-          <div className="flex-1">
-            <OverlayLegend
-              overlays={overlays}
-              onToggleOverlay={onToggleOverlay}
-            />
-          </div>
+        <div className="flex-col flex-1 gap-4 px-6 py-3">
+          <OverlayLegend
+            overlays={overlays}
+            onToggleOverlay={onToggleOverlay}
+          />
         </div>
 
         {/* Bottom Blue Button */}

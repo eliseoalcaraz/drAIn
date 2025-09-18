@@ -19,7 +19,7 @@ export function OverlayLegend({
 }: OverlayLegendProps) {
   return (
     <>
-      <h3 className="font-semibold text-sm mb-3">Map Overlays</h3>
+      <h3 className="font-semibold text-base mb-3">Map Overlays</h3>
       <div className="space-y-2">
         {overlays.map((overlay) => (
           <div key={overlay.id} className="flex items-center space-x-2">
@@ -34,7 +34,7 @@ export function OverlayLegend({
             />
             <Label
               htmlFor={overlay.id}
-              className="text-sm font-medium cursor-pointer"
+              className="text-sm text-[#808080] font-normal cursor-pointer"
             >
               {overlay.name}
             </Label>
