@@ -1,8 +1,14 @@
 import { Search, MoreHorizontal, Edit, Plus } from "lucide-react";
+import { OverlayToggle } from "./overlay-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function ControlPanel() {
+interface ControlPanelProps {
+  overlaysVisible: boolean;
+  onToggle: (visible: boolean) => void;
+}
+
+export function ControlPanel({ overlaysVisible, onToggle }: ControlPanelProps) {
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
       {/* Sidebar */}
@@ -43,14 +49,10 @@ export function ControlPanel() {
           <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
             <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
           </button>
-
-          <Button
-            variant="secondary"
-            size="sm"
-            className="bg-gray-300 text-gray-700 hover:bg-gray-400 rounded-lg px-4"
-          >
-            View
-          </Button>
+          <OverlayToggle
+            overlaysVisible={overlaysVisible}
+            onToggle={onToggle}
+          />
         </div>
 
         <div className="flex flex-1 gap-4">

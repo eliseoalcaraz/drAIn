@@ -17,6 +17,15 @@ export default function Map() {
     "mapbox://styles/mapbox/streets-v11"
   );
 
+  const [overlaysVisible, setOverlaysVisible] = useState(true);
+
+  const layerIds = [
+    "man_pipes-layer",
+    "storm_drains-layer",
+    "inlets-layer",
+    "outlets-layer",
+  ];
+
   useEffect(() => {
     mapboxgl.accessToken =
       "pk.eyJ1Ijoia2lsb3VraWxvdSIsImEiOiJjbWZsMmc5dWMwMGlxMmtwdXgxaHE0ZjVnIn0.TFZP0T-4zrLdI0Be-u0t3Q";
@@ -35,6 +44,22 @@ export default function Map() {
       mapRef.current = map;
 
       const addCustomLayers = () => {
+        if (!map.getSource("man_pipes")) {
+          map.addSource("man_pipes", {
+            type: "geojson",
+            data: "/man_pipes.geojson",
+          });
+          map.addLayer({
+            id: "man_pipes-layer",
+            type: "line",
+            source: "man_pipes",
+            paint: {
+              "line-color": "#8B008B",
+              "line-width": 2.5,
+              // removed "line-dasharray" to make it solid
+            },
+          });
+        }
         if (!map.getSource("storm_drains")) {
           map.addSource("storm_drains", {
             type: "geojson",
@@ -45,10 +70,10 @@ export default function Map() {
             type: "circle",
             source: "storm_drains",
             paint: {
-              "circle-radius": 6,
-              "circle-color": "#000000", // black fill
-              "circle-stroke-color": "#ffffff", // white outline for contrast
-              "circle-stroke-width": 2,
+              "circle-radius": 4,
+              "circle-color": "#0088ff",
+              "circle-stroke-color": "#000000",
+              "circle-stroke-width": 0.5,
             },
           });
         }
@@ -62,55 +87,14 @@ export default function Map() {
             type: "circle",
             source: "inlets",
             paint: {
-              "circle-radius": 4,
-              "circle-color": "#ffaa00",
+              "circle-radius": 6,
+              "circle-color": "#00cc44",
+              "circle-stroke-color": "#000000",
+              "circle-stroke-width": 0.5,
             },
           });
         }
 
-        if (!map.getSource("man_pipes")) {
-          map.addSource("man_pipes", {
-            type: "geojson",
-            data: "/man_pipes.geojson",
-          });
-          map.addLayer({
-            id: "man_pipes-layer",
-            type: "line",
-            source: "man_pipes",
-            paint: {
-              "line-color": "#8B008B",
-              "line-width": 2.5,
-              "line-dasharray": [2, 2],
-            },
-          });
-        }
-
-        if (map.getLayer("man_pipes-highlight")) {
-          map.removeLayer("man_pipes-highlight");
-        }
-        map.addLayer({
-          id: "man_pipes-highlight",
-          type: "line",
-          source: "man_pipes",
-          paint: {
-            "line-color": "#00ffff",
-            "line-width": 6,
-          },
-          filter: ["==", ["get", "id"], ""],
-        });
-        map.on("mousemove", "man_pipes-layer", (e) => {
-          if (e.features && e.features.length > 0) {
-            const feature = e.features[0];
-            const id = feature.properties?.id;
-
-            if (id) {
-              map.setFilter("man_pipes-highlight", ["==", ["get", "id"], id]);
-            }
-          } else {
-            // Clear highlight if not hovering any feature
-            map.setFilter("man_pipes-highlight", ["==", ["get", "id"], ""]);
-          }
-        });
         if (!map.getSource("outlets")) {
           map.addSource("outlets", {
             type: "geojson",
@@ -122,7 +106,9 @@ export default function Map() {
             source: "outlets",
             paint: {
               "circle-radius": 6,
-              "circle-color": "#00cc44",
+              "circle-color": "#cc0000",
+              "circle-stroke-color": "#000000",
+              "circle-stroke-width": 0.5,
             },
           });
         }
@@ -132,6 +118,20 @@ export default function Map() {
       map.on("style.load", addCustomLayers);
     }
   }, []);
+
+  useEffect(() => {
+    if (mapRef.current) {
+      layerIds.forEach((layerId) => {
+        if (mapRef.current?.getLayer(layerId)) {
+          mapRef.current.setLayoutProperty(
+            layerId,
+            "visibility",
+            overlaysVisible ? "visible" : "none"
+          );
+        }
+      });
+    }
+  }, [overlaysVisible]);
 
   const handleZoomIn = () => mapRef.current?.zoomIn();
   const handleZoomOut = () => mapRef.current?.zoomOut();
@@ -153,11 +153,18 @@ export default function Map() {
     }
   };
 
+  const handleOverlayToggle = (visible: boolean) => {
+    setOverlaysVisible(visible);
+  };
+
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-blue-200">
         <div className="w-full h-screen" ref={mapContainerRef} />
-        <ControlPanel />
+        <ControlPanel
+          overlaysVisible={overlaysVisible}
+          onToggle={handleOverlayToggle}
+        />
         <CameraControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
