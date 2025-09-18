@@ -2,29 +2,42 @@
 
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useMemo } from "react";
 import mapboxgl from "mapbox-gl";
+
 import "mapbox-gl/dist/mapbox-gl.css";
+
+const DEFAULT_CENTER: [number, number] = [123.926, 10.337];
+const DEFAULT_ZOOM = 12;
+const DEFAULT_STYLE = "mapbox://styles/mapbox/streets-v11";
 
 export default function Map() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const defaultCenter: [number, number] = [123.926, 10.337];
-  const defaultZoom = 12;
+  const [overlayVisibility, setOverlayVisibility] = useState({
+    "man_pipes-layer": true,
+    "storm_drains-layer": true,
+    "inlets-layer": true,
+    "outlets-layer": true,
+  });
 
-  const [mapStyle, setMapStyle] = useState(
-    "mapbox://styles/mapbox/streets-v11"
-  );
-
-  const [overlaysVisible, setOverlaysVisible] = useState(true);
-
-  const layerIds = [
-    "man_pipes-layer",
-    "storm_drains-layer",
-    "inlets-layer",
-    "outlets-layer",
+  const overlayConfig = [
+    { id: "man_pipes-layer", name: "Man Pipes", color: "#8B008B" },
+    { id: "storm_drains-layer", name: "Storm Drains", color: "#0088ff" },
+    { id: "inlets-layer", name: "Inlets", color: "#00cc44" },
+    { id: "outlets-layer", name: "Outlets", color: "#cc0000" },
   ];
+
+  const layerIds = useMemo(
+    () => [
+      "man_pipes-layer",
+      "storm_drains-layer",
+      "inlets-layer",
+      "outlets-layer",
+    ],
+    []
+  );
 
   useEffect(() => {
     mapboxgl.accessToken =
@@ -33,9 +46,9 @@ export default function Map() {
     if (mapContainerRef.current && !mapRef.current) {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: mapStyle,
-        center: defaultCenter,
-        zoom: defaultZoom,
+        style: DEFAULT_STYLE,
+        center: DEFAULT_CENTER,
+        zoom: DEFAULT_ZOOM,
         // maxBounds: [
         //   [123.86601, 10.30209],
         //   [124.02689, 10.37254],
@@ -126,17 +139,19 @@ export default function Map() {
           mapRef.current.setLayoutProperty(
             layerId,
             "visibility",
-            overlaysVisible ? "visible" : "none"
+            overlayVisibility[layerId as keyof typeof overlayVisibility]
+              ? "visible"
+              : "none"
           );
         }
       });
     }
-  }, [overlaysVisible]);
+  }, [overlayVisibility, layerIds]);
 
   const handleZoomIn = () => mapRef.current?.zoomIn();
   const handleZoomOut = () => mapRef.current?.zoomOut();
   const handleResetPosition = () =>
-    mapRef.current?.flyTo({ center: defaultCenter, zoom: defaultZoom });
+    mapRef.current?.flyTo({ center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM });
 
   const handleChangeStyle = () => {
     const currentStyle = mapRef.current?.getStyle().name;
@@ -153,17 +168,42 @@ export default function Map() {
     }
   };
 
-  const handleOverlayToggle = (visible: boolean) => {
-    setOverlaysVisible(visible);
+  const handleOverlayToggle = (layerId: string) => {
+    setOverlayVisibility((prev) => ({
+      ...prev,
+      [layerId]: !prev[layerId as keyof typeof prev],
+    }));
   };
+
+  const overlayData = overlayConfig.map((config) => ({
+    ...config,
+    visible: overlayVisibility[config.id as keyof typeof overlayVisibility],
+  }));
+
+  const handleToggleAllOverlays = () => {
+    const someVisible = Object.values(overlayVisibility).some(Boolean);
+
+    const updated: typeof overlayVisibility = {
+      "man_pipes-layer": !someVisible,
+      "storm_drains-layer": !someVisible,
+      "inlets-layer": !someVisible,
+      "outlets-layer": !someVisible,
+    };
+
+    setOverlayVisibility(updated);
+  };
+
+  const someVisible = Object.values(overlayVisibility).some(Boolean);
 
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-blue-200">
         <div className="w-full h-screen" ref={mapContainerRef} />
         <ControlPanel
-          overlaysVisible={overlaysVisible}
-          onToggle={handleOverlayToggle}
+          overlaysVisible={someVisible} // now true if ANY overlay is visible
+          onToggle={handleToggleAllOverlays}
+          overlays={overlayData}
+          onToggleOverlay={handleOverlayToggle}
         />
         <CameraControls
           onZoomIn={handleZoomIn}

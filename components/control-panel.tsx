@@ -1,14 +1,29 @@
+"use client";
+
 import { Search, MoreHorizontal, Edit, Plus } from "lucide-react";
 import { OverlayToggle } from "./overlay-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { OverlayLegend } from "@/components/overlay-legend";
 
 interface ControlPanelProps {
   overlaysVisible: boolean;
   onToggle: (visible: boolean) => void;
+  overlays: {
+    id: string;
+    name: string;
+    color: string;
+    visible: boolean;
+  }[];
+  onToggleOverlay: (id: string) => void;
 }
 
-export function ControlPanel({ overlaysVisible, onToggle }: ControlPanelProps) {
+export function ControlPanel({
+  overlaysVisible,
+  onToggle,
+  overlays,
+  onToggleOverlay,
+}: ControlPanelProps) {
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
       {/* Sidebar */}
@@ -55,9 +70,13 @@ export function ControlPanel({ overlaysVisible, onToggle }: ControlPanelProps) {
           />
         </div>
 
-        <div className="flex flex-1 gap-4">
-          {/* Main Content Area */}
-          <div className="flex-1 bg-white">{/* Empty content area */}</div>
+        <div className="flex flex-1 gap-4 p-3">
+          <div className="flex-1">
+            <OverlayLegend
+              overlays={overlays}
+              onToggleOverlay={onToggleOverlay}
+            />
+          </div>
         </div>
 
         {/* Bottom Blue Button */}

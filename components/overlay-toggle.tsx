@@ -1,6 +1,7 @@
 "use client";
 
 import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 
 interface OverlayToggleProps {
   overlaysVisible: boolean;
@@ -17,7 +18,11 @@ export function OverlayToggle({
         id="overlay-toggle"
         checked={overlaysVisible}
         onCheckedChange={onToggle}
+        size="lg"
       />
+      <Label htmlFor="overlay-toggle" className="text-sm font-medium">
+        View
+      </Label>
     </div>
   );
 }
