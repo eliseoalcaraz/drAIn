@@ -33,67 +33,103 @@ export default function Map() {
         // ],
       });
       mapRef.current = map;
-      map.on("load", () => {
-        map.addSource("inlets", {
-          type: "geojson",
-          data: "/inlets.geojson",
-        });
-        map.addLayer({
-          id: "inlets-layer",
-          type: "circle",
-          source: "inlets",
-          paint: {
-            "circle-radius": 4,
-            "circle-color": "#ffaa00",
-          },
-        });
 
-        map.addSource("man_pipes", {
-          type: "geojson",
-          data: "/man_pipes.geojson", // place this file in /public
-        });
+      const addCustomLayers = () => {
+        if (!map.getSource("storm_drains")) {
+          map.addSource("storm_drains", {
+            type: "geojson",
+            data: "/storm_drains.geojson",
+          });
+          map.addLayer({
+            id: "storm_drains-layer",
+            type: "circle",
+            source: "storm_drains",
+            paint: {
+              "circle-radius": 6,
+              "circle-color": "#000000", // black fill
+              "circle-stroke-color": "#ffffff", // white outline for contrast
+              "circle-stroke-width": 2,
+            },
+          });
+        }
+        if (!map.getSource("inlets")) {
+          map.addSource("inlets", {
+            type: "geojson",
+            data: "/inlets.geojson",
+          });
+          map.addLayer({
+            id: "inlets-layer",
+            type: "circle",
+            source: "inlets",
+            paint: {
+              "circle-radius": 4,
+              "circle-color": "#ffaa00",
+            },
+          });
+        }
 
+        if (!map.getSource("man_pipes")) {
+          map.addSource("man_pipes", {
+            type: "geojson",
+            data: "/man_pipes.geojson",
+          });
+          map.addLayer({
+            id: "man_pipes-layer",
+            type: "line",
+            source: "man_pipes",
+            paint: {
+              "line-color": "#8B008B",
+              "line-width": 2.5,
+              "line-dasharray": [2, 2],
+            },
+          });
+        }
+
+        if (map.getLayer("man_pipes-highlight")) {
+          map.removeLayer("man_pipes-highlight");
+        }
         map.addLayer({
-          id: "man_pipes-layer",
+          id: "man_pipes-highlight",
           type: "line",
           source: "man_pipes",
           paint: {
-            "line-color": "#8B008B", // dark magenta for distinction
-            "line-width": 2.5,
-            "line-dasharray": [2, 2], // optional: dashed to differentiate from main pipes
+            "line-color": "#00ffff",
+            "line-width": 6,
           },
+          filter: ["==", ["get", "id"], ""],
         });
+        map.on("mousemove", "man_pipes-layer", (e) => {
+          if (e.features && e.features.length > 0) {
+            const feature = e.features[0];
+            const id = feature.properties?.id;
 
-        map.addSource("outlets", {
-          type: "geojson",
-          data: "/outlets.geojson",
+            if (id) {
+              map.setFilter("man_pipes-highlight", ["==", ["get", "id"], id]);
+            }
+          } else {
+            // Clear highlight if not hovering any feature
+            map.setFilter("man_pipes-highlight", ["==", ["get", "id"], ""]);
+          }
         });
-        map.addLayer({
-          id: "outlets-layer",
-          type: "circle",
-          source: "outlets",
-          paint: {
-            "circle-radius": 6,
-            "circle-color": "#00cc44",
-          },
-        });
+        if (!map.getSource("outlets")) {
+          map.addSource("outlets", {
+            type: "geojson",
+            data: "/outlets.geojson",
+          });
+          map.addLayer({
+            id: "outlets-layer",
+            type: "circle",
+            source: "outlets",
+            paint: {
+              "circle-radius": 6,
+              "circle-color": "#00cc44",
+            },
+          });
+        }
+      };
 
-        map.addSource("storm_drains", {
-          type: "geojson",
-          data: "/storm_drains.geojson", // put file in /public
-        });
-
-        map.addLayer({
-          id: "storm_drains-layer",
-          type: "line",
-          source: "storm_drains",
-          paint: {
-            "line-color": "#1E90FF", // Dodger Blue
-            "line-width": 3,
-            "line-dasharray": [4, 2], // longer dash pattern to stand out
-          },
-        });
-      });
+      map.on("load", addCustomLayers);
+      map.on("style.load", addCustomLayers);
     }
   }, []);
 
@@ -103,13 +139,18 @@ export default function Map() {
     mapRef.current?.flyTo({ center: defaultCenter, zoom: defaultZoom });
 
   const handleChangeStyle = () => {
-    const newStyle = mapStyle.includes("streets-v11")
-      ? "mapbox://styles/mapbox/satellite-streets-v11"
-      : "mapbox://styles/mapbox/streets-v11";
+    const currentStyle = mapRef.current?.getStyle().name;
+    let newStyle = "";
 
-    setMapStyle(newStyle);
+    if (currentStyle === "Mapbox Streets") {
+      newStyle = "mapbox://styles/mapbox/satellite-streets-v11";
+    } else if (currentStyle === "Mapbox Satellite Streets") {
+      newStyle = "mapbox://styles/mapbox/streets-v11";
+    }
 
-    mapRef.current?.setStyle(newStyle);
+    if (newStyle) {
+      mapRef.current?.setStyle(newStyle);
+    }
   };
 
   return (
