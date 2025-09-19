@@ -21,7 +21,7 @@ const sizes = {
   },
   lg: {
     root: "h-8.5 w-15",
-    thumb: "size-5",
+    thumb: "size-7",
   },
 };
 

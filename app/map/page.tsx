@@ -69,7 +69,6 @@ export default function Map() {
             paint: {
               "line-color": "#8B008B",
               "line-width": 2.5,
-              // removed "line-dasharray" to make it solid
             },
           });
         }
@@ -200,7 +199,7 @@ export default function Map() {
       <main className="relative min-h-screen flex flex-col bg-blue-200">
         <div className="w-full h-screen" ref={mapContainerRef} />
         <ControlPanel
-          overlaysVisible={someVisible} // now true if ANY overlay is visible
+          overlaysVisible={someVisible}
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}

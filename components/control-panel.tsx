@@ -1,10 +1,12 @@
 "use client";
 
-import { Search, MoreHorizontal, Edit, Plus } from "lucide-react";
+import { useState } from "react";
+import { Search, MoreHorizontal } from "lucide-react";
 import { OverlayToggle } from "./overlay-toggle";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { OverlayLegend } from "@/components/overlay-legend";
+import OverlaysContent from "./overlays-content";
+import { SideNavigation } from "./side-navigation";
 
 interface ControlPanelProps {
   overlaysVisible: boolean;
@@ -24,28 +26,38 @@ export function ControlPanel({
   overlays,
   onToggleOverlay,
 }: ControlPanelProps) {
+  const [activeTab, setActiveTab] = useState("overlays");
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "overlays":
+        return (
+          <OverlaysContent
+            overlays={overlays}
+            onToggleOverlay={onToggleOverlay}
+          />
+        );
+      case "stats":
+        return null;
+      case "simualations":
+        return null;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
       {/* Sidebar */}
-      <div className="flex flex-col h-full bg-[#FFF8F5] border-r border-[#E5DFDC] px-2 py-3 justify-between rounded-l-2xl items-center">
-        {/* Z Logo */}
-        <div className="w-8 h-8 bg-[#B2ADAB] hover:bg-black rounded-full flex items-center justify-center">
-          <span className="text-white font-semibold text-sm">Z</span>
+      <div className="flex flex-col w-11 h-full bg-[#FFF8F5] border-r border-[#E5DFDC] py-3 justify-between rounded-l-2xl items-center">
+        {/* Logo */}
+        <div className="flex h-8.5 items-center">
+          <div className="w-7 h-7 bg-[#B2ADAB] hover:bg-black rounded-full flex items-center justify-center">
+            <span className="text-white font-semibold text-sm">Z</span>
+          </div>
         </div>
-        <div className="flex flex-col gap-5 items-center">
-          {/* Edit Icon */}
-          <button className="w-7.5 h-7.5 bg-[#B2ADAB] rounded-full flex items-center justify-center hover:bg-black transition-colors">
-            <Edit className="w-5 h-5 text-white" />
-          </button>
 
-          {/* Plus Icon */}
-          <button className="w-7.5 h-7.5 bg-[#B2ADAB] rounded-full flex items-center justify-center hover:bg-black transition-colors">
-            <Plus className="w-6 h-6 text-white" />
-          </button>
-
-          {/* Black Circle */}
-          <div className="w-8.5 h-8.5 bg-black rounded-full" />
-        </div>
+        <SideNavigation activeTab={activeTab} onTabChange={setActiveTab} />
       </div>
 
       <div className="flex flex-1 flex-col bg-red">
@@ -60,22 +72,24 @@ export function ControlPanel({
             />
           </div>
 
-          {/* Menu and View Button */}
-          <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
-            <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
-          </button>
-          <OverlayToggle
-            overlaysVisible={overlaysVisible}
-            onToggle={onToggle}
-          />
+          {/* Settings Button */}
+          {(activeTab === "overlays" || activeTab === "stats") && (
+            <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
+              <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
+            </button>
+          )}
+
+          {/* Toggle Button */}
+          {activeTab === "overlays" && (
+            <OverlayToggle
+              overlaysVisible={overlaysVisible}
+              onToggle={onToggle}
+            />
+          )}
         </div>
 
-        <div className="flex-col flex-1 gap-4 px-6 py-3">
-          <OverlayLegend
-            overlays={overlays}
-            onToggleOverlay={onToggleOverlay}
-          />
-        </div>
+        {/* Main Content */}
+        <div className="relative flex-1">{renderContent()}</div>
 
         {/* Bottom Blue Button */}
         <div className="w-full mt-4 p-3">
