@@ -1,12 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Search, MoreHorizontal } from "lucide-react";
+import { MoreHorizontal } from "lucide-react";
 import { OverlayToggle } from "./overlay-toggle";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+
 import OverlaysContent from "./overlays-content";
 import { SideNavigation } from "./side-navigation";
+import { DrainageTable } from "./drainage-table";
+import { drainagePipesData } from "@/lib/drainage";
+import { SearchBar } from "./search-bar";
 
 interface ControlPanelProps {
   overlaysVisible: boolean;
@@ -20,6 +23,14 @@ interface ControlPanelProps {
   onToggleOverlay: (id: string) => void;
 }
 
+type SortField =
+  | "geocode"
+  | "vulnerabilityRating"
+  | "location"
+  | "installDate"
+  | "lastInspection";
+type SortDirection = "asc" | "desc";
+
 export function ControlPanel({
   overlaysVisible,
   onToggle,
@@ -27,7 +38,6 @@ export function ControlPanel({
   onToggleOverlay,
 }: ControlPanelProps) {
   const [activeTab, setActiveTab] = useState("overlays");
-
   const renderContent = () => {
     switch (activeTab) {
       case "overlays":
@@ -37,12 +47,44 @@ export function ControlPanel({
             onToggleOverlay={onToggleOverlay}
           />
         );
+
       case "stats":
-        return null;
+        return (
+          <DrainageTable
+            data={drainagePipesData}
+            searchTerm={searchTerm}
+            vulnerabilityFilter={vulnerabilityFilter}
+            onSort={handleSort}
+            sortField={sortField}
+            sortDirection={sortDirection}
+          />
+        );
+
       case "simualations":
         return null;
       default:
         return null;
+    }
+  };
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [vulnerabilityFilter, setVulnerabilityFilter] = useState("all");
+  const [sortField, setSortField] = useState<SortField>("geocode");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const handleSearch = (
+    newSearchTerm: string,
+    newVulnerabilityFilter: string
+  ) => {
+    setSearchTerm(newSearchTerm);
+    setVulnerabilityFilter(newVulnerabilityFilter);
+  };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
     }
   };
 
@@ -64,21 +106,13 @@ export function ControlPanel({
         {/* Top Bar */}
         <div className="flex items-center gap-2 p-3">
           {/* Search Bar */}
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 gap-2 top-1/2 transform -translate-y-1/2 text-[#8D8D8D] w-4 h-4 " />
-            <Input
-              placeholder="Search"
-              className="pl-10 bg-[#EBEBEB] rounded-full border border-[#DCDCDC] h-8.5 flex-1 focus-visible:ring-0 focus-visible:border-[#DCDCDC] shadow-none"
-            />
-          </div>
-
+          <SearchBar onSearch={handleSearch} />
           {/* Settings Button */}
           {(activeTab === "overlays" || activeTab === "stats") && (
             <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
               <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
             </button>
           )}
-
           {/* Toggle Button */}
           {activeTab === "overlays" && (
             <OverlayToggle
@@ -89,14 +123,18 @@ export function ControlPanel({
         </div>
 
         {/* Main Content */}
-        <div className="relative flex-1">{renderContent()}</div>
+        <div className="relative overflow-auto pt-3 flex-1">
+          {renderContent()}
+        </div>
 
         {/* Bottom Blue Button */}
-        <div className="w-full mt-4 p-3">
-          <Button className="w-full bg-[#4b72f3] border border-[#2b3ea7] text-white py-6 rounded-xl font-medium text-base hover:bg-blue-600 transition-colors">
-            Button
-          </Button>
-        </div>
+        {activeTab == "simulations" && (
+          <div className="w-full mt-4 p-3">
+            <Button className="w-full bg-[#4b72f3] border border-[#2b3ea7] text-white py-6 rounded-xl font-medium text-base hover:bg-blue-600 transition-colors">
+              Simulate
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -17,7 +17,7 @@ export default function OverlaysContent({
   onToggleOverlay,
 }: OverlayContentProps) {
   return (
-    <div className="flex-col flex-1 gap-4 px-6 py-3">
+    <div className="flex-col flex-1 gap-4 px-6">
       <OverlayLegend overlays={overlays} onToggleOverlay={onToggleOverlay} />
     </div>
   );
