@@ -5,8 +5,8 @@ const tabs = [
   { id: "overlays", label: "Overlay", icon: Layers },
   { id: "stats", label: "Stats", icon: BarChart3 },
   { id: "simulations", label: "Simulations", icon: PlayCircle },
+  { id: "report", label: "Report", icon: Layers }
 ];
-
 interface SideNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;

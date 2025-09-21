@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import OverlaysContent from "./overlays-content";
 import { SideNavigation } from "./side-navigation";
+import ReportForm from "./report-form";
 
 interface ControlPanelProps {
   overlaysVisible: boolean;
@@ -39,8 +40,10 @@ export function ControlPanel({
         );
       case "stats":
         return null;
-      case "simualations":
+      case "simulations":
         return null;
+      case "report":
+        return <ReportForm />;
       default:
         return null;
     }
@@ -92,11 +95,11 @@ export function ControlPanel({
         <div className="relative flex-1">{renderContent()}</div>
 
         {/* Bottom Blue Button */}
-        <div className="w-full mt-4 p-3">
+        {activeTab !== "report" && <div className="w-full mt-4 p-3">
           <Button className="w-full bg-[#4b72f3] border border-[#2b3ea7] text-white py-6 rounded-xl font-medium text-base hover:bg-blue-600 transition-colors">
             Button
           </Button>
-        </div>
+        </div>}
       </div>
     </div>
   );
