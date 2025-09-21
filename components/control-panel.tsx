@@ -10,6 +10,7 @@ import { SideNavigation } from "./side-navigation";
 import { DrainageTable } from "./drainage-table";
 import { drainagePipesData } from "@/lib/drainage";
 import { SearchBar } from "./search-bar";
+import ReportForm from "./report-form";
 
 interface ControlPanelProps {
   overlaysVisible: boolean;
@@ -62,6 +63,8 @@ export function ControlPanel({
 
       case "simualations":
         return null;
+      case "report":
+        return <ReportForm />;
       default:
         return null;
     }
