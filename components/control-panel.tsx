@@ -65,6 +65,8 @@ export function ControlPanel({
         return null;
       case "report":
         return <ReportForm />;
+      case "data":
+        return <ReportForm />;
       default:
         return null;
     }
