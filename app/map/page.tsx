@@ -128,6 +128,111 @@ export default function Map() {
 
       map.on("load", addCustomLayers);
       map.on("style.load", addCustomLayers);
+
+      map.on("click", (e) => {
+        // query features at the click location
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: [
+            "inlets-layer",
+            "outlets-layer",
+            "storm_drains-layer",
+            "man_pipes-layer",
+          ],
+        });
+
+        if (!features.length) return;
+
+        // always get the top-most feature (index 0)
+        const feature = features[0];
+        const props = feature.properties || {};
+
+        let html = "";
+        if (!feature.layer) return;
+
+        switch (feature.layer.id) {
+          case "man_pipes-layer":
+            html = `
+              <strong>Man Pipe</strong><br/>
+              Name: ${props.Name ?? "N/A"}<br/>
+              Type: ${props.TYPE ?? "N/A"}<br/>
+              Shape: ${props.Pipe_Shape ?? "N/A"}<br/>
+              Length: ${props.Pipe_Lngth ?? "N/A"}<br/>
+              Height: ${props.Height ?? "N/A"}
+              Manning’s n: ${props.Mannings ?? "N/A"}<br/>
+              Barrels: ${props.Barrels ?? "N/A"}<br/>
+              Clog %: ${props.ClogPer ?? "N/A"}<br/>
+              Clog Time: ${props.ClogTime ?? "N/A"}
+            `;
+            break;
+
+          case "inlets-layer":
+            html = `
+              <strong>Inlet (${props.In_Name ?? "N/A"})</strong><br/>
+              Type: ${props.In_Type ?? "N/A"}<br/>
+              Inv Elev: ${props.Inv_Elev ?? "N/A"}<br/>
+              Max Depth: ${props.MaxDepth ?? "N/A"}
+              Length: ${props.Length ?? "N/A"} m<br/>
+              Height: ${props.Height ?? "N/A"} m<br/>
+              Weir Coeff: ${props.Weir_Coeff ?? "N/A"}<br/>
+              Clog %: ${props.ClogFac ?? "N/A"}<br/>
+              Clog Time: ${props.ClogTime ?? "N/A"}
+            `;
+            break;
+
+          case "outlets-layer":
+            html = `
+              <strong>Outlet (${props.Out_Name ?? "N/A"})</strong><br/>
+              Inv Elev: ${props.Inv_Elev ?? "N/A"}<br/>
+              AllowQ: ${props.AllowQ ?? "N/A"}<br/>
+              FlapGate: ${props.FlapGate ?? "N/A"}
+            `;
+            break;
+
+          case "storm_drains-layer":
+            html = `
+              <strong>Storm Drain (${props.In_Name ?? "N/A"})</strong><br/>
+              Inv Elev: ${props.InvElev ?? "N/A"}<br/>
+              Max Depth: ${props.Max_Depth ?? "N/A"}
+              Length: ${props.Length ?? "N/A"}<br/>
+              Height: ${props.Height ?? "N/A"}<br/>
+              Clog %: ${props.clog_per ?? "N/A"}
+            `;
+            break;
+        }
+
+        if (html) {
+          new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(html).addTo(map);
+        }
+      });
+
+      // Change cursor on hover (nice UX)
+      map.on("mouseenter", "man_pipes-layer", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", "man_pipes-layer", () => {
+        map.getCanvas().style.cursor = "";
+      });
+
+      map.on("mouseenter", "storm_drains-layer", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", "storm_drains-layer", () => {
+        map.getCanvas().style.cursor = "";
+      });
+
+      map.on("mouseenter", "inlets-layer", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", "inlets-layer", () => {
+        map.getCanvas().style.cursor = "";
+      });
+
+      map.on("mouseenter", "outlets-layer", () => {
+        map.getCanvas().style.cursor = "pointer";
+      });
+      map.on("mouseleave", "outlets-layer", () => {
+        map.getCanvas().style.cursor = "";
+      });
     }
   }, []);
 
