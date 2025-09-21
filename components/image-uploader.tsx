@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useRef } from "react";
+import Image from "next/image";
 
 export default function ImageUploader() {
   const [fileName, setFileName] = useState<string | null>(null);
@@ -9,7 +10,6 @@ export default function ImageUploader() {
 
   const handleFile = (file: File | undefined) => {
     if (file && file.type.startsWith("image/")) {
-      // Clean up previous URL to prevent memory leaks
       if (fileUrl) {
         URL.revokeObjectURL(fileUrl);
       }
@@ -32,10 +32,9 @@ export default function ImageUploader() {
   const handleReset = () => {
     setFileName(null);
     if (fileUrl) {
-      URL.revokeObjectURL(fileUrl); // cleanup memory
+      URL.revokeObjectURL(fileUrl);
     }
     setFileUrl(null);
-    // Reset file input to allow re-uploading the same file
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -95,12 +94,22 @@ export default function ImageUploader() {
             </label>
           </div>
         ) : (
-          <div className="flex items-center justify-center w-full h-full">
-            <div className="w-32 h-32 relative rounded-xl overflow-hidden shadow-lg">
-              <img src={fileUrl || ""} alt="Uploaded preview" className="object-cover w-full h-full" />
+          <div className="relative w-full h-full flex items-center justify-center">
+            {fileUrl && (
+              <Image
+                src={fileUrl}
+                alt="Uploaded preview"
+                fill
+                className="object-cover w-full h-full rounded-xl"
+              />
+            )}
+            <div className="absolute inset-0 flex items-end justify-between p-2">
+              <span className="bg-white bg-opacity-70 text-gray-800 text-xs font-medium px-2 py-1 rounded-lg max-w-[80%] truncate">
+                {fileName}
+              </span>
               <button
                 onClick={handleReset}
-                className="absolute top-1 right-1 p-1 text-white bg-red-500 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-200"
+                className="p-1 text-white bg-red-500 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-200"
               >
                 <XCircleIcon />
               </button>
@@ -108,19 +117,6 @@ export default function ImageUploader() {
           </div>
         )}
       </div>
-
-      {fileName && (
-        <div className="flex items-center justify-between w-full mt-3 p-2 bg-gray-50 rounded-lg">
-          <a
-            href={fileUrl || "#"}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline text-xs font-medium truncate hover:text-blue-800 transition-colors"
-          >
-            {fileName}
-          </a>
-        </div>
-      )}
     </div>
   );
 }
