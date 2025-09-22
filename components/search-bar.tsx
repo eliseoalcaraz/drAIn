@@ -3,31 +3,18 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface SearchBarProps {
-  onSearch: (searchTerm: string, vulnerabilityFilter: string) => void;
+  onSearch: (searchTerm: string) => void;
 }
 
 export function SearchBar({ onSearch }: SearchBarProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [vulnerabilityFilter, setVulnerabilityFilter] = useState("all");
 
   const handleSearchTermChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newSearchTerm = e.target.value;
     setSearchTerm(newSearchTerm);
-    onSearch(newSearchTerm, vulnerabilityFilter);
-  };
-
-  const handleVulnerabilityChange = (newFilter: string) => {
-    setVulnerabilityFilter(newFilter);
-    onSearch(searchTerm, newFilter);
+    onSearch(newSearchTerm);
   };
 
   return (

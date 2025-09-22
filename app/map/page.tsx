@@ -3,15 +3,21 @@
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
 import { useRef, useEffect, useState, useMemo } from "react";
+import {
+  DEFAULT_CENTER,
+  DEFAULT_ZOOM,
+  DEFAULT_STYLE,
+  MAP_BOUNDS,
+  MAPBOX_ACCESS_TOKEN,
+  OVERLAY_CONFIG,
+  LAYER_IDS,
+  MAP_STYLES,
+} from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
-const DEFAULT_CENTER: [number, number] = [123.926, 10.337];
-const DEFAULT_ZOOM = 12;
-const DEFAULT_STYLE = "mapbox://styles/mapbox/streets-v11";
-
-export default function Map() {
+export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -22,26 +28,10 @@ export default function Map() {
     "outlets-layer": true,
   });
 
-  const overlayConfig = [
-    { id: "man_pipes-layer", name: "Man Pipes", color: "#8B008B" },
-    { id: "storm_drains-layer", name: "Storm Drains", color: "#0088ff" },
-    { id: "inlets-layer", name: "Inlets", color: "#00cc44" },
-    { id: "outlets-layer", name: "Outlets", color: "#cc0000" },
-  ];
-
-  const layerIds = useMemo(
-    () => [
-      "man_pipes-layer",
-      "storm_drains-layer",
-      "inlets-layer",
-      "outlets-layer",
-    ],
-    []
-  );
+  const layerIds = useMemo(() => LAYER_IDS, []);
 
   useEffect(() => {
-    mapboxgl.accessToken =
-      "pk.eyJ1Ijoia2lsb3VraWxvdSIsImEiOiJjbWZsMmc5dWMwMGlxMmtwdXgxaHE0ZjVnIn0.TFZP0T-4zrLdI0Be-u0t3Q";
+    mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
     if (mapContainerRef.current && !mapRef.current) {
       const map = new mapboxgl.Map({
@@ -49,14 +39,51 @@ export default function Map() {
         style: DEFAULT_STYLE,
         center: DEFAULT_CENTER,
         zoom: DEFAULT_ZOOM,
-        maxBounds: [
-          [123.86601, 10.30209],
-          [124.02689, 10.37254],
-        ],
+        maxBounds: MAP_BOUNDS,
+        pitch: 60, // Add this for a tilted view
+        bearing: -17.6, // Add this for rotation
       });
       mapRef.current = map;
 
       const addCustomLayers = () => {
+        if (!map.getSource("mapbox-dem")) {
+          map.addSource("mapbox-dem", {
+            type: "raster-dem",
+            url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+            tileSize: 512,
+            maxzoom: 14,
+          });
+          map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
+        }
+
+        if (!map.getLayer("3d-buildings")) {
+          map.addLayer(
+            {
+              id: "3d-buildings",
+              source: "composite", // built-in Mapbox Streets tileset
+              "source-layer": "building", // building footprints
+              filter: ["==", "extrude", "true"],
+              type: "fill-extrusion",
+              minzoom: 15,
+              paint: {
+                "fill-extrusion-color": "#aaa",
+                "fill-extrusion-height": [
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  15,
+                  0,
+                  15.05,
+                  ["get", "height"], // uses real building height if available
+                ],
+                "fill-extrusion-base": ["get", "min_height"],
+                "fill-extrusion-opacity": 0.6,
+              },
+            },
+            "waterway-label" // place it below labels so text stays visible
+          );
+        }
+
         if (!map.getSource("man_pipes")) {
           map.addSource("man_pipes", {
             type: "geojson",
@@ -152,13 +179,12 @@ export default function Map() {
         switch (feature.layer.id) {
           case "man_pipes-layer":
             html = `
-              <strong>Man Pipe</strong><br/>
-              Name: ${props.Name ?? "N/A"}<br/>
+              <strong>Man Pipe (${props.Name ?? "N/A"})</strong><br/>
               Type: ${props.TYPE ?? "N/A"}<br/>
               Shape: ${props.Pipe_Shape ?? "N/A"}<br/>
               Length: ${props.Pipe_Lngth ?? "N/A"}<br/>
               Height: ${props.Height ?? "N/A"}
-              Manning’s n: ${props.Mannings ?? "N/A"}<br/>
+              Manning's n: ${props.Mannings ?? "N/A"}<br/>
               Barrels: ${props.Barrels ?? "N/A"}<br/>
               Clog %: ${props.ClogPer ?? "N/A"}<br/>
               Clog Time: ${props.ClogTime ?? "N/A"}
@@ -206,35 +232,16 @@ export default function Map() {
       });
 
       // Change cursor on hover (nice UX)
-      map.on("mouseenter", "man_pipes-layer", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-      map.on("mouseleave", "man_pipes-layer", () => {
-        map.getCanvas().style.cursor = "";
-      });
-
-      map.on("mouseenter", "storm_drains-layer", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-      map.on("mouseleave", "storm_drains-layer", () => {
-        map.getCanvas().style.cursor = "";
-      });
-
-      map.on("mouseenter", "inlets-layer", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-      map.on("mouseleave", "inlets-layer", () => {
-        map.getCanvas().style.cursor = "";
-      });
-
-      map.on("mouseenter", "outlets-layer", () => {
-        map.getCanvas().style.cursor = "pointer";
-      });
-      map.on("mouseleave", "outlets-layer", () => {
-        map.getCanvas().style.cursor = "";
+      layerIds.forEach((layerId) => {
+        map.on("mouseenter", layerId, () => {
+          map.getCanvas().style.cursor = "pointer";
+        });
+        map.on("mouseleave", layerId, () => {
+          map.getCanvas().style.cursor = "";
+        });
       });
     }
-  }, []);
+  }, [layerIds]);
 
   useEffect(() => {
     if (mapRef.current) {
@@ -262,9 +269,9 @@ export default function Map() {
     let newStyle = "";
 
     if (currentStyle === "Mapbox Streets") {
-      newStyle = "mapbox://styles/mapbox/satellite-streets-v11";
+      newStyle = MAP_STYLES.SATELLITE;
     } else if (currentStyle === "Mapbox Satellite Streets") {
-      newStyle = "mapbox://styles/mapbox/streets-v11";
+      newStyle = MAP_STYLES.STREETS;
     }
 
     if (newStyle) {
@@ -279,7 +286,7 @@ export default function Map() {
     }));
   };
 
-  const overlayData = overlayConfig.map((config) => ({
+  const overlayData = OVERLAY_CONFIG.map((config) => ({
     ...config,
     visible: overlayVisibility[config.id as keyof typeof overlayVisibility],
   }));

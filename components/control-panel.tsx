@@ -4,11 +4,21 @@ import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { OverlayToggle } from "./overlay-toggle";
 import { Button } from "@/components/ui/button";
-
+import { ComboboxForm } from "./combobox-form";
 import OverlaysContent from "./overlays-content";
 import { SideNavigation } from "./side-navigation";
-import { DrainageTable } from "./drainage-table";
-import { drainagePipesData } from "@/lib/drainage";
+import { PipeTable } from "./pipe-table";
+import { InletTable } from "./inlet-table";
+import { OutletTable } from "./outlet-table";
+import { DrainTable } from "./drain-table";
+import { usePipes } from "@/hooks/usePipes";
+import { useInlets } from "@/hooks/useInlets";
+import { useOutlets } from "@/hooks/useOutlets";
+import { useDrain } from "@/hooks/useDrain";
+import { PipeSortField } from "./pipe-table";
+import { InletSortField } from "./inlet-table";
+import { OutletSortField } from "./outlet-table";
+import { DrainSortField } from "./drain-table";
 import { SearchBar } from "./search-bar";
 import ReportForm from "./report-form";
 
@@ -24,14 +34,6 @@ interface ControlPanelProps {
   onToggleOverlay: (id: string) => void;
 }
 
-type SortField =
-  | "geocode"
-  | "vulnerabilityRating"
-  | "location"
-  | "installDate"
-  | "lastInspection";
-type SortDirection = "asc" | "desc";
-
 export function ControlPanel({
   overlaysVisible,
   onToggle,
@@ -40,6 +42,20 @@ export function ControlPanel({
 }: ControlPanelProps) {
   const [activeTab, setActiveTab] = useState("overlays");
   const renderContent = () => {
+    // Check for loading states first
+    if (loadingInlets) {
+      return <div className="p-4 text-center">Loading inlets...</div>;
+    }
+    if (loadingPipes) {
+      return <div className="p-4 text-center">Loading pipes...</div>;
+    }
+    if (loadingOutlets) {
+      return <div className="p-4 text-center">Loading outlets...</div>;
+    }
+    if (loadingDrains) {
+      return <div className="p-4 text-center">Loading drains...</div>;
+    }
+
     switch (activeTab) {
       case "overlays":
         return (
@@ -50,37 +66,77 @@ export function ControlPanel({
         );
 
       case "stats":
-        return (
-          <DrainageTable
-            data={drainagePipesData}
-            searchTerm={searchTerm}
-            vulnerabilityFilter={vulnerabilityFilter}
-            onSort={handleSort}
-            sortField={sortField}
-            sortDirection={sortDirection}
-          />
-        );
+        if (dataset === "inlets") {
+          return (
+            <InletTable
+              data={inlets}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as InletSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
+        if (dataset === "man_pipes") {
+          return (
+            <PipeTable
+              data={pipes}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as PipeSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
+        if (dataset === "outlets") {
+          return (
+            <OutletTable
+              data={outlets}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as OutletSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
+        if (dataset === "storm_drains") {
+          return (
+            <DrainTable
+              data={drains}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as DrainSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
 
       case "simualations":
         return null;
       case "report":
+        return <ReportForm />;
+      case "data":
         return <ReportForm />;
       default:
         return null;
     }
   };
 
-  const [searchTerm, setSearchTerm] = useState("");
-  const [vulnerabilityFilter, setVulnerabilityFilter] = useState("all");
-  const [sortField, setSortField] = useState<SortField>("geocode");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const handleSearch = (
-    newSearchTerm: string,
-    newVulnerabilityFilter: string
-  ) => {
-    setSearchTerm(newSearchTerm);
-    setVulnerabilityFilter(newVulnerabilityFilter);
-  };
+  const { inlets, loading: loadingInlets } = useInlets();
+  const { outlets, loading: loadingOutlets } = useOutlets();
+  const { pipes, loading: loadingPipes } = usePipes();
+  const { drains, loading: loadingDrains } = useDrain();
+  const [dataset, setDataset] = useState<
+    "inlets" | "man_pipes" | "outlets" | "storm_drains"
+  >("inlets");
+
+  type SortField =
+    | InletSortField
+    | PipeSortField
+    | OutletSortField
+    | DrainSortField;
+  const [sortField, setSortField] = useState<SortField>("id");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -89,6 +145,11 @@ export function ControlPanel({
       setSortField(field);
       setSortDirection("asc");
     }
+  };
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm);
   };
 
   return (
@@ -111,7 +172,7 @@ export function ControlPanel({
           {/* Search Bar */}
           <SearchBar onSearch={handleSearch} />
           {/* Settings Button */}
-          {(activeTab === "overlays" || activeTab === "stats") && (
+          {activeTab === "overlays" && (
             <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
               <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
             </button>
@@ -121,6 +182,15 @@ export function ControlPanel({
             <OverlayToggle
               overlaysVisible={overlaysVisible}
               onToggle={onToggle}
+            />
+          )}
+          {(activeTab === "data" || activeTab === "stats") && (
+            <ComboboxForm
+              onSelect={(value) =>
+                setDataset(
+                  value as "inlets" | "man_pipes" | "outlets" | "storm_drains"
+                )
+              }
             />
           )}
         </div>
