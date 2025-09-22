@@ -5,44 +5,47 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpDown } from "lucide-react";
 
-interface ManPipe {
-  id: string; // we'll map from properties.Name
-  TYPE: string;
-  Pipe_Shape: string;
-  Pipe_Lngth: number;
+interface Inlet {
+  id: string;
+  Inv_Elev: number;
+  MaxDepth: number;
+  Length: number;
   Height: number;
-  Width: number;
-  Barrels: number;
-  ClogPer: number;
+  Weir_Coeff: number;
+  In_Type: number;
+  ClogFac: number;
   ClogTime: number;
-  Mannings: number;
+  FPLAIN_080: number;
+  coordinates: [number, number];
 }
 
-interface DrainageTableProps {
-  data: ManPipe[];
+interface InletTableProps {
+  data: Inlet[];
   searchTerm: string;
-  onSort: (field: SortField) => void;
-  sortField: SortField;
+  onSort: (field: InletSortField) => void;
+  sortField: InletSortField;
   sortDirection: SortDirection;
 }
 
-type SortField = "id" | "TYPE" | "Pipe_Shape" | "Pipe_Lngth" | "ClogPer";
+export type InletSortField =
+  | "id"
+  | "Inv_Elev"
+  | "MaxDepth"
+  | "Length"
+  | "ClogFac";
 type SortDirection = "asc" | "desc";
 
-export function DrainageTable({
+export function InletTable({
   data,
   searchTerm,
   onSort,
   sortField,
   sortDirection,
-}: DrainageTableProps) {
+}: InletTableProps) {
   // --- Filtering ---
   const filteredData = useMemo(() => {
-    return data.filter((pipe) => {
-      return (
-        pipe.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pipe.TYPE.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    return data.filter((inlet) => {
+      return inlet.id.toLowerCase().includes(searchTerm.toLowerCase());
     });
   }, [data, searchTerm]);
 
@@ -71,7 +74,7 @@ export function DrainageTable({
   }, [filteredData, sortField, sortDirection]);
 
   // --- Helpers ---
-  const renderSortIcon = (field: SortField) => {
+  const renderSortIcon = (field: InletSortField) => {
     if (sortField !== field) {
       return <ArrowUpDown className="w-4 h-4 opacity-50" />;
     }
@@ -85,9 +88,9 @@ export function DrainageTable({
   return (
     <div className="flex flex-col flex-1 pb-5 gap-8">
       <CardHeader>
-        <CardTitle>Manhole Pipes Inventory</CardTitle>
+        <CardTitle>Inlets Inventory</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Showing {sortedData.length} of {data.length} pipes
+          Showing {sortedData.length} of {data.length} inlets
         </p>
       </CardHeader>
       <CardContent>
@@ -101,60 +104,52 @@ export function DrainageTable({
                     onClick={() => onSort("id")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Pipe ID {renderSortIcon("id")}
+                    Inlet ID {renderSortIcon("id")}
                   </Button>
                 </th>
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("TYPE")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Type {renderSortIcon("TYPE")}
-                  </Button>
-                </th> */}
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("Pipe_Shape")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Shape {renderSortIcon("Pipe_Shape")}
-                  </Button>
-                </th> */}
                 <th className="text-center">
                   <Button
                     variant="ghost"
-                    onClick={() => onSort("Pipe_Lngth")}
+                    onClick={() => onSort("Inv_Elev")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Length (m) {renderSortIcon("Pipe_Lngth")}
+                    Elevation {renderSortIcon("Inv_Elev")}
                   </Button>
                 </th>
                 {/* <th className="text-center">
                   <Button
                     variant="ghost"
-                    onClick={() => onSort("ClogPer")}
+                    onClick={() => onSort("MaxDepth")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Clog % {renderSortIcon("ClogPer")}
+                    Max Depth {renderSortIcon("MaxDepth")}
+                  </Button>
+                </th> */}
+                {/* <th className="text-center">
+                  <Button
+                    variant="ghost"
+                    onClick={() => onSort("Length")}
+                    className="h-auto p-0 hover:bg-transparent"
+                  >
+                    Length {renderSortIcon("Length")}
                   </Button>
                 </th> */}
               </tr>
             </thead>
             <tbody>
               <tr className="h-5"></tr>
-              {sortedData.map((pipe) => (
-                <tr key={pipe.id} className="group">
+              {sortedData.map((inlet) => (
+                <tr key={inlet.id} className="group">
                   <td className="p-2 text-center font-mono text-sm">
-                    {pipe.id}
+                    {inlet.id}
                   </td>
-                  {/* <td className="p-2 text-center">{pipe.TYPE}</td> */}
-                  {/* <td className="p-2 text-center">{pipe.Pipe_Shape}</td> */}
                   <td className="p-2 text-center">
-                    {pipe.Pipe_Lngth.toFixed(2)}
+                    {inlet.Inv_Elev.toFixed(2)}
                   </td>
-                  {/* <td className="p-2 text-center">{pipe.ClogPer}%</td> */}
+                  {/* <td className="p-2 text-center">
+                    {inlet.MaxDepth.toFixed(2)}
+                  </td> */}
+                  {/* <td className="p-2 text-center">{inlet.Length.toFixed(2)}</td> */}
                 </tr>
               ))}
             </tbody>

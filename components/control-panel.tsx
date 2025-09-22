@@ -7,10 +7,14 @@ import { Button } from "@/components/ui/button";
 import { ComboboxForm } from "./combobox-form";
 import OverlaysContent from "./overlays-content";
 import { SideNavigation } from "./side-navigation";
-import { DrainageTable } from "./drainage-table";
-import { useManPipes } from "@/hooks/useManPipes"; // wherever you put the hook
+import { PipeTable } from "./pipe-table";
+import { InletTable } from "./inlet-table";
+import { useInlets } from "@/hooks/useInlets";
+import { usePipes } from "@/hooks/usePipes";
 import { SearchBar } from "./search-bar";
 import ReportForm from "./report-form";
+import { InletSortField } from "./inlet-table";
+import { PipeSortField } from "./pipe-table";
 
 interface ControlPanelProps {
   overlaysVisible: boolean;
@@ -32,6 +36,14 @@ export function ControlPanel({
 }: ControlPanelProps) {
   const [activeTab, setActiveTab] = useState("overlays");
   const renderContent = () => {
+    // Check for loading states first
+    if (loadingInlets) {
+      return <div className="p-4 text-center">Loading inlets...</div>;
+    }
+    if (loadingPipes) {
+      return <div className="p-4 text-center">Loading pipes...</div>;
+    }
+
     switch (activeTab) {
       case "overlays":
         return (
@@ -42,15 +54,28 @@ export function ControlPanel({
         );
 
       case "stats":
-        return (
-          <DrainageTable
-            data={pipes}
-            searchTerm={searchTerm}
-            onSort={handleSort}
-            sortField={sortField}
-            sortDirection={sortDirection}
-          />
-        );
+        if (dataset === "inlets") {
+          return (
+            <InletTable
+              data={inlets}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as InletSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
+        if (dataset === "man_pipes") {
+          return (
+            <PipeTable
+              data={pipes}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as PipeSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
 
       case "simualations":
         return null;
@@ -63,18 +88,17 @@ export function ControlPanel({
     }
   };
 
-  const { pipes, loading } = useManPipes();
-  const [sortField, setSortField] = useState<
-    "id" | "TYPE" | "Pipe_Shape" | "Pipe_Lngth" | "ClogPer"
-  >("id");
+  const { inlets, loading: loadingInlets } = useInlets();
+  const { pipes, loading: loadingPipes } = usePipes();
+  const [dataset, setDataset] = useState<
+    "inlets" | "man_pipes" | "outlets" | "storm_drains" | ""
+  >("");
+
+  type SortField = InletSortField | PipeSortField;
+  const [sortField, setSortField] = useState<SortField>("id");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [searchTerm, setSearchTerm] = useState("");
 
-  const handleSearch = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm);
-  };
-
-  const handleSort = (field: typeof sortField) => {
+  const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
@@ -82,8 +106,11 @@ export function ControlPanel({
       setSortDirection("asc");
     }
   };
+  const [searchTerm, setSearchTerm] = useState("");
 
-  if (loading) return <p>Loading...</p>;
+  const handleSearch = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm);
+  };
 
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
@@ -117,7 +144,11 @@ export function ControlPanel({
               onToggle={onToggle}
             />
           )}
-          {(activeTab === "data" || activeTab === "stats") && <ComboboxForm />}
+          {(activeTab === "data" || activeTab === "stats") && (
+            <ComboboxForm
+              onSelect={(value) => setDataset(value as "inlets" | "man_pipes")}
+            />
+          )}
         </div>
 
         {/* Main Content */}

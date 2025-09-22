@@ -45,7 +45,7 @@ export function transformGeoJSON(geojson: FeatureCollection): ManPipe[] {
   });
 }
 
-export function useManPipes() {
+export function usePipes() {
   const [pipes, setPipes] = useState<ManPipe[]>([]);
   const [loading, setLoading] = useState(true);
 
