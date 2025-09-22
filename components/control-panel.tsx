@@ -8,7 +8,7 @@ import { ComboboxForm } from "./combobox-form";
 import OverlaysContent from "./overlays-content";
 import { SideNavigation } from "./side-navigation";
 import { DrainageTable } from "./drainage-table";
-import { drainagePipesData } from "@/lib/drainage";
+import { useManPipes } from "@/hooks/useManPipes"; // wherever you put the hook
 import { SearchBar } from "./search-bar";
 import ReportForm from "./report-form";
 
@@ -23,14 +23,6 @@ interface ControlPanelProps {
   }[];
   onToggleOverlay: (id: string) => void;
 }
-
-type SortField =
-  | "geocode"
-  | "vulnerabilityRating"
-  | "location"
-  | "installDate"
-  | "lastInspection";
-type SortDirection = "asc" | "desc";
 
 export function ControlPanel({
   overlaysVisible,
@@ -52,9 +44,8 @@ export function ControlPanel({
       case "stats":
         return (
           <DrainageTable
-            data={drainagePipesData}
+            data={pipes}
             searchTerm={searchTerm}
-            vulnerabilityFilter={vulnerabilityFilter}
             onSort={handleSort}
             sortField={sortField}
             sortDirection={sortDirection}
@@ -72,19 +63,18 @@ export function ControlPanel({
     }
   };
 
+  const { pipes, loading } = useManPipes();
+  const [sortField, setSortField] = useState<
+    "id" | "TYPE" | "Pipe_Shape" | "Pipe_Lngth" | "ClogPer"
+  >("id");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState("");
-  const [vulnerabilityFilter, setVulnerabilityFilter] = useState("all");
-  const [sortField, setSortField] = useState<SortField>("geocode");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const handleSearch = (
-    newSearchTerm: string,
-    newVulnerabilityFilter: string
-  ) => {
+
+  const handleSearch = (newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
-    setVulnerabilityFilter(newVulnerabilityFilter);
   };
 
-  const handleSort = (field: SortField) => {
+  const handleSort = (field: typeof sortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
     } else {
@@ -92,6 +82,8 @@ export function ControlPanel({
       setSortDirection("asc");
     }
   };
+
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
