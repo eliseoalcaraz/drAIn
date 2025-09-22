@@ -5,48 +5,45 @@ import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpDown } from "lucide-react";
 
-interface ManPipe {
-  id: string;
-  TYPE: string;
-  Pipe_Shape: string;
-  Pipe_Lngth: number;
+interface Drain {
+  id: number;
+  In_Name: string;
+  InvElev: number;
+  clog_per: number;
+  clogtime: number;
+  Weir_coeff: number;
+  Length: number;
   Height: number;
-  Width: number;
-  Barrels: number;
-  ClogPer: number;
-  ClogTime: number;
-  Mannings: number;
+  Max_Depth: number;
+  ClogFac: number;
+  NameNum: number;
+  FPLAIN_080: number;
 }
 
-interface PipeTableProps {
-  data: ManPipe[];
+interface DrainTableProps {
+  data: Drain[];
   searchTerm: string;
-  onSort: (field: PipeSortField) => void;
-  sortField: PipeSortField;
+  onSort: (field: DrainSortField) => void;
+  sortField: DrainSortField;
   sortDirection: SortDirection;
 }
 
-export type PipeSortField =
-  | "id"
-  | "TYPE"
-  | "Pipe_Shape"
-  | "Pipe_Lngth"
-  | "ClogPer";
+export type DrainSortField = "id" | "In_Name" | "InvElev" | "clog_per";
 type SortDirection = "asc" | "desc";
 
-export function PipeTable({
+export function DrainTable({
   data,
   searchTerm,
   onSort,
   sortField,
   sortDirection,
-}: PipeTableProps) {
+}: DrainTableProps) {
   // --- Filtering ---
   const filteredData = useMemo(() => {
-    return data.filter((pipe) => {
+    return data.filter((drain) => {
       return (
-        pipe.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pipe.TYPE.toLowerCase().includes(searchTerm.toLowerCase())
+        drain.In_Name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        drain.id.toString().includes(searchTerm.toLowerCase())
       );
     });
   }, [data, searchTerm]);
@@ -76,7 +73,7 @@ export function PipeTable({
   }, [filteredData, sortField, sortDirection]);
 
   // --- Helpers ---
-  const renderSortIcon = (field: PipeSortField) => {
+  const renderSortIcon = (field: DrainSortField) => {
     if (sortField !== field) {
       return <ArrowUpDown className="w-4 h-4 opacity-50" />;
     }
@@ -90,9 +87,9 @@ export function PipeTable({
   return (
     <div className="flex flex-col flex-1 pb-5 gap-8">
       <CardHeader>
-        <CardTitle>Pipes Inventory</CardTitle>
+        <CardTitle>Storm Drains Inventory</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Showing {sortedData.length} of {data.length} pipes
+          Showing {sortedData.length} of {data.length} drains
         </p>
       </CardHeader>
       <CardContent>
@@ -106,60 +103,38 @@ export function PipeTable({
                     onClick={() => onSort("id")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Pipe ID {renderSortIcon("id")}
+                    Drain ID {renderSortIcon("id")}
                   </Button>
                 </th>
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("TYPE")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Type {renderSortIcon("TYPE")}
-                  </Button>
-                </th> */}
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("Pipe_Shape")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Shape {renderSortIcon("Pipe_Shape")}
-                  </Button>
-                </th> */}
                 <th className="text-center">
                   <Button
                     variant="ghost"
-                    onClick={() => onSort("Pipe_Lngth")}
+                    onClick={() => onSort("InvElev")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Length (m) {renderSortIcon("Pipe_Lngth")}
+                    Inv. Elev (m) {renderSortIcon("InvElev")}
                   </Button>
                 </th>
                 {/* <th className="text-center">
                   <Button
                     variant="ghost"
-                    onClick={() => onSort("ClogPer")}
+                    onClick={() => onSort("clog_per")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Clog % {renderSortIcon("ClogPer")}
+                    Clog % {renderSortIcon("clog_per")}
                   </Button>
                 </th> */}
               </tr>
             </thead>
             <tbody>
               <tr className="h-5"></tr>
-              {sortedData.map((pipe) => (
-                <tr key={pipe.id} className="group">
-                  <td className="p-2 text-center font-mono text-sm">
-                    {pipe.id}
-                  </td>
-                  {/* <td className="p-2 text-center">{pipe.TYPE}</td> */}
-                  {/* <td className="p-2 text-center">{pipe.Pipe_Shape}</td> */}
+              {sortedData.map((drain) => (
+                <tr key={drain.In_Name} className="group">
+                  <td className="p-2 text-center">{drain.In_Name}</td>
                   <td className="p-2 text-center">
-                    {pipe.Pipe_Lngth.toFixed(2)}
+                    {drain.InvElev.toFixed(2)}
                   </td>
-                  {/* <td className="p-2 text-center">{pipe.ClogPer}%</td> */}
+                  {/* <td className="p-2 text-center">{drain.clog_per}%</td> */}
                 </tr>
               ))}
             </tbody>

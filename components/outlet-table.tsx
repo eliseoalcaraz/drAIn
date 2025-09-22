@@ -4,79 +4,54 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpDown } from "lucide-react";
+import type { Outlet } from "@/hooks/useOutlets";
 
-interface ManPipe {
-  id: string;
-  TYPE: string;
-  Pipe_Shape: string;
-  Pipe_Lngth: number;
-  Height: number;
-  Width: number;
-  Barrels: number;
-  ClogPer: number;
-  ClogTime: number;
-  Mannings: number;
-}
+export type OutletSortField = "id" | "Inv_Elev" | "AllowQ" | "FlapGate";
+export type SortDirection = "asc" | "desc";
 
-interface PipeTableProps {
-  data: ManPipe[];
+interface OutletTableProps {
+  data: Outlet[];
   searchTerm: string;
-  onSort: (field: PipeSortField) => void;
-  sortField: PipeSortField;
+  onSort: (field: OutletSortField) => void;
+  sortField: OutletSortField;
   sortDirection: SortDirection;
 }
 
-export type PipeSortField =
-  | "id"
-  | "TYPE"
-  | "Pipe_Shape"
-  | "Pipe_Lngth"
-  | "ClogPer";
-type SortDirection = "asc" | "desc";
-
-export function PipeTable({
+export function OutletTable({
   data,
   searchTerm,
   onSort,
   sortField,
   sortDirection,
-}: PipeTableProps) {
+}: OutletTableProps) {
   // --- Filtering ---
   const filteredData = useMemo(() => {
-    return data.filter((pipe) => {
-      return (
-        pipe.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        pipe.TYPE.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    return data.filter((outlet) => {
+      return outlet.id.toLowerCase().includes(searchTerm.toLowerCase());
     });
   }, [data, searchTerm]);
 
   // --- Sorting ---
   const sortedData = useMemo(() => {
     const sorted = [...filteredData];
-
     sorted.sort((a, b) => {
-      const aValue: string | number = a[sortField];
-      const bValue: string | number = b[sortField];
+      const aValue = a[sortField];
+      const bValue = b[sortField];
 
       if (typeof aValue === "string" && typeof bValue === "string") {
         return sortDirection === "asc"
           ? aValue.localeCompare(bValue)
           : bValue.localeCompare(aValue);
       }
-
       if (typeof aValue === "number" && typeof bValue === "number") {
         return sortDirection === "asc" ? aValue - bValue : bValue - aValue;
       }
-
       return 0;
     });
-
     return sorted;
   }, [filteredData, sortField, sortDirection]);
 
-  // --- Helpers ---
-  const renderSortIcon = (field: PipeSortField) => {
+  const renderSortIcon = (field: OutletSortField) => {
     if (sortField !== field) {
       return <ArrowUpDown className="w-4 h-4 opacity-50" />;
     }
@@ -90,9 +65,9 @@ export function PipeTable({
   return (
     <div className="flex flex-col flex-1 pb-5 gap-8">
       <CardHeader>
-        <CardTitle>Pipes Inventory</CardTitle>
+        <CardTitle>Outlets Inventory</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Showing {sortedData.length} of {data.length} pipes
+          Showing {sortedData.length} of {data.length} outlets
         </p>
       </CardHeader>
       <CardContent>
@@ -106,60 +81,48 @@ export function PipeTable({
                     onClick={() => onSort("id")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Pipe ID {renderSortIcon("id")}
+                    Outlet ID {renderSortIcon("id")}
                   </Button>
                 </th>
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("TYPE")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Type {renderSortIcon("TYPE")}
-                  </Button>
-                </th> */}
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("Pipe_Shape")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Shape {renderSortIcon("Pipe_Shape")}
-                  </Button>
-                </th> */}
                 <th className="text-center">
                   <Button
                     variant="ghost"
-                    onClick={() => onSort("Pipe_Lngth")}
+                    onClick={() => onSort("Inv_Elev")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Length (m) {renderSortIcon("Pipe_Lngth")}
+                    Invert Elev {renderSortIcon("Inv_Elev")}
                   </Button>
                 </th>
                 {/* <th className="text-center">
                   <Button
                     variant="ghost"
-                    onClick={() => onSort("ClogPer")}
+                    onClick={() => onSort("AllowQ")}
                     className="h-auto p-0 hover:bg-transparent"
                   >
-                    Clog % {renderSortIcon("ClogPer")}
+                    Allow Q {renderSortIcon("AllowQ")}
+                  </Button>
+                </th> */}
+                {/* <th className="text-center">
+                  <Button
+                    variant="ghost"
+                    onClick={() => onSort("FlapGate")}
+                    className="h-auto p-0 hover:bg-transparent"
+                  >
+                    Flap Gate {renderSortIcon("FlapGate")}
                   </Button>
                 </th> */}
               </tr>
             </thead>
             <tbody>
               <tr className="h-5"></tr>
-              {sortedData.map((pipe) => (
-                <tr key={pipe.id} className="group">
+              {sortedData.map((outlet) => (
+                <tr key={outlet.id} className="group">
                   <td className="p-2 text-center font-mono text-sm">
-                    {pipe.id}
+                    {outlet.id}
                   </td>
-                  {/* <td className="p-2 text-center">{pipe.TYPE}</td> */}
-                  {/* <td className="p-2 text-center">{pipe.Pipe_Shape}</td> */}
-                  <td className="p-2 text-center">
-                    {pipe.Pipe_Lngth.toFixed(2)}
-                  </td>
-                  {/* <td className="p-2 text-center">{pipe.ClogPer}%</td> */}
+                  <td className="p-2 text-center">{outlet.Inv_Elev}</td>
+                  {/* <td className="p-2 text-center">{outlet.AllowQ}</td> */}
+                  {/* <td className="p-2 text-center">{outlet.FlapGate}</td> */}
                 </tr>
               ))}
             </tbody>

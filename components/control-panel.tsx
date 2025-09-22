@@ -9,12 +9,18 @@ import OverlaysContent from "./overlays-content";
 import { SideNavigation } from "./side-navigation";
 import { PipeTable } from "./pipe-table";
 import { InletTable } from "./inlet-table";
-import { useInlets } from "@/hooks/useInlets";
+import { OutletTable } from "./outlet-table";
+import { DrainTable } from "./drain-table";
 import { usePipes } from "@/hooks/usePipes";
+import { useInlets } from "@/hooks/useInlets";
+import { useOutlets } from "@/hooks/useOutlets";
+import { useDrain } from "@/hooks/useDrain";
+import { PipeSortField } from "./pipe-table";
+import { InletSortField } from "./inlet-table";
+import { OutletSortField } from "./outlet-table";
+import { DrainSortField } from "./drain-table";
 import { SearchBar } from "./search-bar";
 import ReportForm from "./report-form";
-import { InletSortField } from "./inlet-table";
-import { PipeSortField } from "./pipe-table";
 
 interface ControlPanelProps {
   overlaysVisible: boolean;
@@ -42,6 +48,12 @@ export function ControlPanel({
     }
     if (loadingPipes) {
       return <div className="p-4 text-center">Loading pipes...</div>;
+    }
+    if (loadingOutlets) {
+      return <div className="p-4 text-center">Loading outlets...</div>;
+    }
+    if (loadingDrains) {
+      return <div className="p-4 text-center">Loading drains...</div>;
     }
 
     switch (activeTab) {
@@ -76,6 +88,28 @@ export function ControlPanel({
             />
           );
         }
+        if (dataset === "outlets") {
+          return (
+            <OutletTable
+              data={outlets}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as OutletSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
+        if (dataset === "storm_drains") {
+          return (
+            <DrainTable
+              data={drains}
+              searchTerm={searchTerm}
+              onSort={(field) => handleSort(field)}
+              sortField={sortField as DrainSortField}
+              sortDirection={sortDirection}
+            />
+          );
+        }
 
       case "simualations":
         return null;
@@ -89,12 +123,18 @@ export function ControlPanel({
   };
 
   const { inlets, loading: loadingInlets } = useInlets();
+  const { outlets, loading: loadingOutlets } = useOutlets();
   const { pipes, loading: loadingPipes } = usePipes();
+  const { drains, loading: loadingDrains } = useDrain();
   const [dataset, setDataset] = useState<
-    "inlets" | "man_pipes" | "outlets" | "storm_drains" | ""
-  >("");
+    "inlets" | "man_pipes" | "outlets" | "storm_drains"
+  >("inlets");
 
-  type SortField = InletSortField | PipeSortField;
+  type SortField =
+    | InletSortField
+    | PipeSortField
+    | OutletSortField
+    | DrainSortField;
   const [sortField, setSortField] = useState<SortField>("id");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
@@ -146,7 +186,11 @@ export function ControlPanel({
           )}
           {(activeTab === "data" || activeTab === "stats") && (
             <ComboboxForm
-              onSelect={(value) => setDataset(value as "inlets" | "man_pipes")}
+              onSelect={(value) =>
+                setDataset(
+                  value as "inlets" | "man_pipes" | "outlets" | "storm_drains"
+                )
+              }
             />
           )}
         </div>
