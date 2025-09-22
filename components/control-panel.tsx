@@ -4,7 +4,7 @@ import { useState } from "react";
 import { MoreHorizontal } from "lucide-react";
 import { OverlayToggle } from "./overlay-toggle";
 import { Button } from "@/components/ui/button";
-
+import { ComboboxForm } from "./combobox-form";
 import OverlaysContent from "./overlays-content";
 import { SideNavigation } from "./side-navigation";
 import { DrainageTable } from "./drainage-table";
@@ -113,7 +113,7 @@ export function ControlPanel({
           {/* Search Bar */}
           <SearchBar onSearch={handleSearch} />
           {/* Settings Button */}
-          {(activeTab === "overlays" || activeTab === "stats") && (
+          {activeTab === "overlays" && (
             <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
               <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
             </button>
@@ -125,6 +125,7 @@ export function ControlPanel({
               onToggle={onToggle}
             />
           )}
+          {(activeTab === "data" || activeTab === "stats") && <ComboboxForm />}
         </div>
 
         {/* Main Content */}
