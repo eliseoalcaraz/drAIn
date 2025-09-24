@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
-import type { FeatureCollection, Feature, GeoJsonProperties } from "geojson";
+import type {
+  FeatureCollection,
+  Feature,
+  GeoJsonProperties,
+  LineString,
+} from "geojson";
 
-// Match the ManPipe interface we defined earlier
-interface ManPipe {
+export interface Pipe {
   id: string;
   TYPE: string;
   Pipe_Shape: string;
@@ -13,9 +17,10 @@ interface ManPipe {
   ClogPer: number;
   ClogTime: number;
   Mannings: number;
+  coordinates: [number, number][];
 }
 
-export function transformGeoJSON(geojson: FeatureCollection): ManPipe[] {
+export function transformGeoJSON(geojson: FeatureCollection): Pipe[] {
   return geojson.features.map((f: Feature) => {
     const props = f.properties as GeoJsonProperties & {
       Name: string;
@@ -30,6 +35,11 @@ export function transformGeoJSON(geojson: FeatureCollection): ManPipe[] {
       Mannings: number;
     };
 
+    const coords =
+      f.geometry && f.geometry.type === "LineString"
+        ? (f.geometry as LineString).coordinates
+        : [];
+
     return {
       id: props.Name,
       TYPE: props.TYPE,
@@ -41,12 +51,13 @@ export function transformGeoJSON(geojson: FeatureCollection): ManPipe[] {
       ClogPer: props.ClogPer,
       ClogTime: props.ClogTime,
       Mannings: props.Mannings,
+      coordinates: coords as [number, number][],
     };
   });
 }
 
 export function usePipes() {
-  const [pipes, setPipes] = useState<ManPipe[]>([]);
+  const [pipes, setPipes] = useState<Pipe[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

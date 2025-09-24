@@ -40,11 +40,15 @@ const FormSchema = z.object({
 
 interface ComboboxFormProps {
   onSelect: (value: string) => void;
+  value?: string;
 }
 
 export function ComboboxForm({ onSelect }: ComboboxFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    defaultValues: {
+      language: "inlets", // 👈 this sets the default
+    },
   });
 
   return (

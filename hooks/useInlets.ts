@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FeatureCollection, Feature, GeoJsonProperties } from "geojson";
 
-interface Inlet {
+export interface Inlet {
   id: string;
   Inv_Elev: number;
   MaxDepth: number;

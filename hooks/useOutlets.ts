@@ -6,7 +6,7 @@ export interface Outlet {
   Inv_Elev: number;
   AllowQ: number;
   FlapGate: number;
-  Location: [number, number];
+  coordinates: [number, number];
 }
 
 export function transformOutletGeoJSON(geojson: FeatureCollection): Outlet[] {
@@ -26,7 +26,7 @@ export function transformOutletGeoJSON(geojson: FeatureCollection): Outlet[] {
       Inv_Elev: props.Inv_Elev,
       AllowQ: props.AllowQ,
       FlapGate: props.FlapGate,
-      Location: coords as [number, number],
+      coordinates: coords as [number, number],
     };
   });
 }

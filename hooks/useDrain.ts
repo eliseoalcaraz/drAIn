@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
-import type { FeatureCollection, Feature, GeoJsonProperties } from "geojson";
+import type {
+  FeatureCollection,
+  Feature,
+  GeoJsonProperties,
+  Point,
+} from "geojson";
 
-interface Drain {
+export interface Drain {
   id: number;
   In_Name: string;
   InvElev: number;
@@ -14,6 +19,7 @@ interface Drain {
   ClogFac: number;
   NameNum: number;
   FPLAIN_080: number;
+  coordinates: [number, number]; // [lng, lat]
 }
 
 export function transformGeoJSON(geojson: FeatureCollection): Drain[] {
@@ -33,6 +39,11 @@ export function transformGeoJSON(geojson: FeatureCollection): Drain[] {
       FPLAIN_080: number;
     };
 
+    const coords =
+      f.geometry && f.geometry.type === "Point"
+        ? (f.geometry as Point).coordinates
+        : [0, 0];
+
     return {
       id: props.Id,
       In_Name: props.In_Name,
@@ -46,6 +57,7 @@ export function transformGeoJSON(geojson: FeatureCollection): Drain[] {
       ClogFac: props.ClogFac,
       NameNum: props.NameNum,
       FPLAIN_080: props.FPLAIN_080,
+      coordinates: coords as [number, number],
     };
   });
 }
@@ -62,7 +74,7 @@ export function useDrain() {
         const data = transformGeoJSON(geojson);
         setDrains(data);
       } catch (err) {
-        console.error("Failed to load storm_drain.geojson", err);
+        console.error("Failed to load storm_drains.geojson", err);
       } finally {
         setLoading(false);
       }
