@@ -79,6 +79,30 @@ export function ControlPanel({
 
       case "stats":
         if (dataset === "inlets") {
+          if (selectedInlet) {
+            return (
+              <div className="p-4 space-y-4">
+                <h2 className="text-lg font-semibold">Inlet Details</h2>
+                <div className="text-sm space-y-2">
+                  <p>
+                    <strong>ID:</strong> {selectedInlet.id}
+                  </p>
+                  <p>
+                    <strong>Elevation:</strong> {selectedInlet.Inv_Elev}
+                  </p>
+                  <p>
+                    <strong>Max Depth:</strong> {selectedInlet.MaxDepth}
+                  </p>
+                  <p>
+                    <strong>Length:</strong> {selectedInlet.Length}
+                  </p>
+                  <p>
+                    <strong>Clog Factor:</strong> {selectedInlet.ClogFac}
+                  </p>
+                </div>
+              </div>
+            );
+          }
           return (
             <InletTable
               data={inlets}
@@ -86,11 +110,54 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as InletSortField}
               sortDirection={sortDirection}
-              onSelectInlet={onSelectInlet}
+              onSelectInlet={(inlet) => {
+                onSelectInlet(inlet); // parent callback
+                setSelectedInlet(inlet); // local state update
+              }}
             />
           );
         }
         if (dataset === "man_pipes") {
+          if (selectedPipe) {
+            return (
+              <div className="p-4 space-y-4">
+                <h2 className="text-lg font-semibold">Pipe Details</h2>
+                <div className="text-sm space-y-2">
+                  <p>
+                    <strong>ID:</strong> {selectedPipe.id}
+                  </p>
+                  <p>
+                    <strong>Type:</strong> {selectedPipe.TYPE}
+                  </p>
+                  <p>
+                    <strong>Shape:</strong> {selectedPipe.Pipe_Shape}
+                  </p>
+                  <p>
+                    <strong>Length:</strong> {selectedPipe.Pipe_Lngth}
+                  </p>
+                  <p>
+                    <strong>Height:</strong> {selectedPipe.Height}
+                  </p>
+                  <p>
+                    <strong>Width:</strong> {selectedPipe.Width}
+                  </p>
+                  <p>
+                    <strong>Barrels:</strong> {selectedPipe.Barrels}
+                  </p>
+                  <p>
+                    <strong>Clog %:</strong> {selectedPipe.ClogPer}
+                  </p>
+                  <p>
+                    <strong>Clog Time:</strong> {selectedPipe.ClogTime}
+                  </p>
+                  <p>
+                    <strong>Manning’s n:</strong> {selectedPipe.Mannings}
+                  </p>
+                </div>
+              </div>
+            );
+          }
+
           return (
             <PipeTable
               data={pipes}
@@ -98,11 +165,35 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as PipeSortField}
               sortDirection={sortDirection}
-              onSelectPipe={onSelectPipe}
+              onSelectPipe={(pipe) => {
+                onSelectPipe(pipe); // parent callback
+                setSelectedPipe(pipe); // local state update
+              }}
             />
           );
         }
         if (dataset === "outlets") {
+          if (selectedOutlet) {
+            return (
+              <div className="p-4 space-y-4">
+                <h2 className="text-lg font-semibold">Outlet Details</h2>
+                <div className="text-sm space-y-2">
+                  <p>
+                    <strong>ID:</strong> {selectedOutlet.id}
+                  </p>
+                  <p>
+                    <strong>Elevation:</strong> {selectedOutlet.Inv_Elev}
+                  </p>
+                  <p>
+                    <strong>AllowQ:</strong> {selectedOutlet.AllowQ}
+                  </p>
+                  <p>
+                    <strong>Flap Gate:</strong> {selectedOutlet.FlapGate}
+                  </p>
+                </div>
+              </div>
+            );
+          }
           return (
             <OutletTable
               data={outlets}
@@ -110,11 +201,51 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as OutletSortField}
               sortDirection={sortDirection}
-              onSelectOutlet={onSelectOutlet}
+              onSelectOutlet={(outlet) => {
+                onSelectOutlet(outlet); // parent callback
+                setSelectedOutlet(outlet); // local state update
+              }}
             />
           );
         }
         if (dataset === "storm_drains") {
+          if (selectedDrain) {
+            return (
+              <div className="p-4 space-y-4">
+                <h2 className="text-lg font-semibold">Storm Drain Details</h2>
+                <div className="text-sm space-y-2">
+                  <p>
+                    <strong>ID:</strong> {selectedDrain.id}
+                  </p>
+                  <p>
+                    <strong>Inlet Name:</strong> {selectedDrain.In_Name}
+                  </p>
+                  <p>
+                    <strong>Elevation:</strong> {selectedDrain.InvElev}
+                  </p>
+                  <p>
+                    <strong>Clog %:</strong> {selectedDrain.clog_per}
+                  </p>
+                  <p>
+                    <strong>Clog Time:</strong> {selectedDrain.clogtime}
+                  </p>
+                  <p>
+                    <strong>Weir Coefficient:</strong>{" "}
+                    {selectedDrain.Weir_coeff}
+                  </p>
+                  <p>
+                    <strong>Length:</strong> {selectedDrain.Length}
+                  </p>
+                  <p>
+                    <strong>Height:</strong> {selectedDrain.Height}
+                  </p>
+                  <p>
+                    <strong>Max Depth:</strong> {selectedDrain.Max_Depth}
+                  </p>
+                </div>
+              </div>
+            );
+          }
           return (
             <DrainTable
               data={drains}
@@ -122,16 +253,19 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as DrainSortField}
               sortDirection={sortDirection}
-              onSelectDrain={onSelectDrain}
+              onSelectDrain={(drain) => {
+                onSelectDrain(drain); // parent callback
+                setSelectedDrain(drain); // local state update
+              }}
             />
           );
         }
 
-      case "simualations":
+      case "simulations":
         return null;
       case "report":
         return <ReportForm />;
-      case "data":
+      case "thread":
         return <ReportForm />;
       default:
         return null;
@@ -168,6 +302,18 @@ export function ControlPanel({
     setSearchTerm(newSearchTerm);
   };
 
+  const handleBack = () => {
+    if (selectedInlet) setSelectedInlet(null);
+    else if (selectedPipe) setSelectedPipe(null);
+    else if (selectedOutlet) setSelectedOutlet(null);
+    else if (selectedDrain) setSelectedDrain(null);
+  };
+
+  const [selectedInlet, setSelectedInlet] = useState<Inlet | null>(null);
+  const [selectedPipe, setSelectedPipe] = useState<Pipe | null>(null);
+  const [selectedOutlet, setSelectedOutlet] = useState<Outlet | null>(null);
+  const [selectedDrain, setSelectedDrain] = useState<Drain | null>(null);
+
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
       {/* Sidebar */}
@@ -186,7 +332,15 @@ export function ControlPanel({
         {/* Top Bar */}
         <div className="flex items-center gap-2 p-3">
           {/* Search Bar */}
-          <SearchBar onSearch={handleSearch} />
+          {((activeTab === "stats" &&
+            !(
+              selectedInlet ||
+              selectedPipe ||
+              selectedOutlet ||
+              selectedDrain
+            )) ||
+            activeTab === "thread") && <SearchBar onSearch={handleSearch} />}
+
           {/* Settings Button */}
           {activeTab === "overlays" && (
             <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
@@ -200,16 +354,28 @@ export function ControlPanel({
               onToggle={onToggle}
             />
           )}
-          {(activeTab === "data" || activeTab === "stats") && (
-            <ComboboxForm
-              value={dataset}
-              onSelect={(value) =>
-                setDataset(
-                  value as "inlets" | "man_pipes" | "outlets" | "storm_drains"
-                )
-              }
-            />
-          )}
+          {activeTab === "stats" &&
+            !(
+              selectedInlet ||
+              selectedPipe ||
+              selectedOutlet ||
+              selectedDrain
+            ) && (
+              <ComboboxForm
+                value={dataset}
+                onSelect={(value) =>
+                  setDataset(
+                    value as "inlets" | "man_pipes" | "outlets" | "storm_drains"
+                  )
+                }
+              />
+            )}
+          {(selectedInlet || selectedPipe || selectedOutlet || selectedDrain) &&
+            activeTab === "stats" && (
+              <Button variant="outline" onClick={handleBack}>
+                Back
+              </Button>
+            )}
         </div>
 
         {/* Main Content */}

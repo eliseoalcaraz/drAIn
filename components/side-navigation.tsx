@@ -6,7 +6,7 @@ const tabs = [
   { id: "stats", label: "Stats", icon: BarChart3 },
   { id: "simulations", label: "Simulations", icon: PlayCircle },
   { id: "report", label: "Report", icon: Layers },
-  { id: "data", label: "Data", icon: Layers },
+  { id: "thread", label: "Thread", icon: Layers },
 ];
 interface SideNavigationProps {
   activeTab: string;

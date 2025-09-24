@@ -40,15 +40,16 @@ const FormSchema = z.object({
 
 interface ComboboxFormProps {
   onSelect: (value: string) => void;
-  value?: string;
+  value: string;
 }
 
-export function ComboboxForm({ onSelect }: ComboboxFormProps) {
+export function ComboboxForm({ onSelect, value }: ComboboxFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      language: "inlets", // 👈 this sets the default
+      language: value, // 👈 use parent state
     },
+    values: { language: value }, // 👈 keeps it in sync
   });
 
   return (
@@ -91,7 +92,7 @@ export function ComboboxForm({ onSelect }: ComboboxFormProps) {
                             key={language.value}
                             onSelect={() => {
                               form.setValue("language", language.value);
-                              onSelect(language.value);
+                              onSelect(language.value); // update parent
                             }}
                           >
                             {language.label}
