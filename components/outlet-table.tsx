@@ -9,12 +9,13 @@ import type { Outlet } from "@/hooks/useOutlets";
 export type OutletSortField = "id" | "Inv_Elev" | "AllowQ" | "FlapGate";
 export type SortDirection = "asc" | "desc";
 
-interface OutletTableProps {
+export interface OutletTableProps {
   data: Outlet[];
   searchTerm: string;
   onSort: (field: OutletSortField) => void;
   sortField: OutletSortField;
   sortDirection: SortDirection;
+  onSelectOutlet: (outlet: Outlet) => void;
 }
 
 export function OutletTable({
@@ -23,6 +24,7 @@ export function OutletTable({
   onSort,
   sortField,
   sortDirection,
+  onSelectOutlet,
 }: OutletTableProps) {
   // --- Filtering ---
   const filteredData = useMemo(() => {
@@ -116,11 +118,17 @@ export function OutletTable({
             <tbody>
               <tr className="h-5"></tr>
               {sortedData.map((outlet) => (
-                <tr key={outlet.id} className="group">
-                  <td className="p-2 text-center font-mono text-sm">
+                <tr
+                  key={outlet.id}
+                  onClick={() => onSelectOutlet(outlet)}
+                  className="cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <td className="p-2 text-center font-mono text-sm rounded-l-xl">
                     {outlet.id}
                   </td>
-                  <td className="p-2 text-center">{outlet.Inv_Elev}</td>
+                  <td className="p-2 text-center rounded-r-xl">
+                    {outlet.Inv_Elev}
+                  </td>
                   {/* <td className="p-2 text-center">{outlet.AllowQ}</td> */}
                   {/* <td className="p-2 text-center">{outlet.FlapGate}</td> */}
                 </tr>

@@ -19,6 +19,10 @@ import { PipeSortField } from "./pipe-table";
 import { InletSortField } from "./inlet-table";
 import { OutletSortField } from "./outlet-table";
 import { DrainSortField } from "./drain-table";
+import { Inlet } from "@/hooks/useInlets";
+import { Outlet } from "@/hooks/useOutlets";
+import { Drain } from "@/hooks/useDrain";
+import { Pipe } from "@/hooks/usePipes";
 import { SearchBar } from "./search-bar";
 import ReportForm from "./report-form";
 
@@ -32,6 +36,10 @@ interface ControlPanelProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
+  onSelectInlet: (inlet: Inlet) => void;
+  onSelectOutlet: (outlet: Outlet) => void;
+  onSelectDrain: (drain: Drain) => void;
+  onSelectPipe: (pipe: Pipe) => void;
 }
 
 export function ControlPanel({
@@ -39,6 +47,10 @@ export function ControlPanel({
   onToggle,
   overlays,
   onToggleOverlay,
+  onSelectInlet,
+  onSelectOutlet,
+  onSelectDrain,
+  onSelectPipe,
 }: ControlPanelProps) {
   const [activeTab, setActiveTab] = useState("overlays");
   const renderContent = () => {
@@ -74,6 +86,7 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as InletSortField}
               sortDirection={sortDirection}
+              onSelectInlet={onSelectInlet}
             />
           );
         }
@@ -85,6 +98,7 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as PipeSortField}
               sortDirection={sortDirection}
+              onSelectPipe={onSelectPipe}
             />
           );
         }
@@ -96,6 +110,7 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as OutletSortField}
               sortDirection={sortDirection}
+              onSelectOutlet={onSelectOutlet}
             />
           );
         }
@@ -107,6 +122,7 @@ export function ControlPanel({
               onSort={(field) => handleSort(field)}
               sortField={sortField as DrainSortField}
               sortDirection={sortDirection}
+              onSelectDrain={onSelectDrain}
             />
           );
         }
@@ -186,6 +202,7 @@ export function ControlPanel({
           )}
           {(activeTab === "data" || activeTab === "stats") && (
             <ComboboxForm
+              value={dataset}
               onSelect={(value) =>
                 setDataset(
                   value as "inlets" | "man_pipes" | "outlets" | "storm_drains"

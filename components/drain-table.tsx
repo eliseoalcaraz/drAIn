@@ -4,21 +4,7 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpDown } from "lucide-react";
-
-interface Drain {
-  id: number;
-  In_Name: string;
-  InvElev: number;
-  clog_per: number;
-  clogtime: number;
-  Weir_coeff: number;
-  Length: number;
-  Height: number;
-  Max_Depth: number;
-  ClogFac: number;
-  NameNum: number;
-  FPLAIN_080: number;
-}
+import { Drain } from "@/hooks/useDrain";
 
 interface DrainTableProps {
   data: Drain[];
@@ -26,6 +12,7 @@ interface DrainTableProps {
   onSort: (field: DrainSortField) => void;
   sortField: DrainSortField;
   sortDirection: SortDirection;
+  onSelectDrain: (drain: Drain) => void;
 }
 
 export type DrainSortField = "id" | "In_Name" | "InvElev" | "clog_per";
@@ -37,6 +24,7 @@ export function DrainTable({
   onSort,
   sortField,
   sortDirection,
+  onSelectDrain,
 }: DrainTableProps) {
   // --- Filtering ---
   const filteredData = useMemo(() => {
@@ -129,12 +117,21 @@ export function DrainTable({
             <tbody>
               <tr className="h-5"></tr>
               {sortedData.map((drain) => (
-                <tr key={drain.In_Name} className="group">
-                  <td className="p-2 text-center">{drain.In_Name}</td>
-                  <td className="p-2 text-center">
-                    {drain.InvElev.toFixed(2)}
+                <tr
+                  key={drain.In_Name}
+                  onClick={() => onSelectDrain(drain)}
+                  className="cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <td className="p-2 text-center font-mono text-sm rounded-l-xl">
+                    {drain.In_Name}
                   </td>
-                  {/* <td className="p-2 text-center">{drain.clog_per}%</td> */}
+                  <td className="p-2 text-center rounded-r-xl">
+                    {drain.InvElev}
+                  </td>
+                  {/* <td className="p-2 text-center">{drain.Max_Depth}</td>
+                  <td className="p-2 text-center">{drain.Length}</td>
+                  <td className="p-2 text-center">{drain.Height}</td>
+                  <td className="p-2 text-center">{drain.clog_per}</td> */}
                 </tr>
               ))}
             </tbody>

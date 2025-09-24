@@ -4,26 +4,15 @@ import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowUpDown } from "lucide-react";
-
-interface ManPipe {
-  id: string;
-  TYPE: string;
-  Pipe_Shape: string;
-  Pipe_Lngth: number;
-  Height: number;
-  Width: number;
-  Barrels: number;
-  ClogPer: number;
-  ClogTime: number;
-  Mannings: number;
-}
+import { Pipe } from "@/hooks/usePipes";
 
 interface PipeTableProps {
-  data: ManPipe[];
+  data: Pipe[];
   searchTerm: string;
   onSort: (field: PipeSortField) => void;
   sortField: PipeSortField;
   sortDirection: SortDirection;
+  onSelectPipe: (pipe: Pipe) => void;
 }
 
 export type PipeSortField =
@@ -40,6 +29,7 @@ export function PipeTable({
   onSort,
   sortField,
   sortDirection,
+  onSelectPipe,
 }: PipeTableProps) {
   // --- Filtering ---
   const filteredData = useMemo(() => {
@@ -150,16 +140,25 @@ export function PipeTable({
             <tbody>
               <tr className="h-5"></tr>
               {sortedData.map((pipe) => (
-                <tr key={pipe.id} className="group">
-                  <td className="p-2 text-center font-mono text-sm">
+                <tr
+                  key={pipe.id}
+                  onClick={() => onSelectPipe(pipe)}
+                  className="cursor-pointer hover:bg-gray-100 transition-colors"
+                >
+                  <td className="p-2 text-center font-mono text-sm rounded-l-xl">
                     {pipe.id}
                   </td>
-                  {/* <td className="p-2 text-center">{pipe.TYPE}</td> */}
-                  {/* <td className="p-2 text-center">{pipe.Pipe_Shape}</td> */}
-                  <td className="p-2 text-center">
-                    {pipe.Pipe_Lngth.toFixed(2)}
+                  {/* <td className="p-2 text-center">{pipe.TYPE}</td>
+              <td className="p-2 text-center">{pipe.Pipe_Shape}</td> */}
+                  <td className="p-2 text-center rounded-r-xl">
+                    {pipe.Pipe_Lngth}
                   </td>
-                  {/* <td className="p-2 text-center">{pipe.ClogPer}%</td> */}
+                  {/* <td className="p-2 text-center">{pipe.Height}</td>
+              <td className="p-2 text-center">{pipe.Width}</td>
+              <td className="p-2 text-center">{pipe.Barrels}</td>
+              <td className="p-2 text-center">{pipe.Mannings}</td>
+              <td className="p-2 text-center">{pipe.ClogPer}</td>
+              <td className="p-2 text-center">{pipe.ClogTime}</td> */}
                 </tr>
               ))}
             </tbody>

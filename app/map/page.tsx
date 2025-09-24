@@ -14,6 +14,10 @@ import {
   MAP_STYLES,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
+import { Inlet } from "@/hooks/useInlets";
+import { Outlet } from "@/hooks/useOutlets";
+import { Drain } from "@/hooks/useDrain";
+import { Pipe } from "@/hooks/usePipes";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -157,14 +161,17 @@ export default function MapPage() {
       map.on("style.load", addCustomLayers);
 
       map.on("click", (e) => {
-        // query features at the click location
+        const validLayers = [
+          "inlets-layer",
+          "outlets-layer",
+          "storm_drains-layer",
+          "man_pipes-layer",
+        ].filter((id) => map.getLayer(id));
+
+        if (!validLayers.length) return;
+
         const features = map.queryRenderedFeatures(e.point, {
-          layers: [
-            "inlets-layer",
-            "outlets-layer",
-            "storm_drains-layer",
-            "man_pipes-layer",
-          ],
+          layers: validLayers,
         });
 
         if (!features.length) return;
@@ -306,6 +313,114 @@ export default function MapPage() {
 
   const someVisible = Object.values(overlayVisibility).some(Boolean);
 
+  const handleSelectInlet = (inlet: Inlet) => {
+    if (!mapRef.current) return;
+    const [lng, lat] = inlet.coordinates;
+
+    mapRef.current.flyTo({
+      center: [lng, lat],
+      zoom: 18,
+      speed: 1.2,
+      curve: 1,
+    });
+
+    new mapboxgl.Popup()
+      .setLngLat([lng, lat])
+      .setHTML(
+        `
+      <strong>Inlet (${inlet.id})</strong><br/>
+      Inv Elev: ${inlet.Inv_Elev}<br/>
+      Max Depth: ${inlet.MaxDepth}<br/>
+      Length: ${inlet.Length}<br/>
+      Height: ${inlet.Height}
+    `
+      )
+      .addTo(mapRef.current);
+  };
+
+  const handleSelectOutlet = (outlet: Outlet) => {
+    if (!mapRef.current) return;
+    const [lng, lat] = outlet.coordinates;
+
+    mapRef.current.flyTo({
+      center: [lng, lat],
+      zoom: 18,
+      speed: 1.2,
+      curve: 1,
+    });
+
+    new mapboxgl.Popup()
+      .setLngLat([lng, lat])
+      .setHTML(
+        `
+      <strong>Outlet (${outlet.id})</strong><br/>
+      Inv Elev: ${outlet.Inv_Elev ?? "N/A"}<br/>
+      AllowQ: ${outlet.AllowQ ?? "N/A"}<br/>
+      FlapGate: ${outlet.FlapGate ?? "N/A"}
+    `
+      )
+      .addTo(mapRef.current);
+  };
+
+  const handleSelectDrain = (drain: Drain) => {
+    if (!mapRef.current) return;
+    const [lng, lat] = drain.coordinates;
+
+    mapRef.current.flyTo({
+      center: [lng, lat],
+      zoom: 18,
+      speed: 1.2,
+      curve: 1,
+    });
+
+    new mapboxgl.Popup()
+      .setLngLat([lng, lat])
+      .setHTML(
+        `
+      <strong>Storm Drain (${drain.id})</strong><br/>
+      Inv Elev: ${drain.InvElev ?? "N/A"}<br/>
+      Max Depth: ${drain.Max_Depth ?? "N/A"}<br/>
+      Length: ${drain.Length ?? "N/A"}<br/>
+      Height: ${drain.Height ?? "N/A"}<br/>
+      Clog %: ${drain.clog_per ?? "N/A"}
+    `
+      )
+      .addTo(mapRef.current);
+  };
+
+  const handleSelectPipe = (pipe: Pipe) => {
+    if (!mapRef.current) return;
+
+    if (!pipe.coordinates || pipe.coordinates.length === 0) return;
+
+    // Fit map to line
+    const bounds = new mapboxgl.LngLatBounds();
+    pipe.coordinates.forEach((coord) => bounds.extend(coord));
+    mapRef.current.fitBounds(bounds, { padding: 100, duration: 1200 });
+
+    // Popup at midpoint
+    const midIndex = Math.floor(pipe.coordinates.length / 2);
+    const midpoint = pipe.coordinates[midIndex];
+
+    new mapboxgl.Popup()
+      .setLngLat(midpoint)
+      .setHTML(
+        `
+      <strong>Pipe (${pipe.id})</strong><br/>
+      Type: ${pipe.TYPE}<br/>
+      Shape: ${pipe.Pipe_Shape}<br/>
+      Length: ${pipe.Pipe_Lngth}<br/>
+      Height: ${pipe.Height}<br/>
+      Width: ${pipe.Width}<br/>
+      Barrels: ${pipe.Barrels}<br/>
+      Manning's: ${pipe.Mannings}<br/>
+      Clog %: ${pipe.ClogPer}<br/>
+      Clog Time: ${pipe.ClogTime}
+    `
+      )
+      .addTo(mapRef.current);
+  };
+
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-blue-200">
@@ -315,6 +430,10 @@ export default function MapPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
+          onSelectInlet={handleSelectInlet}
+          onSelectOutlet={handleSelectOutlet}
+          onSelectDrain={handleSelectDrain}
+          onSelectPipe={handleSelectPipe}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
