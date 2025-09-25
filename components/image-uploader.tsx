@@ -65,7 +65,7 @@ export default function ImageUploader() {
           setIsDragging(true);
         }}
         onDragLeave={() => setIsDragging(false)}
-        className={`w-full h-32 flex flex-col items-center justify-center border-2 rounded-2xl transition-all duration-300 ease-in-out
+        className={`w-full h-40 flex flex-col items-center justify-center border-2 rounded-2xl transition-all duration-300 ease-in-out
           ${
             isDragging
               ? "border-blue-500 bg-blue-50"
