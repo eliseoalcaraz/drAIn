@@ -65,7 +65,7 @@ export default function ImageUploader() {
           setIsDragging(true);
         }}
         onDragLeave={() => setIsDragging(false)}
-        className={`w-full h-32 flex flex-col items-center justify-center border-2 rounded-2xl transition-all duration-300 ease-in-out
+        className={`w-full h-40 flex flex-col items-center justify-center border-2 rounded-2xl transition-all duration-300 ease-in-out
           ${
             isDragging
               ? "border-blue-500 bg-blue-50"
@@ -76,13 +76,14 @@ export default function ImageUploader() {
         `}
       >
         {!fileName ? (
-          <div className="flex flex-col items-center text-center p-3">
+          <div className="flex flex-col items-center text-center p-6">
             <UploadCloudIcon />
             <p className={`text-sm font-medium transition-colors ${isDragging ? "text-blue-600" : "text-gray-600"}`}>
               Drag & Drop your image here
             </p>
             <p className="text-gray-400 text-xs mt-1 mb-2">or</p>
-            <label className="px-4 py-1 text-white bg-blue-500 rounded-lg shadow-md cursor-pointer hover:bg-blue-600 transition-colors duration-200">
+            {/* MODIFIED LABEL CLASSNAME: */}
+            <label className="w-auto bg-[#4b72f3] border border-[#2b3ea7] text-white py-0.5 px-4 rounded-md font-medium text-sm hover:bg-blue-600 transition-colors cursor-pointer">
               Browse Files
               <input
                 type="file"

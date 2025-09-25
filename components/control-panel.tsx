@@ -132,7 +132,7 @@ export function ControlPanel({
       case "report":
         return <ReportForm />;
       case "data":
-        return <ReportForm />;
+        return null;
       default:
         return null;
     }
@@ -188,7 +188,7 @@ export function ControlPanel({
           {/* Search Bar */}
           <SearchBar onSearch={handleSearch} />
           {/* Settings Button */}
-          {activeTab === "overlays" && (
+          {activeTab === "overlays" &&  (
             <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
               <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
             </button>
