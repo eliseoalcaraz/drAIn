@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import ImageUploader from "./image-uploader";
+import { Button } from "./ui/button";
 
 export default function ReportForm() {
   const [category, setCategory] = useState("");
@@ -25,7 +26,7 @@ export default function ReportForm() {
       {/* Image Uploader */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Upload Image
+          Upload Image to Report
         </label>
         <ImageUploader />
       </div>
@@ -58,13 +59,9 @@ export default function ReportForm() {
         />
       </div>
 
-      {/* Submit Button */}
-      <button
-        type="submit"
-        className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-      >
-        Submit Report
-      </button>
+      <Button className="w-full bg-[#4b72f3] border border-[#2b3ea7] text-white py-6 rounded-xl font-medium text-base hover:bg-blue-600 transition-colors">
+          Submit
+      </Button>
     </form>
   );
 }
