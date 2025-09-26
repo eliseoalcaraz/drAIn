@@ -10,6 +10,7 @@ export default function ReportForm() {
   const [image, setImage] = useState<File | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
+    setImage("" as unknown as File); // Placeholder to simulate image upload
     e.preventDefault();
     console.log({
       category,
@@ -28,7 +29,7 @@ export default function ReportForm() {
         <label className="block text-sm font-medium text-gray-700 mb-1">
           Upload Image to Report
         </label>
-        {/* The ImageUploader component itself must be updated to remove 'max-w-xs' 
+        {/* The ImageUploader component itself must be updated to remove 'max-w-xs'
             so it can inherit the full 'w-full' width here. */}
         <div className="w-full">
             <ImageUploader />

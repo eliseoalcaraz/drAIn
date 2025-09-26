@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext } from "react";
 import { useAuth } from "@/components/context/AuthProvider";
 import client from "@/api/client";
 

@@ -16,7 +16,7 @@ export default function LoginForm() {
     setLoading(true);
     setError(null);
 
-    const { data, error } = await client.auth.signInWithPassword({
+    const { error } = await client.auth.signInWithPassword({
       email,
       password,
     });
