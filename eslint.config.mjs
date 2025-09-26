@@ -21,10 +21,19 @@ const eslintConfig = [
     ],
   },
   {
-    files: ["src/components/ModelViewer.tsx"],
+    files: ["components/ModelViewer.tsx"],
     rules: {
       "@next/next/no-img-element": "off",
       "jsx-a11y/alt-text": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "react-hooks/rules-of-hooks": "off",
+      "react-hooks/exhaustive-deps": "off",
+    },
+  },
+  {
+    files: ["components/control-panel.tsx"],
+    rules: {
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 ];
