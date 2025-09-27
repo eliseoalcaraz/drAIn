@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -43,17 +44,24 @@ interface ComboboxFormProps {
   value?: string;
 }
 
-export function ComboboxForm({ onSelect }: ComboboxFormProps) {
+export function ComboboxForm({ onSelect, value }: ComboboxFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: {
-      language: "inlets", // 👈 this sets the default
-    },
+    defaultValues: { language: value ?? "inlets" }, // use parent value as initial default
   });
+
+  // Keep the form field in sync whenever parent 'value' changes
+  useEffect(() => {
+    form.setValue("language", value ?? "inlets", {
+      shouldValidate: false,
+      shouldDirty: false,
+    });
+  }, [value, form]);
 
   return (
     <Form {...form}>
-      <form className="space-y-6">
+      {/* prevent actual form submission */}
+      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
         <FormField
           control={form.control}
           name="language"
@@ -71,14 +79,13 @@ export function ComboboxForm({ onSelect }: ComboboxFormProps) {
                       )}
                     >
                       {field.value
-                        ? languages.find(
-                            (language) => language.value === field.value
-                          )?.label
+                        ? languages.find((l) => l.value === field.value)?.label
                         : "Choose"}
                       <ChevronsUpDown className="opacity-50" />
                     </Button>
                   </FormControl>
                 </PopoverTrigger>
+
                 <PopoverContent className="w-[200px] p-0">
                   <Command>
                     <CommandInput placeholder="Search..." className="h-9" />
@@ -87,10 +94,11 @@ export function ComboboxForm({ onSelect }: ComboboxFormProps) {
                       <CommandGroup>
                         {languages.map((language) => (
                           <CommandItem
-                            value={language.label}
                             key={language.value}
+                            value={language.value} // <-- use language.value here
                             onSelect={() => {
-                              form.setValue("language", language.value);
+                              // update RHF field and notify parent
+                              field.onChange(language.value);
                               onSelect(language.value);
                             }}
                           >
@@ -110,6 +118,7 @@ export function ComboboxForm({ onSelect }: ComboboxFormProps) {
                   </Command>
                 </PopoverContent>
               </Popover>
+
               <FormMessage />
             </FormItem>
           )}

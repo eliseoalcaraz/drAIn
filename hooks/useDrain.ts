@@ -69,7 +69,7 @@ export function useDrain() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch("/storm_drains.geojson");
+        const res = await fetch("/drainage/storm_drains.geojson");
         const geojson = await res.json();
         const data = transformGeoJSON(geojson);
         setDrains(data);

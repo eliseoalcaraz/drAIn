@@ -91,7 +91,7 @@ export default function MapPage() {
         if (!map.getSource("man_pipes")) {
           map.addSource("man_pipes", {
             type: "geojson",
-            data: "/man_pipes.geojson",
+            data: "/drainage/man_pipes.geojson",
           });
           map.addLayer({
             id: "man_pipes-layer",
@@ -106,7 +106,7 @@ export default function MapPage() {
         if (!map.getSource("storm_drains")) {
           map.addSource("storm_drains", {
             type: "geojson",
-            data: "/storm_drains.geojson",
+            data: "/drainage/storm_drains.geojson",
           });
           map.addLayer({
             id: "storm_drains-layer",
@@ -123,7 +123,7 @@ export default function MapPage() {
         if (!map.getSource("inlets")) {
           map.addSource("inlets", {
             type: "geojson",
-            data: "/inlets.geojson",
+            data: "/drainage/inlets.geojson",
           });
           map.addLayer({
             id: "inlets-layer",
@@ -141,7 +141,7 @@ export default function MapPage() {
         if (!map.getSource("outlets")) {
           map.addSource("outlets", {
             type: "geojson",
-            data: "/outlets.geojson",
+            data: "/drainage/outlets.geojson",
           });
           map.addLayer({
             id: "outlets-layer",
