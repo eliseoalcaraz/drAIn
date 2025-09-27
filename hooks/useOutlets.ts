@@ -38,7 +38,7 @@ export function useOutlets() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch("/outlets.geojson");
+        const res = await fetch("/drainage/outlets.geojson");
         const geojson = await res.json();
         const data = transformOutletGeoJSON(geojson);
         setOutlets(data);

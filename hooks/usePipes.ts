@@ -63,7 +63,7 @@ export function usePipes() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch("/man_pipes.geojson");
+        const res = await fetch("/drainage/man_pipes.geojson");
         const geojson = await res.json();
         const data = transformGeoJSON(geojson);
         setPipes(data);

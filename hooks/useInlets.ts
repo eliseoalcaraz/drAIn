@@ -56,7 +56,7 @@ export function useInlets() {
   useEffect(() => {
     async function loadData() {
       try {
-        const res = await fetch("/inlets.geojson");
+        const res = await fetch("/drainage/inlets.geojson");
         const geojson = await res.json();
         const data = transformInlets(geojson);
         setInlets(data);
