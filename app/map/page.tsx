@@ -20,6 +20,8 @@ import { Drain, useDrain } from "@/hooks/useDrain";
 import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
 import { dummyReports } from "@/data/dummy-reports";
+import ReactDOM from "react-dom/client";
+import { ReportBubble } from "@/components/report-bubble";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -333,21 +335,7 @@ export default function MapPage() {
             type: "circle",
             source: "reports",
             paint: {
-              "circle-radius": 8,
-              "circle-color": [
-                "match",
-                ["get", "status"],
-                "pending",
-                "#eab308",
-                "in-progress",
-                "#3b82f6",
-                "resolved",
-                "#22c55e",
-                "#9ca3af",
-              ],
-              "circle-stroke-color": "#ffffff",
-              "circle-stroke-width": 2,
-              "circle-opacity": 0.9,
+              "circle-opacity": 0,
             },
           });
         }
@@ -356,13 +344,39 @@ export default function MapPage() {
       map.on("load", addCustomLayers);
       map.on("style.load", addCustomLayers);
 
+      map.on("load", () => {
+        dummyReports.forEach((report) => {
+          const container = document.createElement("div");
+          const root = ReactDOM.createRoot(container);
+
+          const popup = new mapboxgl.Popup({
+            maxWidth: "320px",
+            closeButton: false, // use your custom X only
+            className: "no-bg-popup",
+            closeOnClick: false, // make sure clicking map doesn’t close all
+          })
+            .setLngLat(report.coordinates)
+            .setDOMContent(container)
+            .addTo(map);
+
+          root.render(
+            <ReportBubble
+              report={report}
+              onClose={() => {
+                popup.remove();
+                root.unmount();
+              }}
+            />
+          );
+        });
+      });
+
       map.on("click", (e) => {
         const validLayers = [
           "inlets-layer",
           "outlets-layer",
           "storm_drains-layer",
           "man_pipes-layer",
-          "reports-layer",
         ].filter((id) => map.getLayer(id));
 
         if (!validLayers.length) return;
@@ -384,80 +398,6 @@ export default function MapPage() {
 
         // Find the corresponding data and call the correct handler
         switch (feature.layer.id) {
-          case "reports-layer": {
-            const report = dummyReports.find((r) => r.id === props.id);
-            if (report) {
-              // Show popup with report bubble content
-              const popupContent = `
-                <div style="max-width: 300px;">
-                  <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 8px;">
-                    <div style="width: 32px; height: 32px; border-radius: 50%; background-color: ${
-                      report.componentType === "inlet"
-                        ? "#22c55e"
-                        : report.componentType === "outlet"
-                        ? "#ef4444"
-                        : report.componentType === "pipe"
-                        ? "#a855f7"
-                        : "#3b82f6"
-                    }; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 style="margin: 0; font-weight: 600; color: #111827;">${report.reporterName}</h3>
-                      <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">Report #${report.id}</p>
-                    </div>
-                  </div>
-                  <div style="margin-left: 44px;">
-                    <div style="margin-bottom: 8px;">
-                      <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; border: 1px solid ${
-                        report.status === "pending"
-                          ? "#fde047"
-                          : report.status === "in-progress"
-                          ? "#93c5fd"
-                          : "#86efac"
-                      }; background-color: ${
-                report.status === "pending"
-                  ? "#fef9c3"
-                  : report.status === "in-progress"
-                  ? "#dbeafe"
-                  : "#dcfce7"
-              }; color: ${
-                report.status === "pending"
-                  ? "#854d0e"
-                  : report.status === "in-progress"
-                  ? "#1e40af"
-                  : "#166534"
-              };">
-                        ${report.status.replace("-", " ").toUpperCase()}
-                      </span>
-                    </div>
-                    <p style="margin: 8px 0; font-size: 12px; color: #4b5563;">
-                      <strong>Component:</strong> ${
-                        report.componentType.charAt(0).toUpperCase() +
-                        report.componentType.slice(1)
-                      } (${report.componentId})
-                    </p>
-                    <p style="margin: 8px 0; font-size: 12px; color: #4b5563;">
-                      <strong>Category:</strong> ${report.category}
-                    </p>
-                    <p style="margin: 8px 0 0 0; font-size: 13px; color: #111827;">
-                      ${report.description}
-                    </p>
-                  </div>
-                </div>
-              `;
-
-              new mapboxgl.Popup()
-                .setLngLat(report.coordinates)
-                .setHTML(popupContent)
-                .addTo(map);
-            }
-            break;
-          }
           case "man_pipes-layer": {
             const pipe = pipesRef.current.find((p) => p.id === props.Name);
             if (pipe) handleSelectPipe(pipe);
