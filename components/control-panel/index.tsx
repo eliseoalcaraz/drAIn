@@ -30,13 +30,8 @@ export function ControlPanel({
   overlays,
   onToggleOverlay,
 }: ControlPanelProps) {
-  const {
-    sortField,
-    sortDirection,
-    searchTerm,
-    handleSort,
-    handleSearch,
-  } = useControlPanelState();
+  const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
+    useControlPanelState();
 
   // Data hooks
   const { inlets, loading: loadingInlets } = useInlets();
@@ -44,7 +39,8 @@ export function ControlPanel({
   const { pipes, loading: loadingPipes } = usePipes();
   const { drains, loading: loadingDrains } = useDrain();
 
-  const selectedItem = selectedInlet || selectedPipe || selectedOutlet || selectedDrain;
+  const selectedItem =
+    selectedInlet || selectedPipe || selectedOutlet || selectedDrain;
   const selectedItemTitle = selectedItem ? DETAIL_TITLES[dataset] : "";
 
   return (

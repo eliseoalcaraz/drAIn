@@ -46,45 +46,45 @@ export default function ReportForm() {
         onSubmit={handleOpenModal}
         className="w-full h-full p-2.5 bg-white rounded-xl space-y-4"
       >
-      {/* Image Uploader */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Upload Image to Report
-        </label>
-        {/* The ImageUploader component itself must be updated to remove 'max-w-xs'
+        {/* Image Uploader */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Upload Image to Report
+          </label>
+          {/* The ImageUploader component itself must be updated to remove 'max-w-xs'
             so it can inherit the full 'w-full' width here. */}
-        <div className="w-full">
-          <ImageUploader onImageChange={setImage} />
+          <div className="w-full">
+            <ImageUploader onImageChange={setImage} />
+          </div>
         </div>
-      </div>
 
-      {/* Category Input */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Category
-        </label>
-        <input
-          type="text"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          placeholder="Enter category"
-        />
-      </div>
+        {/* Category Input */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+          </label>
+          <input
+            type="text"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="Enter category"
+          />
+        </div>
 
-      {/* Description Input */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Description
-        </label>
-        <textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          placeholder="Enter description"
-          rows={4}
-        />
-      </div>
+        {/* Description Input */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Description
+          </label>
+          <textarea
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+            placeholder="Enter description"
+            rows={4}
+          />
+        </div>
 
         <Button
           disabled={!category.trim() || !description.trim() || !image}
@@ -110,7 +110,9 @@ export default function ReportForm() {
                 Category
               </label>
               <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50">
-                {category || <span className="text-gray-400">No category entered</span>}
+                {category || (
+                  <span className="text-gray-400">No category entered</span>
+                )}
               </div>
             </div>
 
@@ -120,7 +122,9 @@ export default function ReportForm() {
                 Description
               </label>
               <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 min-h-[100px]">
-                {description || <span className="text-gray-400">No description entered</span>}
+                {description || (
+                  <span className="text-gray-400">No description entered</span>
+                )}
               </div>
             </div>
 
@@ -143,13 +147,16 @@ export default function ReportForm() {
               <Checkbox
                 id="terms"
                 checked={termsAccepted}
-                onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                onCheckedChange={(checked) =>
+                  setTermsAccepted(checked as boolean)
+                }
               />
               <label
                 htmlFor="terms"
                 className="text-sm leading-relaxed cursor-pointer"
               >
-                I accept the terms and conditions and confirm that the information provided is accurate
+                I accept the terms and conditions and confirm that the
+                information provided is accurate
               </label>
             </div>
           </div>
