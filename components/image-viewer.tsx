@@ -2,6 +2,7 @@
 
 import { X } from "lucide-react";
 import { useEffect } from "react";
+import { createPortal } from "react-dom";
 
 interface ImageViewerProps {
   imageUrl: string;
@@ -46,7 +47,7 @@ export function ImageViewer({
     };
   }, []);
 
-  return (
+  return createPortal(
     // This is the element creating the dark background overlay
     <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       {/* Backdrop - clicking closes viewer */}
@@ -155,6 +156,7 @@ export function ImageViewer({
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

@@ -102,7 +102,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
       const handleZoom = () => {
         const currentZoom = map.getZoom();
         // Close popup if zoom level is below 16
-        if (currentZoom < 19) {
+        if (currentZoom < 17) {
           setIsOpen(false);
         }
       };
@@ -128,7 +128,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
       }
     };
 
-    // Component colors (for component border)
+    // Component colors (for component color)
     const getComponentColor = (type: string) => {
       switch (type) {
         case "pipe":
@@ -213,8 +213,8 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                     onClick={() => setShowImageViewer(true)}
                     className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
                   >
-                    Attachment
                     <ImageIcon className="w-3 h-3" />
+                    Image Attached
                   </button>
                 )}
               </p>
