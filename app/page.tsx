@@ -17,7 +17,7 @@ export default function Home() {
   }, [user, loading, router]);
 
   if (loading) return <p>Loading...</p>;
-  if (!user) return null; // Avoid flicker before redirect
+  if (!user) return null;
 
   return (
     <div className="min-h-screen flex flex-col items-center">
