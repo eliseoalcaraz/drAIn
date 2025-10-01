@@ -19,6 +19,7 @@ import { Outlet, useOutlets } from "@/hooks/useOutlets";
 import { Drain, useDrain } from "@/hooks/useDrain";
 import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
+import { dummyReports } from "@/data/dummy-reports";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -170,14 +171,27 @@ export default function MapPage() {
           map.addSource("man_pipes", {
             type: "geojson",
             data: "/drainage/man_pipes.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "Name",
           });
           map.addLayer({
             id: "man_pipes-layer",
             type: "line",
             source: "man_pipes",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "line-color": "#8B008B",
-              "line-width": 2.5,
+              "line-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff", // Highlight color
+                "#8B008B",
+              ],
+              "line-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                6, // Highlight width
+                2.5,
+              ],
             },
           });
         }
@@ -185,16 +199,34 @@ export default function MapPage() {
           map.addSource("storm_drains", {
             type: "geojson",
             data: "/drainage/storm_drains.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "In_Name",
           });
           map.addLayer({
             id: "storm_drains-layer",
             type: "circle",
             source: "storm_drains",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "circle-radius": 4,
+              "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                10,
+                4,
+              ],
               "circle-color": "#0088ff",
-              "circle-stroke-color": "#000000",
-              "circle-stroke-width": 0.5,
+              "circle-stroke-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff",
+                "#000000",
+              ],
+              "circle-stroke-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                3,
+                0.5,
+              ],
             },
           });
         }
@@ -202,16 +234,34 @@ export default function MapPage() {
           map.addSource("inlets", {
             type: "geojson",
             data: "/drainage/inlets.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "In_Name",
           });
           map.addLayer({
             id: "inlets-layer",
             type: "circle",
             source: "inlets",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "circle-radius": 6,
+              "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                12,
+                6,
+              ],
               "circle-color": "#00cc44",
-              "circle-stroke-color": "#000000",
-              "circle-stroke-width": 0.5,
+              "circle-stroke-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff",
+                "#000000",
+              ],
+              "circle-stroke-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                3,
+                0.5,
+              ],
             },
           });
         }
@@ -220,16 +270,84 @@ export default function MapPage() {
           map.addSource("outlets", {
             type: "geojson",
             data: "/drainage/outlets.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "Out_Name",
           });
           map.addLayer({
             id: "outlets-layer",
             type: "circle",
             source: "outlets",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "circle-radius": 6,
+              "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                12,
+                6,
+              ],
               "circle-color": "#cc0000",
-              "circle-stroke-color": "#000000",
-              "circle-stroke-width": 0.5,
+              "circle-stroke-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff",
+                "#000000",
+              ],
+              "circle-stroke-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                3,
+                0.5,
+              ],
+            },
+          });
+        }
+
+        // Add reports layer
+        if (!map.getSource("reports")) {
+          map.addSource("reports", {
+            type: "geojson",
+            data: {
+              type: "FeatureCollection",
+              features: dummyReports.map((report) => ({
+                type: "Feature" as const,
+                geometry: {
+                  type: "Point" as const,
+                  coordinates: report.coordinates,
+                },
+                properties: {
+                  id: report.id,
+                  category: report.category,
+                  status: report.status,
+                  componentType: report.componentType,
+                  componentId: report.componentId,
+                  reporterName: report.reporterName,
+                  description: report.description,
+                  date: report.date,
+                },
+              })),
+            },
+          });
+
+          map.addLayer({
+            id: "reports-layer",
+            type: "circle",
+            source: "reports",
+            paint: {
+              "circle-radius": 8,
+              "circle-color": [
+                "match",
+                ["get", "status"],
+                "pending",
+                "#eab308",
+                "in-progress",
+                "#3b82f6",
+                "resolved",
+                "#22c55e",
+                "#9ca3af",
+              ],
+              "circle-stroke-color": "#ffffff",
+              "circle-stroke-width": 2,
+              "circle-opacity": 0.9,
             },
           });
         }
@@ -244,6 +362,7 @@ export default function MapPage() {
           "outlets-layer",
           "storm_drains-layer",
           "man_pipes-layer",
+          "reports-layer",
         ].filter((id) => map.getLayer(id));
 
         if (!validLayers.length) return;
@@ -265,6 +384,80 @@ export default function MapPage() {
 
         // Find the corresponding data and call the correct handler
         switch (feature.layer.id) {
+          case "reports-layer": {
+            const report = dummyReports.find((r) => r.id === props.id);
+            if (report) {
+              // Show popup with report bubble content
+              const popupContent = `
+                <div style="max-width: 300px;">
+                  <div style="display: flex; align-items: start; gap: 12px; margin-bottom: 8px;">
+                    <div style="width: 32px; height: 32px; border-radius: 50%; background-color: ${
+                      report.componentType === "inlet"
+                        ? "#22c55e"
+                        : report.componentType === "outlet"
+                        ? "#ef4444"
+                        : report.componentType === "pipe"
+                        ? "#a855f7"
+                        : "#3b82f6"
+                    }; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="12" y1="8" x2="12" y2="12"></line>
+                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3 style="margin: 0; font-weight: 600; color: #111827;">${report.reporterName}</h3>
+                      <p style="margin: 4px 0 0 0; font-size: 12px; color: #6b7280;">Report #${report.id}</p>
+                    </div>
+                  </div>
+                  <div style="margin-left: 44px;">
+                    <div style="margin-bottom: 8px;">
+                      <span style="display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; font-weight: 500; border: 1px solid ${
+                        report.status === "pending"
+                          ? "#fde047"
+                          : report.status === "in-progress"
+                          ? "#93c5fd"
+                          : "#86efac"
+                      }; background-color: ${
+                report.status === "pending"
+                  ? "#fef9c3"
+                  : report.status === "in-progress"
+                  ? "#dbeafe"
+                  : "#dcfce7"
+              }; color: ${
+                report.status === "pending"
+                  ? "#854d0e"
+                  : report.status === "in-progress"
+                  ? "#1e40af"
+                  : "#166534"
+              };">
+                        ${report.status.replace("-", " ").toUpperCase()}
+                      </span>
+                    </div>
+                    <p style="margin: 8px 0; font-size: 12px; color: #4b5563;">
+                      <strong>Component:</strong> ${
+                        report.componentType.charAt(0).toUpperCase() +
+                        report.componentType.slice(1)
+                      } (${report.componentId})
+                    </p>
+                    <p style="margin: 8px 0; font-size: 12px; color: #4b5563;">
+                      <strong>Category:</strong> ${report.category}
+                    </p>
+                    <p style="margin: 8px 0 0 0; font-size: 13px; color: #111827;">
+                      ${report.description}
+                    </p>
+                  </div>
+                </div>
+              `;
+
+              new mapboxgl.Popup()
+                .setLngLat(report.coordinates)
+                .setHTML(popupContent)
+                .addTo(map);
+            }
+            break;
+          }
           case "man_pipes-layer": {
             const pipe = pipesRef.current.find((p) => p.id === props.Name);
             if (pipe) handleSelectPipe(pipe);
@@ -291,7 +484,7 @@ export default function MapPage() {
       });
 
       // Change cursor on hover (nice UX)
-      layerIds.forEach((layerId) => {
+      [...layerIds, "reports-layer"].forEach((layerId) => {
         map.on("mouseenter", layerId, () => {
           map.getCanvas().style.cursor = "pointer";
         });
