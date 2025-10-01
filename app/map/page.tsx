@@ -14,10 +14,11 @@ import {
   MAP_STYLES,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
-import { Inlet } from "@/hooks/useInlets";
-import { Outlet } from "@/hooks/useOutlets";
-import { Drain } from "@/hooks/useDrain";
-import { Pipe } from "@/hooks/usePipes";
+import { Inlet, useInlets } from "@/hooks/useInlets";
+import { Outlet, useOutlets } from "@/hooks/useOutlets";
+import { Drain, useDrain } from "@/hooks/useDrain";
+import { Pipe, usePipes } from "@/hooks/usePipes";
+import type { DatasetType } from "@/components/control-panel/types";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -32,7 +33,84 @@ export default function MapPage() {
     "outlets-layer": true,
   });
 
+  const [selectedFeature, setSelectedFeature] = useState<{
+    id: string | number;
+    source: string;
+    layer: string;
+  } | null>(null);
+
+  const selectedFeatureRef = useRef<{
+    id: string | number;
+    source: string;
+    layer: string;
+  } | null>(null);
+
   const layerIds = useMemo(() => LAYER_IDS, []);
+
+  // Load data from hooks
+  const { inlets } = useInlets();
+  const { outlets } = useOutlets();
+  const { pipes } = usePipes();
+  const { drains } = useDrain();
+
+  // Selection state for control panel detail view
+  const [selectedInlet, setSelectedInlet] = useState<Inlet | null>(null);
+  const [selectedOutlet, setSelectedOutlet] = useState<Outlet | null>(null);
+  const [selectedPipe, setSelectedPipe] = useState<Pipe | null>(null);
+  const [selectedDrain, setSelectedDrain] = useState<Drain | null>(null);
+
+  // Control panel state
+  const [controlPanelTab, setControlPanelTab] = useState<string>("overlays");
+  const [controlPanelDataset, setControlPanelDataset] =
+    useState<DatasetType>("inlets");
+
+  // Function to clear all selections
+  const clearSelections = () => {
+    setSelectedInlet(null);
+    setSelectedOutlet(null);
+    setSelectedPipe(null);
+    setSelectedDrain(null);
+
+    // Also clear the map's feature state if something was selected
+    if (selectedFeatureRef.current && mapRef.current) {
+      mapRef.current.setFeatureState(
+        {
+          source: selectedFeatureRef.current.source,
+          id: selectedFeatureRef.current.id,
+        },
+        { selected: false }
+      );
+      setSelectedFeature(null);
+    }
+  };
+
+  // Refs for data to avoid stale closures in map click handler
+  const inletsRef = useRef<Inlet[]>([]);
+  const outletsRef = useRef<Outlet[]>([]);
+  const pipesRef = useRef<Pipe[]>([]);
+  const drainsRef = useRef<Drain[]>([]);
+
+  // Update refs when data changes
+  useEffect(() => {
+    inletsRef.current = inlets;
+  }, [inlets]);
+
+  useEffect(() => {
+    outletsRef.current = outlets;
+  }, [outlets]);
+
+  useEffect(() => {
+    pipesRef.current = pipes;
+  }, [pipes]);
+
+  useEffect(() => {
+    drainsRef.current = drains;
+  }, [drains]);
+
+  // Sync ref with state to avoid stale closures
+  useEffect(() => {
+    selectedFeatureRef.current = selectedFeature;
+  }, [selectedFeature]);
 
   useEffect(() => {
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
@@ -174,67 +252,41 @@ export default function MapPage() {
           layers: validLayers,
         });
 
-        if (!features.length) return;
-
-        // always get the top-most feature (index 0)
-        const feature = features[0];
-        const props = feature.properties || {};
-
-        let html = "";
-        if (!feature.layer) return;
-
-        switch (feature.layer.id) {
-          case "man_pipes-layer":
-            html = `
-              <strong>Man Pipe (${props.Name ?? "N/A"})</strong><br/>
-              Type: ${props.TYPE ?? "N/A"}<br/>
-              Shape: ${props.Pipe_Shape ?? "N/A"}<br/>
-              Length: ${props.Pipe_Lngth ?? "N/A"}<br/>
-              Height: ${props.Height ?? "N/A"}
-              Manning's n: ${props.Mannings ?? "N/A"}<br/>
-              Barrels: ${props.Barrels ?? "N/A"}<br/>
-              Clog %: ${props.ClogPer ?? "N/A"}<br/>
-              Clog Time: ${props.ClogTime ?? "N/A"}
-            `;
-            break;
-
-          case "inlets-layer":
-            html = `
-              <strong>Inlet (${props.In_Name ?? "N/A"})</strong><br/>
-              Type: ${props.In_Type ?? "N/A"}<br/>
-              Inv Elev: ${props.Inv_Elev ?? "N/A"}<br/>
-              Max Depth: ${props.MaxDepth ?? "N/A"}
-              Length: ${props.Length ?? "N/A"} m<br/>
-              Height: ${props.Height ?? "N/A"} m<br/>
-              Weir Coeff: ${props.Weir_Coeff ?? "N/A"}<br/>
-              Clog %: ${props.ClogFac ?? "N/A"}<br/>
-              Clog Time: ${props.ClogTime ?? "N/A"}
-            `;
-            break;
-
-          case "outlets-layer":
-            html = `
-              <strong>Outlet (${props.Out_Name ?? "N/A"})</strong><br/>
-              Inv Elev: ${props.Inv_Elev ?? "N/A"}<br/>
-              AllowQ: ${props.AllowQ ?? "N/A"}<br/>
-              FlapGate: ${props.FlapGate ?? "N/A"}
-            `;
-            break;
-
-          case "storm_drains-layer":
-            html = `
-              <strong>Storm Drain (${props.In_Name ?? "N/A"})</strong><br/>
-              Inv Elev: ${props.InvElev ?? "N/A"}<br/>
-              Max Depth: ${props.Max_Depth ?? "N/A"}
-              Length: ${props.Length ?? "N/A"}<br/>
-              Height: ${props.Height ?? "N/A"}<br/>
-              Clog %: ${props.clog_per ?? "N/A"}
-            `;
-            break;
+        // If no features are clicked, clear all selections
+        if (!features.length) {
+          clearSelections();
+          setControlPanelTab("overlays");
+          return;
         }
 
-        if (html) {
-          new mapboxgl.Popup().setLngLat(e.lngLat).setHTML(html).addTo(map);
+        const feature = features[0];
+        const props = feature.properties || {};
+        if (!feature.layer) return;
+
+        // Find the corresponding data and call the correct handler
+        switch (feature.layer.id) {
+          case "man_pipes-layer": {
+            const pipe = pipesRef.current.find((p) => p.id === props.Name);
+            if (pipe) handleSelectPipe(pipe);
+            break;
+          }
+          case "inlets-layer": {
+            const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
+            if (inlet) handleSelectInlet(inlet);
+            break;
+          }
+          case "outlets-layer": {
+            const outlet = outletsRef.current.find(
+              (o) => o.id === props.Out_Name
+            );
+            if (outlet) handleSelectOutlet(outlet);
+            break;
+          }
+          case "storm_drains-layer": {
+            const drain = drainsRef.current.find((d) => d.id === props.In_Name);
+            if (drain) handleSelectDrain(drain);
+            break;
+          }
         }
       });
 
@@ -313,10 +365,36 @@ export default function MapPage() {
 
   const someVisible = Object.values(overlayVisibility).some(Boolean);
 
+  // Handler for the back button in control panel
+  const handleControlPanelBack = () => {
+    clearSelections();
+    setControlPanelTab("stats");
+  };
+
   const handleSelectInlet = (inlet: Inlet) => {
     if (!mapRef.current) return;
     const [lng, lat] = inlet.coordinates;
 
+    // Clear any previous selections first
+    clearSelections();
+
+    // Set the new selection state for control panel
+    setSelectedInlet(inlet);
+    setControlPanelTab("stats");
+    setControlPanelDataset("inlets");
+
+    // Set new map feature state
+    mapRef.current.setFeatureState(
+      { source: "inlets", id: inlet.id },
+      { selected: true }
+    );
+    setSelectedFeature({
+      id: inlet.id,
+      source: "inlets",
+      layer: "inlets-layer",
+    });
+
+    // Fly to the location on the map
     mapRef.current.flyTo({
       center: [lng, lat],
       zoom: 18,
@@ -324,6 +402,7 @@ export default function MapPage() {
       curve: 1,
     });
 
+    // Add popup
     new mapboxgl.Popup()
       .setLngLat([lng, lat])
       .setHTML(
@@ -342,6 +421,26 @@ export default function MapPage() {
     if (!mapRef.current) return;
     const [lng, lat] = outlet.coordinates;
 
+    // Clear any previous selections first
+    clearSelections();
+
+    // Set the new selection state for control panel
+    setSelectedOutlet(outlet);
+    setControlPanelTab("stats");
+    setControlPanelDataset("outlets");
+
+    // Set new map feature state
+    mapRef.current.setFeatureState(
+      { source: "outlets", id: outlet.id },
+      { selected: true }
+    );
+    setSelectedFeature({
+      id: outlet.id,
+      source: "outlets",
+      layer: "outlets-layer",
+    });
+
+    // Fly to the location on the map
     mapRef.current.flyTo({
       center: [lng, lat],
       zoom: 18,
@@ -349,6 +448,7 @@ export default function MapPage() {
       curve: 1,
     });
 
+    // Add popup
     new mapboxgl.Popup()
       .setLngLat([lng, lat])
       .setHTML(
@@ -366,6 +466,26 @@ export default function MapPage() {
     if (!mapRef.current) return;
     const [lng, lat] = drain.coordinates;
 
+    // Clear any previous selections first
+    clearSelections();
+
+    // Set the new selection state for control panel
+    setSelectedDrain(drain);
+    setControlPanelTab("stats");
+    setControlPanelDataset("storm_drains");
+
+    // Set new map feature state
+    mapRef.current.setFeatureState(
+      { source: "storm_drains", id: drain.id },
+      { selected: true }
+    );
+    setSelectedFeature({
+      id: drain.id,
+      source: "storm_drains",
+      layer: "storm_drains-layer",
+    });
+
+    // Fly to the location on the map
     mapRef.current.flyTo({
       center: [lng, lat],
       zoom: 18,
@@ -373,6 +493,7 @@ export default function MapPage() {
       curve: 1,
     });
 
+    // Add popup
     new mapboxgl.Popup()
       .setLngLat([lng, lat])
       .setHTML(
@@ -390,8 +511,26 @@ export default function MapPage() {
 
   const handleSelectPipe = (pipe: Pipe) => {
     if (!mapRef.current) return;
-
     if (!pipe.coordinates || pipe.coordinates.length === 0) return;
+
+    // Clear any previous selections first
+    clearSelections();
+
+    // Set the new selection state for control panel
+    setSelectedPipe(pipe);
+    setControlPanelTab("stats");
+    setControlPanelDataset("man_pipes");
+
+    // Set new map feature state
+    mapRef.current.setFeatureState(
+      { source: "man_pipes", id: pipe.id },
+      { selected: true }
+    );
+    setSelectedFeature({
+      id: pipe.id,
+      source: "man_pipes",
+      layer: "man_pipes-layer",
+    });
 
     // Fit map to line
     const bounds = new mapboxgl.LngLatBounds();
@@ -426,14 +565,23 @@ export default function MapPage() {
       <main className="relative min-h-screen flex flex-col bg-blue-200">
         <div className="w-full h-screen" ref={mapContainerRef} />
         <ControlPanel
-          overlaysVisible={someVisible}
-          onToggle={handleToggleAllOverlays}
-          overlays={overlayData}
-          onToggleOverlay={handleOverlayToggle}
+          activeTab={controlPanelTab}
+          dataset={controlPanelDataset}
+          selectedInlet={selectedInlet}
+          selectedOutlet={selectedOutlet}
+          selectedPipe={selectedPipe}
+          selectedDrain={selectedDrain}
+          onTabChange={setControlPanelTab}
+          onDatasetChange={setControlPanelDataset}
           onSelectInlet={handleSelectInlet}
           onSelectOutlet={handleSelectOutlet}
           onSelectDrain={handleSelectDrain}
           onSelectPipe={handleSelectPipe}
+          onBack={handleControlPanelBack}
+          overlaysVisible={someVisible}
+          onToggle={handleToggleAllOverlays}
+          overlays={overlayData}
+          onToggleOverlay={handleOverlayToggle}
         />
         <CameraControls
           onZoomIn={handleZoomIn}

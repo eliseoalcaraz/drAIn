@@ -12,36 +12,31 @@ import type { Inlet, Pipe, Outlet, Drain, DatasetType } from "./types";
 import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
 
 export function ControlPanel({
-  overlaysVisible,
-  onToggle,
-  overlays,
-  onToggleOverlay,
+  activeTab,
+  dataset,
+  selectedInlet,
+  selectedOutlet,
+  selectedDrain,
+  selectedPipe,
+  onTabChange,
+  onDatasetChange,
   onSelectInlet,
   onSelectOutlet,
   onSelectDrain,
   onSelectPipe,
+  onBack,
+  overlaysVisible,
+  onToggle,
+  overlays,
+  onToggleOverlay,
 }: ControlPanelProps) {
   const {
-    activeTab,
-    setActiveTab,
     sortField,
     sortDirection,
     searchTerm,
-    selectedInlet,
-    selectedPipe,
-    selectedOutlet,
-    selectedDrain,
-    setSelectedInlet,
-    setSelectedPipe,
-    setSelectedOutlet,
-    setSelectedDrain,
     handleSort,
     handleSearch,
-    handleBack,
-    getSelectedItem,
   } = useControlPanelState();
-
-  const [dataset, setDataset] = useState<DatasetType>("inlets");
 
   // Data hooks
   const { inlets, loading: loadingInlets } = useInlets();
@@ -49,42 +44,22 @@ export function ControlPanel({
   const { pipes, loading: loadingPipes } = usePipes();
   const { drains, loading: loadingDrains } = useDrain();
 
-  const selectedItem = getSelectedItem();
+  const selectedItem = selectedInlet || selectedPipe || selectedOutlet || selectedDrain;
   const selectedItemTitle = selectedItem ? DETAIL_TITLES[dataset] : "";
-
-  const handleInletSelect = (inlet: Inlet) => {
-    onSelectInlet(inlet);
-    setSelectedInlet(inlet);
-  };
-
-  const handlePipeSelect = (pipe: Pipe) => {
-    onSelectPipe(pipe);
-    setSelectedPipe(pipe);
-  };
-
-  const handleOutletSelect = (outlet: Outlet) => {
-    onSelectOutlet(outlet);
-    setSelectedOutlet(outlet);
-  };
-
-  const handleDrainSelect = (drain: Drain) => {
-    onSelectDrain(drain);
-    setSelectedDrain(drain);
-  };
 
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={setActiveTab} />
+      <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
 
       <div className="flex flex-1 flex-col">
         {/* Top Bar */}
         <TopBar
           activeTab={activeTab}
           dataset={dataset}
-          onDatasetChange={setDataset}
+          onDatasetChange={onDatasetChange}
           onSearch={handleSearch}
-          onBack={handleBack}
+          onBack={onBack}
           hasSelectedItem={!!selectedItem}
           selectedItemTitle={selectedItemTitle}
           overlaysVisible={overlaysVisible}
@@ -112,10 +87,10 @@ export function ControlPanel({
             selectedPipe={selectedPipe}
             selectedOutlet={selectedOutlet}
             selectedDrain={selectedDrain}
-            onSelectInlet={handleInletSelect}
-            onSelectPipe={handlePipeSelect}
-            onSelectOutlet={handleOutletSelect}
-            onSelectDrain={handleDrainSelect}
+            onSelectInlet={onSelectInlet}
+            onSelectPipe={onSelectPipe}
+            onSelectOutlet={onSelectOutlet}
+            onSelectDrain={onSelectDrain}
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
           />
