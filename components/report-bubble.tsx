@@ -62,9 +62,19 @@ export function ReportBubble({ report }: Props) {
 
   return (
     <div>
+      {/* Clickable initials button */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className={`w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs font-bold border-2 ${getComponentBorderColor(
+          report.componentType
+        )}`}
+      >
+        {initials}
+      </button>
+
       {/* Popup */}
       {isOpen && (
-        <div className="absolute left-10 z-50 w-2xs p-4 bg-white rounded-lg shadow-lg">
+        <div className="absolute left-10 z-100 w-2xs p-4 bg-white rounded-lg shadow-lg">
           {/* Close button */}
           <button
             onClick={onClose}
@@ -141,16 +151,6 @@ export function ReportBubble({ report }: Props) {
           )}
         </div>
       )}
-
-      {/* Clickable initials button */}
-      <button
-        onClick={() => setIsOpen(true)}
-        className={`w-6 h-6 rounded-full bg-gray-600 flex items-center justify-center text-white text-xs font-bold border-2 ${getComponentBorderColor(
-          report.componentType
-        )}`}
-      >
-        {initials}
-      </button>
     </div>
   );
 }

@@ -22,8 +22,8 @@ export const dummyReports: Report[] = [
     date: "2025-09-28T10:30:00Z",
     status: "pending",
     componentType: "inlet",
-    componentId: "I1",
-    coordinates: [123.89015, 10.31145],
+    componentId: "I-0",
+    coordinates: [123.915424397260537, 10.360172475881017], // I-0
   },
   {
     id: "2",
@@ -36,7 +36,7 @@ export const dummyReports: Report[] = [
     status: "in-progress",
     componentType: "outlet",
     componentId: "O1",
-    coordinates: [123.88954, 10.31082],
+    coordinates: [123.918361755162664, 10.357608641506733], // I-1
   },
   {
     id: "3",
@@ -49,7 +49,7 @@ export const dummyReports: Report[] = [
     status: "resolved",
     componentType: "pipe",
     componentId: "P1",
-    coordinates: [123.89001, 10.3112],
+    coordinates: [123.920987252764391, 10.338730655455292], // I-2
   },
   {
     id: "4",
@@ -62,7 +62,7 @@ export const dummyReports: Report[] = [
     status: "pending",
     componentType: "drain",
     componentId: "SD1",
-    coordinates: [123.88989, 10.31098],
+    coordinates: [123.921170664731619, 10.354456954123773], // I-3
   },
   {
     id: "5",
@@ -74,8 +74,8 @@ export const dummyReports: Report[] = [
     date: "2025-09-24T11:00:00Z",
     status: "in-progress",
     componentType: "inlet",
-    componentId: "I2",
-    coordinates: [123.89043, 10.31167],
+    componentId: "I-4",
+    coordinates: [123.921962851926708, 10.338411826888034], // I-4
   },
   {
     id: "6",
@@ -88,7 +88,7 @@ export const dummyReports: Report[] = [
     status: "resolved",
     componentType: "outlet",
     componentId: "O2",
-    coordinates: [123.88975, 10.31102],
+    coordinates: [123.923446999999769, 10.334737], // I-5
   },
   {
     id: "7",
@@ -101,7 +101,7 @@ export const dummyReports: Report[] = [
     status: "pending",
     componentType: "pipe",
     componentId: "P2",
-    coordinates: [123.89028, 10.31135],
+    coordinates: [123.924270610005564, 10.337863285361866], // I-6
   },
   {
     id: "8",
@@ -114,7 +114,7 @@ export const dummyReports: Report[] = [
     status: "resolved",
     componentType: "drain",
     componentId: "SD2",
-    coordinates: [123.89012, 10.31158],
+    coordinates: [123.924274242405161, 10.328531541760796], // I-7
   },
   {
     id: "9",
@@ -126,8 +126,8 @@ export const dummyReports: Report[] = [
     date: "2025-09-20T15:50:00Z",
     status: "in-progress",
     componentType: "inlet",
-    componentId: "I3",
-    coordinates: [123.89065, 10.31189],
+    componentId: "I-8",
+    coordinates: [123.924471617302004, 10.323027400798289], // I-8
   },
   {
     id: "10",
@@ -140,6 +140,6 @@ export const dummyReports: Report[] = [
     status: "pending",
     componentType: "pipe",
     componentId: "P3",
-    coordinates: [123.9489, 10.325],
+    coordinates: [123.924715052953118, 10.339478649035902], // I-9
   },
 ];
