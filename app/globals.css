@@ -127,3 +127,24 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Mapbox Popup Styling */
+.mapboxgl-popup-close-button {
+  /* Remove default right alignment */
+  top: 10px !important;
+  bottom: auto !important;
+  right: 12px !important;
+  /* Set new left alignment */
+  left: auto !important;
+}
+
+/* Adjust popup content padding */
+.mapboxgl-popup-content {
+  padding: 10px 30px 15px 15px !important; /* Adjust this value as needed */
+  border-radius: 8px !important;
+}
+
+/* Optional: Adjust the tip (arrow) position if needed */
+.mapboxgl-popup-tip {
+  /* Customize arrow if needed */
+}

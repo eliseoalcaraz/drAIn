@@ -7,7 +7,7 @@ import type {
 } from "geojson";
 
 export interface Drain {
-  id: number;
+  id: string;
   In_Name: string;
   InvElev: number;
   clog_per: number;
@@ -25,7 +25,6 @@ export interface Drain {
 export function transformGeoJSON(geojson: FeatureCollection): Drain[] {
   return geojson.features.map((f: Feature) => {
     const props = f.properties as GeoJsonProperties & {
-      Id: number;
       In_Name: string;
       InvElev: number;
       clog_per: number;
@@ -45,7 +44,7 @@ export function transformGeoJSON(geojson: FeatureCollection): Drain[] {
         : [0, 0];
 
     return {
-      id: props.Id,
+      id: props.In_Name,
       In_Name: props.In_Name,
       InvElev: props.InvElev,
       clog_per: props.clog_per,

@@ -35,7 +35,7 @@ export interface Outlet {
 }
 
 export interface Drain {
-  id: number;
+  id: string; // Changed from number to string to match In_Name
   In_Name: string;
   InvElev: number;
   clog_per: number;
@@ -62,6 +62,23 @@ export interface FieldConfig {
 }
 
 export interface ControlPanelProps {
+  // Control panel state
+  activeTab: string;
+  dataset: DatasetType;
+  // Selected items
+  selectedInlet: Inlet | null;
+  selectedOutlet: Outlet | null;
+  selectedDrain: Drain | null;
+  selectedPipe: Pipe | null;
+  // Callbacks
+  onTabChange: (tab: string) => void;
+  onDatasetChange: (dataset: DatasetType) => void;
+  onSelectInlet: (inlet: Inlet) => void;
+  onSelectOutlet: (outlet: Outlet) => void;
+  onSelectDrain: (drain: Drain) => void;
+  onSelectPipe: (pipe: Pipe) => void;
+  onBack: () => void;
+  // Overlay props
   overlaysVisible: boolean;
   onToggle: (visible: boolean) => void;
   overlays: {
@@ -71,8 +88,4 @@ export interface ControlPanelProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
-  onSelectInlet: (inlet: Inlet) => void;
-  onSelectOutlet: (outlet: Outlet) => void;
-  onSelectDrain: (drain: Drain) => void;
-  onSelectPipe: (pipe: Pipe) => void;
 }
