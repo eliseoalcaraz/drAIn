@@ -21,7 +21,7 @@ import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
 import { dummyReports } from "@/data/dummy-reports";
 import ReactDOM from "react-dom/client";
-import { ReportBubble } from "@/components/report-bubble";
+import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -344,28 +344,42 @@ export default function MapPage() {
       map.on("load", addCustomLayers);
       map.on("style.load", addCustomLayers);
 
+      // Store all report bubble refs
+      const reportBubbleRefs: Array<ReportBubbleRef | null> = [];
+
       map.on("load", () => {
-        dummyReports.forEach((report) => {
+        dummyReports.forEach((report, index) => {
           const container = document.createElement("div");
           const root = ReactDOM.createRoot(container);
 
-          const popup = new mapboxgl.Popup({
+          new mapboxgl.Popup({
             maxWidth: "320px",
             closeButton: false, // use your custom X only
             className: "no-bg-popup",
-            closeOnClick: false, // make sure clicking map doesn’t close all
+            closeOnClick: false, // make sure clicking map doesn't close all
           })
             .setLngLat(report.coordinates)
             .setDOMContent(container)
             .addTo(map);
 
+          const handleOpenBubble = () => {
+            // Close all other bubbles when this one opens
+            reportBubbleRefs.forEach((ref, i) => {
+              if (i !== index && ref) {
+                ref.close();
+              }
+            });
+          };
+
           root.render(
             <ReportBubble
-              report={report}
-              onClose={() => {
-                popup.remove();
-                root.unmount();
+              ref={(ref) => {
+                reportBubbleRefs[index] = ref;
               }}
+              report={report}
+              map={map}
+              coordinates={report.coordinates}
+              onOpen={handleOpenBubble}
             />
           );
         });
