@@ -23,7 +23,7 @@ import { dummyReports } from "@/data/dummy-reports";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 
-//@ts-ignore
+// @ts-expect-error
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function MapPage() {
