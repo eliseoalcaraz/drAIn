@@ -26,10 +26,10 @@ export default function WelcomePage() {
           smarter, faster, and more interactive.
         </p>
         <button
-          onClick={() => router.push("/signup")}
+          onClick={() => router.push("/map")}
           className="px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
         >
-          Get Started
+          Go to Map
         </button>
       </section>
     </main>

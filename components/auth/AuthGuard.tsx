@@ -9,7 +9,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
 
-  const isPublic = ["/login", "/signup", "/welcome"].includes(pathname);
+  const isPublic = ["/login", "/signup", "/welcome", "/map"].includes(pathname);
 
   useEffect(() => {
     if (!loading && !user && !isPublic) {
