@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from "./ui/dialog";
 import { Checkbox } from "./ui/checkbox";
+import { uploadReport } from "@/lib/supabase/report";
 
 export default function ReportForm() {
   const [category, setCategory] = useState("");
@@ -25,12 +26,15 @@ export default function ReportForm() {
     setIsModalOpen(true);
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async  () => {
     console.log({
       category,
       description,
       image,
     });
+
+    await uploadReport(image!, category, description)
+
     setIsModalOpen(false);
     setTermsAccepted(false);
   };
