@@ -144,7 +144,15 @@
   border-radius: 8px !important;
 }
 
+.no-bg-popup .mapboxgl-popup-content {
+  box-shadow: none;
+  padding: 3px !important;
+  border-radius: 100% 100% 100% 0px !important;
+  left: 30;
+  top: -5;
+}
+
 /* Optional: Adjust the tip (arrow) position if needed */
-.mapboxgl-popup-tip {
-  /* Customize arrow if needed */
+.no-bg-popup .mapboxgl-popup-tip {
+  display: none !important;
 }

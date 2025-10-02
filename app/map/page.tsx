@@ -19,6 +19,9 @@ import { Outlet, useOutlets } from "@/hooks/useOutlets";
 import { Drain, useDrain } from "@/hooks/useDrain";
 import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
+import { dummyReports } from "@/data/dummy-reports";
+import ReactDOM from "react-dom/client";
+import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -170,14 +173,27 @@ export default function MapPage() {
           map.addSource("man_pipes", {
             type: "geojson",
             data: "/drainage/man_pipes.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "Name",
           });
           map.addLayer({
             id: "man_pipes-layer",
             type: "line",
             source: "man_pipes",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "line-color": "#8B008B",
-              "line-width": 2.5,
+              "line-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff", // Highlight color
+                "#8B008B",
+              ],
+              "line-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                6, // Highlight width
+                2.5,
+              ],
             },
           });
         }
@@ -185,16 +201,34 @@ export default function MapPage() {
           map.addSource("storm_drains", {
             type: "geojson",
             data: "/drainage/storm_drains.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "In_Name",
           });
           map.addLayer({
             id: "storm_drains-layer",
             type: "circle",
             source: "storm_drains",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "circle-radius": 4,
+              "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                10,
+                4,
+              ],
               "circle-color": "#0088ff",
-              "circle-stroke-color": "#000000",
-              "circle-stroke-width": 0.5,
+              "circle-stroke-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff",
+                "#000000",
+              ],
+              "circle-stroke-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                3,
+                0.5,
+              ],
             },
           });
         }
@@ -202,16 +236,34 @@ export default function MapPage() {
           map.addSource("inlets", {
             type: "geojson",
             data: "/drainage/inlets.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "In_Name",
           });
           map.addLayer({
             id: "inlets-layer",
             type: "circle",
             source: "inlets",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "circle-radius": 6,
+              "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                12,
+                6,
+              ],
               "circle-color": "#00cc44",
-              "circle-stroke-color": "#000000",
-              "circle-stroke-width": 0.5,
+              "circle-stroke-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff",
+                "#000000",
+              ],
+              "circle-stroke-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                3,
+                0.5,
+              ],
             },
           });
         }
@@ -220,16 +272,70 @@ export default function MapPage() {
           map.addSource("outlets", {
             type: "geojson",
             data: "/drainage/outlets.geojson",
+            // --- 🎨 CHANGE: Added promoteId ---
+            promoteId: "Out_Name",
           });
           map.addLayer({
             id: "outlets-layer",
             type: "circle",
             source: "outlets",
+            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
-              "circle-radius": 6,
+              "circle-radius": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                12,
+                6,
+              ],
               "circle-color": "#cc0000",
-              "circle-stroke-color": "#000000",
-              "circle-stroke-width": 0.5,
+              "circle-stroke-color": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                "#00ffff",
+                "#000000",
+              ],
+              "circle-stroke-width": [
+                "case",
+                ["boolean", ["feature-state", "selected"], false],
+                3,
+                0.5,
+              ],
+            },
+          });
+        }
+
+        // Add reports layer
+        if (!map.getSource("reports")) {
+          map.addSource("reports", {
+            type: "geojson",
+            data: {
+              type: "FeatureCollection",
+              features: dummyReports.map((report) => ({
+                type: "Feature" as const,
+                geometry: {
+                  type: "Point" as const,
+                  coordinates: report.coordinates,
+                },
+                properties: {
+                  id: report.id,
+                  category: report.category,
+                  status: report.status,
+                  componentType: report.componentType,
+                  componentId: report.componentId,
+                  reporterName: report.reporterName,
+                  description: report.description,
+                  date: report.date,
+                },
+              })),
+            },
+          });
+
+          map.addLayer({
+            id: "reports-layer",
+            type: "circle",
+            source: "reports",
+            paint: {
+              "circle-opacity": 0,
             },
           });
         }
@@ -237,6 +343,47 @@ export default function MapPage() {
 
       map.on("load", addCustomLayers);
       map.on("style.load", addCustomLayers);
+
+      // Store all report bubble refs
+      const reportBubbleRefs: Array<ReportBubbleRef | null> = [];
+
+      map.on("load", () => {
+        dummyReports.forEach((report, index) => {
+          const container = document.createElement("div");
+          const root = ReactDOM.createRoot(container);
+
+          new mapboxgl.Popup({
+            maxWidth: "320px",
+            closeButton: false, // use your custom X only
+            className: "no-bg-popup",
+            closeOnClick: false, // make sure clicking map doesn't close all
+          })
+            .setLngLat(report.coordinates)
+            .setDOMContent(container)
+            .addTo(map);
+
+          const handleOpenBubble = () => {
+            // Close all other bubbles when this one opens
+            reportBubbleRefs.forEach((ref, i) => {
+              if (i !== index && ref) {
+                ref.close();
+              }
+            });
+          };
+
+          root.render(
+            <ReportBubble
+              ref={(ref) => {
+                reportBubbleRefs[index] = ref;
+              }}
+              report={report}
+              map={map}
+              coordinates={report.coordinates}
+              onOpen={handleOpenBubble}
+            />
+          );
+        });
+      });
 
       map.on("click", (e) => {
         const validLayers = [
@@ -291,7 +438,7 @@ export default function MapPage() {
       });
 
       // Change cursor on hover (nice UX)
-      layerIds.forEach((layerId) => {
+      [...layerIds, "reports-layer"].forEach((layerId) => {
         map.on("mouseenter", layerId, () => {
           map.getCanvas().style.cursor = "pointer";
         });
