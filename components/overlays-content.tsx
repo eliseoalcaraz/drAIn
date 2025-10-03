@@ -1,6 +1,7 @@
 "use client";
 
 import { OverlayLegend } from "./overlay-legend";
+import { ChartPieDonutText } from "./chart-pie";
 
 interface OverlayContentProps {
   overlays: {
@@ -17,7 +18,8 @@ export default function OverlaysContent({
   onToggleOverlay,
 }: OverlayContentProps) {
   return (
-    <div className="flex-col flex-1 gap-4 px-6">
+    <div className="flex-col flex-1 gap-4 pl-3.5 pr-5">
+      <ChartPieDonutText />
       <OverlayLegend overlays={overlays} onToggleOverlay={onToggleOverlay} />
     </div>
   );
