@@ -32,7 +32,9 @@ export function OverlayLegend({
     <Card className="flex gap-2 pb-0 flex-col">
       <CardHeader className="items-center pb-0">
         <CardTitle>Map Layers</CardTitle>
-        <CardDescription>Click item to toggle</CardDescription>
+        <CardDescription className="text-xs">
+          Click an item to toggle on or off
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         {overlays.map((overlay, index) => (
@@ -80,7 +82,6 @@ export function OverlayLegend({
               <Switch
                 checked={overlay.visible}
                 onCheckedChange={() => onToggleOverlay(overlay.id)}
-                size="sm"
                 className="ml-auto"
               />
             </div>

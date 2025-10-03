@@ -101,7 +101,9 @@ export function ChartPieDonutText() {
     <Card className="flex gap-0 pb-0 flex-col">
       <CardHeader className="items-center pb-0">
         <CardTitle>Drainage Infrastructure</CardTitle>
-        <CardDescription>Distribution of components</CardDescription>
+        <CardDescription className="text-xs">
+          Distribution of components
+        </CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0 ">
         <ChartContainer

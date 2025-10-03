@@ -3,16 +3,36 @@
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { MessageSquareWarning, Info } from "lucide-react";
 import { report } from "@/data/content";
 import Image from "next/image";
 import { useMemo } from "react";
+import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import {
+  ChartConfig,
+  ChartContainer,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
 
 interface ReportsToggleProps {
   isVisible: boolean;
   onToggle: () => void;
 }
+
+const chartConfig = {
+  count: {
+    label: "Reports",
+    color: "#3F83DB",
+  },
+} satisfies ChartConfig;
 
 export function ReportsToggle({ isVisible, onToggle }: ReportsToggleProps) {
   const totalReports = report.length;
@@ -30,97 +50,90 @@ export function ReportsToggle({ isVisible, onToggle }: ReportsToggleProps) {
     return sortedDates.map((date) => ({
       date,
       count: dateCounts[date],
-      fill: "#3F83DB",
     }));
   }, []);
 
   return (
     <div className="bg-[#eeeeee] rounded-xl border border-[#e2e2e2]">
-      <div className="pb-2 py-1.5 px-4 flex flex-row items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <Image
-            src="/icons/information.svg"
-            alt="Information"
-            width={14}
-            height={14}
-            className="opacity-70"
-          />
-          <span className="text-xs font-medium">User Reports</span>
-        </div>
-        <span className="text-xs font-semibold text-orange-600">
-          Total: {totalReports}
-        </span>
+      <div className="py-2 px-4 flex flex-row items-center justify-between">
+        <span className="text-xs">User Reports</span>
+        <Info className="h-3.5 w-3.5 opacity-70" />
       </div>
 
-      <Card className="border-x-0">
-        <CardHeader className="pb-3">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-orange-500/10">
-              <MapPin className="h-4 w-4 text-orange-500" />
+      <Card className="border-x-0 gap-3 pb-4">
+        <CardHeader className="flex-col gap-3 pb-0">
+          <CardTitle className="flex flex-row">
+            <div className="flex flex-row items-center gap-2">
+              <MessageSquareWarning className="w-4 h-4" />
+              <span>{totalReports} reports</span>
             </div>
-            <CardTitle className="text-base">Drainage Reports</CardTitle>
-          </div>
-        </CardHeader>
-        <Separator className="mb-3" />
-        <CardContent className="pt-0 space-y-4">
-          {/* Bar Chart */}
-          <div className="h-[200px]"></div>
 
-          <Separator />
-
-          {/* Toggle Control */}
-          <div
-            className={`
-            flex items-center justify-between p-2.5 rounded-lg
-            transition-all duration-200 ease-in-out
-            hover:bg-accent/50 cursor-pointer
-            ${isVisible ? "bg-accent/30" : ""}
-          `}
-            onClick={onToggle}
-          >
-            <div className="flex items-center gap-2.5">
-              <div
-                className={`
-                w-3 h-3 rounded-full border-2
-                transition-all duration-200
-                ${
-                  isVisible
-                    ? "border-white shadow-md scale-110"
-                    : "border-gray-300"
-                }
-              `}
-                style={{
-                  backgroundColor: "#ff6b00",
-                  boxShadow: isVisible ? "0 0 8px #ff6b0040" : "none",
-                }}
-              />
-              <Label
-                htmlFor="reports-toggle"
-                className={`
-                text-sm cursor-pointer transition-all duration-200
-                ${
-                  isVisible
-                    ? "font-medium text-foreground"
-                    : "font-normal text-muted-foreground"
-                }
-              `}
-              >
-                Show Reports
-              </Label>
-            </div>
             <Switch
               id="reports-toggle"
               checked={isVisible}
               onCheckedChange={onToggle}
-              size="sm"
               className="ml-auto"
             />
-          </div>
-          <p className="text-xs text-muted-foreground px-2.5">
+          </CardTitle>
+          <CardDescription className="text-xs">
             Toggle visibility of drainage issue reports on the map
-          </p>
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="pt-0 space-y-4">
+          {/* Bar Chart */}
+
+          <ChartContainer
+            config={chartConfig}
+            className="flex h-[100px] w-full max-w-[240px]"
+          >
+            <BarChart
+              accessibilityLayer
+              data={chartData}
+              margin={{
+                left: 0,
+                right: 0,
+                top: 5,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid vertical={false} />
+              <XAxis
+                dataKey="date"
+                tickLine={false}
+                axisLine={false}
+                tickMargin={8}
+                minTickGap={32}
+                tickFormatter={(value) => {
+                  const date = new Date(value);
+                  return date.toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  });
+                }}
+              />
+              <ChartTooltip
+                content={
+                  <ChartTooltipContent
+                    className="w-[150px]"
+                    labelFormatter={(value) => {
+                      return new Date(value).toLocaleDateString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      });
+                    }}
+                  />
+                }
+              />
+              <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+            </BarChart>
+          </ChartContainer>
         </CardContent>
       </Card>
+      <div className="flex justify-end py-2 px-4 items-center gap-2">
+        <div className="bg-[#3F83DB] w-4 h-1.5 rounded-lg" />
+        <span className="text-xs">Report</span>
+      </div>
     </div>
   );
 }
