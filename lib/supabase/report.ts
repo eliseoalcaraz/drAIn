@@ -23,10 +23,11 @@ export const uploadReport = async (file: File, category: string, description: st
                     category,
                     description,
                     status: 'pending',
-                    component_type: 'inlet',
+                    component_type: 'outlet',
+                    component_id: 'O1',
                     coordinates: {
-                        lat: 10.360172475881017,
-                        lng: 123.915424397260537
+                        lat: 10.357608641506733,
+                        lng: 123.918361755162664
                     }
                 },
             ]);
@@ -45,3 +46,39 @@ export const uploadReport = async (file: File, category: string, description: st
     }
 
 }
+
+export const fetchReports = async () => {
+  try {
+    const { data, error } = await client
+      .from("reports")
+      .select("*");
+
+    if (error) {
+      console.error("Error fetching reports:", error);
+      throw error;
+    }
+
+    if (!data) return [];
+
+    // Transform into desired format
+    const formattedReports = data.map((report: any, index: number) => ({
+      id: report.id?.toString() ?? String(index + 1),
+      category: report.category,
+      description: report.description,
+      image: report.image ? `/storage/v1/object/public/ReportImage/${report.image}` : "",
+      reporterName: report.reporter_name ?? "Unknown Reporter",
+      date: report.created_at ?? new Date().toISOString(),
+      status: report.status,
+      componentType: report.component_type,
+      componentId: report.component_id ?? `I-${index}`,
+      coordinates: report.coordinates
+        ? [report.coordinates.lng, report.coordinates.lat]
+        : [0, 0],
+    }));
+
+    return formattedReports;
+  } catch (error) {
+    console.error("Error fetching reports:", error);
+    throw error;
+  }
+};

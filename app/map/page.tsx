@@ -19,15 +19,16 @@ import { Outlet, useOutlets } from "@/hooks/useOutlets";
 import { Drain, useDrain } from "@/hooks/useDrain";
 import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
-import { dummyReports } from "@/data/dummy-reports";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
+import { fetchReports } from "@/lib/supabase/report";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
+  const [reports, setReports] = useState<any[]>([]);
 
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
@@ -96,6 +97,19 @@ export default function MapPage() {
   const pipesRef = useRef<Pipe[]>([]);
   const drainsRef = useRef<Drain[]>([]);
 
+  useEffect(() => {
+    const loadReports = async () => {
+      try {
+        const data = await fetchReports();
+        setReports(data);
+        console.log("Fetched reports:", data);
+      } catch (err) {
+        console.error("Failed to load reports:", err);
+      }
+    };
+    loadReports();
+  }, []);
+
   // Update refs when data changes
   useEffect(() => {
     inletsRef.current = inlets;
@@ -147,8 +161,8 @@ export default function MapPage() {
         center: DEFAULT_CENTER,
         zoom: DEFAULT_ZOOM,
         maxBounds: MAP_BOUNDS,
-        pitch: 60, // Add this for a tilted view
-        bearing: -17.6, // Add this for rotation
+        pitch: 60,
+        bearing: -17.6,
       });
       mapRef.current = map;
 
@@ -167,8 +181,8 @@ export default function MapPage() {
           map.addLayer(
             {
               id: "3d-buildings",
-              source: "composite", // built-in Mapbox Streets tileset
-              "source-layer": "building", // building footprints
+              source: "composite",
+              "source-layer": "building",
               filter: ["==", "extrude", "true"],
               type: "fill-extrusion",
               minzoom: 15,
@@ -181,13 +195,13 @@ export default function MapPage() {
                   15,
                   0,
                   15.05,
-                  ["get", "height"], // uses real building height if available
+                  ["get", "height"],
                 ],
                 "fill-extrusion-base": ["get", "min_height"],
                 "fill-extrusion-opacity": 0.6,
               },
             },
-            "waterway-label" // place it below labels so text stays visible
+            "waterway-label"
           );
         }
 
@@ -195,42 +209,39 @@ export default function MapPage() {
           map.addSource("man_pipes", {
             type: "geojson",
             data: "/drainage/man_pipes.geojson",
-            // --- 🎨 CHANGE: Added promoteId ---
             promoteId: "Name",
           });
           map.addLayer({
             id: "man_pipes-layer",
             type: "line",
             source: "man_pipes",
-            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
               "line-color": [
                 "case",
                 ["boolean", ["feature-state", "selected"], false],
-                "#00ffff", // Highlight color
+                "#00ffff",
                 "#8B008B",
               ],
               "line-width": [
                 "case",
                 ["boolean", ["feature-state", "selected"], false],
-                6, // Highlight width
+                6,
                 2.5,
               ],
             },
           });
         }
+
         if (!map.getSource("storm_drains")) {
           map.addSource("storm_drains", {
             type: "geojson",
             data: "/drainage/storm_drains.geojson",
-            // --- 🎨 CHANGE: Added promoteId ---
             promoteId: "In_Name",
           });
           map.addLayer({
             id: "storm_drains-layer",
             type: "circle",
             source: "storm_drains",
-            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
               "circle-radius": [
                 "case",
@@ -254,18 +265,17 @@ export default function MapPage() {
             },
           });
         }
+
         if (!map.getSource("inlets")) {
           map.addSource("inlets", {
             type: "geojson",
             data: "/drainage/inlets.geojson",
-            // --- 🎨 CHANGE: Added promoteId ---
             promoteId: "In_Name",
           });
           map.addLayer({
             id: "inlets-layer",
             type: "circle",
             source: "inlets",
-            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
               "circle-radius": [
                 "case",
@@ -294,14 +304,12 @@ export default function MapPage() {
           map.addSource("outlets", {
             type: "geojson",
             data: "/drainage/outlets.geojson",
-            // --- 🎨 CHANGE: Added promoteId ---
             promoteId: "Out_Name",
           });
           map.addLayer({
             id: "outlets-layer",
             type: "circle",
             source: "outlets",
-            // --- 🎨 CHANGE: Updated paint properties for highlighting ---
             paint: {
               "circle-radius": [
                 "case",
@@ -325,56 +333,12 @@ export default function MapPage() {
             },
           });
         }
-
       };
 
       map.on("load", addCustomLayers);
       map.on("style.load", addCustomLayers);
 
-      // Store all report bubble refs
-      const reportBubbleRefs: Array<ReportBubbleRef | null> = [];
-
-      map.on("load", () => {
-        dummyReports.forEach((report, index) => {
-          const container = document.createElement("div");
-          const root = ReactDOM.createRoot(container);
-
-          const popup = new mapboxgl.Popup({
-            maxWidth: "320px",
-            closeButton: false, // use your custom X only
-            className: "no-bg-popup",
-            closeOnClick: false, // make sure clicking map doesn't close all
-          })
-            .setLngLat(report.coordinates)
-            .setDOMContent(container)
-            .addTo(map);
-
-          // Store popup reference
-          reportPopupsRef.current.push(popup);
-
-          const handleOpenBubble = () => {
-            // Close all other bubbles when this one opens
-            reportBubbleRefs.forEach((ref, i) => {
-              if (i !== index && ref) {
-                ref.close();
-              }
-            });
-          };
-
-          root.render(
-            <ReportBubble
-              ref={(ref) => {
-                reportBubbleRefs[index] = ref;
-              }}
-              report={report}
-              map={map}
-              coordinates={report.coordinates}
-              onOpen={handleOpenBubble}
-            />
-          );
-        });
-      });
-
+      // Click handlers
       map.on("click", (e) => {
         const validLayers = [
           "inlets-layer",
@@ -389,7 +353,6 @@ export default function MapPage() {
           layers: validLayers,
         });
 
-        // If no features are clicked, clear all selections
         if (!features.length) {
           clearSelections();
           setControlPanelTab("overlays");
@@ -400,7 +363,6 @@ export default function MapPage() {
         const props = feature.properties || {};
         if (!feature.layer) return;
 
-        // Find the corresponding data and call the correct handler
         switch (feature.layer.id) {
           case "man_pipes-layer": {
             const pipe = pipesRef.current.find((p) => p.id === props.Name);
@@ -413,9 +375,7 @@ export default function MapPage() {
             break;
           }
           case "outlets-layer": {
-            const outlet = outletsRef.current.find(
-              (o) => o.id === props.Out_Name
-            );
+            const outlet = outletsRef.current.find((o) => o.id === props.Out_Name);
             if (outlet) handleSelectOutlet(outlet);
             break;
           }
@@ -427,7 +387,7 @@ export default function MapPage() {
         }
       });
 
-      // Change cursor on hover (nice UX)
+      // Cursor style
       layerIds.forEach((layerId) => {
         map.on("mouseenter", layerId, () => {
           map.getCanvas().style.cursor = "pointer";
@@ -438,6 +398,53 @@ export default function MapPage() {
       });
     }
   }, [layerIds]);
+
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !reports || reports.length === 0) return;
+
+    // Remove old popups
+    reportPopupsRef.current.forEach((popup) => popup.remove());
+    reportPopupsRef.current = [];
+
+    const reportBubbleRefs: Array<ReportBubbleRef | null> = [];
+
+    reports.forEach((report, index) => {
+      const container = document.createElement("div");
+      const root = ReactDOM.createRoot(container);
+
+      const popup = new mapboxgl.Popup({
+        maxWidth: "320px",
+        closeButton: false,
+        className: "no-bg-popup",
+        closeOnClick: false,
+      })
+        .setLngLat(report.coordinates)
+        .setDOMContent(container)
+        .addTo(map);
+
+      reportPopupsRef.current.push(popup);
+
+      const handleOpenBubble = () => {
+        reportBubbleRefs.forEach((ref, i) => {
+          if (i !== index && ref) ref.close();
+        });
+      };
+
+      root.render(
+        <ReportBubble
+          ref={(ref) => {
+            reportBubbleRefs[index] = ref;
+          }}
+          report={report}
+          map={map}
+          coordinates={report.coordinates}
+          onOpen={handleOpenBubble}
+        />
+      );
+    });
+  }, [reports]);
 
   useEffect(() => {
     if (mapRef.current) {
