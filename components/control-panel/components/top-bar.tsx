@@ -30,7 +30,9 @@ export function TopBar({
   onToggleOverlays,
 }: TopBarProps) {
   const showSearchBar =
-    (activeTab === "stats" && !hasSelectedItem) || activeTab === "thread";
+    (activeTab === "stats" && !hasSelectedItem) ||
+    activeTab === "thread" ||
+    activeTab === "overlays";
   const showSettings = activeTab === "overlays";
   const showToggle = activeTab === "overlays";
   const showCombobox = activeTab === "stats" && !hasSelectedItem;

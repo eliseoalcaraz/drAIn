@@ -34,6 +34,7 @@ export default function MapPage() {
     "storm_drains-layer": true,
     "inlets-layer": true,
     "outlets-layer": true,
+    "reports-layer": true,
   });
 
   const [selectedFeature, setSelectedFeature] = useState<{
@@ -47,6 +48,8 @@ export default function MapPage() {
     source: string;
     layer: string;
   } | null>(null);
+
+  const reportPopupsRef = useRef<mapboxgl.Popup[]>([]);
 
   const layerIds = useMemo(() => LAYER_IDS, []);
 
@@ -114,6 +117,25 @@ export default function MapPage() {
   useEffect(() => {
     selectedFeatureRef.current = selectedFeature;
   }, [selectedFeature]);
+
+  // Toggle report popups visibility
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    const isVisible = overlayVisibility["reports-layer"];
+    const popups = reportPopupsRef.current;
+
+    popups.forEach((popup) => {
+      if (isVisible) {
+        if (!popup.isOpen()) {
+          popup.addTo(map);
+        }
+      } else {
+        popup.remove();
+      }
+    });
+  }, [overlayVisibility]);
 
   useEffect(() => {
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
@@ -304,41 +326,6 @@ export default function MapPage() {
           });
         }
 
-        // Add reports layer
-        if (!map.getSource("reports")) {
-          map.addSource("reports", {
-            type: "geojson",
-            data: {
-              type: "FeatureCollection",
-              features: dummyReports.map((report) => ({
-                type: "Feature" as const,
-                geometry: {
-                  type: "Point" as const,
-                  coordinates: report.coordinates,
-                },
-                properties: {
-                  id: report.id,
-                  category: report.category,
-                  status: report.status,
-                  componentType: report.componentType,
-                  componentId: report.componentId,
-                  reporterName: report.reporterName,
-                  description: report.description,
-                  date: report.date,
-                },
-              })),
-            },
-          });
-
-          map.addLayer({
-            id: "reports-layer",
-            type: "circle",
-            source: "reports",
-            paint: {
-              "circle-opacity": 0,
-            },
-          });
-        }
       };
 
       map.on("load", addCustomLayers);
@@ -352,7 +339,7 @@ export default function MapPage() {
           const container = document.createElement("div");
           const root = ReactDOM.createRoot(container);
 
-          new mapboxgl.Popup({
+          const popup = new mapboxgl.Popup({
             maxWidth: "320px",
             closeButton: false, // use your custom X only
             className: "no-bg-popup",
@@ -361,6 +348,9 @@ export default function MapPage() {
             .setLngLat(report.coordinates)
             .setDOMContent(container)
             .addTo(map);
+
+          // Store popup reference
+          reportPopupsRef.current.push(popup);
 
           const handleOpenBubble = () => {
             // Close all other bubbles when this one opens
@@ -438,7 +428,7 @@ export default function MapPage() {
       });
 
       // Change cursor on hover (nice UX)
-      [...layerIds, "reports-layer"].forEach((layerId) => {
+      layerIds.forEach((layerId) => {
         map.on("mouseenter", layerId, () => {
           map.getCanvas().style.cursor = "pointer";
         });
@@ -505,6 +495,7 @@ export default function MapPage() {
       "storm_drains-layer": !someVisible,
       "inlets-layer": !someVisible,
       "outlets-layer": !someVisible,
+      "reports-layer": !someVisible,
     };
 
     setOverlayVisibility(updated);
