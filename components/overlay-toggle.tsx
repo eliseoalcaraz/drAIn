@@ -17,7 +17,6 @@ export function OverlayToggle({
         id="overlay-toggle"
         checked={overlaysVisible}
         onCheckedChange={onToggle}
-        size="lg"
       />
     </div>
   );
