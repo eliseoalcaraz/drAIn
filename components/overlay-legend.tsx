@@ -2,6 +2,16 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Layers } from "lucide-react";
 
 interface OverlayLegendProps {
   overlays: {
@@ -18,29 +28,66 @@ export function OverlayLegend({
   onToggleOverlay,
 }: OverlayLegendProps) {
   return (
-    <>
-      <h3 className="font-semibold text-base mb-3">Map Overlays</h3>
-      <div className="space-y-2">
-        {overlays.map((overlay) => (
-          <div key={overlay.id} className="flex items-center space-x-2">
-            <Checkbox
-              id={overlay.id}
-              checked={overlay.visible}
-              onCheckedChange={() => onToggleOverlay(overlay.id)}
-            />
+    <Card className="flex gap-2 pb-0 flex-col">
+      <CardHeader className="items-center pb-0">
+        <CardTitle>Map Layers</CardTitle>
+        <CardDescription>Click item to toggle</CardDescription>
+      </CardHeader>
+      <CardContent className="flex-1 pb-0">
+        {overlays.map((overlay, index) => (
+          <div key={overlay.id}>
             <div
-              className="w-4 h-4 rounded-full border border-gray-300"
-              style={{ backgroundColor: overlay.color }}
-            />
-            <Label
-              htmlFor={overlay.id}
-              className="text-sm text-[#808080] font-normal cursor-pointer"
+              className={`
+                flex items-center space-x-3 py-2 rounded-lg
+                transition-all duration-200 ease-in-out group cursor-pointer
+              `}
+              onClick={() => onToggleOverlay(overlay.id)}
             >
-              {overlay.name}
-            </Label>
+              <div className="flex items-center gap-2.5 flex-1">
+                <div
+                  className={`
+                    w-3 h-3 rounded-full border-2
+                    transition-all duration-200
+                    ${
+                      overlay.visible
+                        ? "border-white shadow-md scale-110"
+                        : "border-gray-300"
+                    }
+                  `}
+                  style={{
+                    backgroundColor: overlay.color,
+                    boxShadow: overlay.visible
+                      ? `0 0 8px ${overlay.color}40`
+                      : "none",
+                  }}
+                />
+                <Label
+                  htmlFor={overlay.id}
+                  className={`
+                    text-sm cursor-pointer transition-all duration-200 font-normal
+                    ${
+                      overlay.visible
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    }
+                    group-hover:text-foreground
+                  `}
+                >
+                  {overlay.name}
+                </Label>
+              </div>
+              <div
+                className={`
+                  text-xs font-medium transition-opacity duration-200
+                  ${overlay.visible ? "opacity-100 text-primary" : "opacity-0"}
+                `}
+              >
+                ON
+              </div>
+            </div>
           </div>
         ))}
-      </div>
-    </>
+      </CardContent>
+    </Card>
   );
 }
