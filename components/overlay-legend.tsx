@@ -4,6 +4,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import {
   Card,
   CardContent,
@@ -76,14 +77,12 @@ export function OverlayLegend({
                   {overlay.name}
                 </Label>
               </div>
-              <div
-                className={`
-                  text-xs font-medium transition-opacity duration-200
-                  ${overlay.visible ? "opacity-100 text-primary" : "opacity-0"}
-                `}
-              >
-                ON
-              </div>
+              <Switch
+                checked={overlay.visible}
+                onCheckedChange={() => onToggleOverlay(overlay.id)}
+                size="sm"
+                className="ml-auto"
+              />
             </div>
           </div>
         ))}

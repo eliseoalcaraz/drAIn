@@ -18,7 +18,7 @@ export default function OverlaysContent({
   onToggleOverlay,
 }: OverlayContentProps) {
   return (
-    <div className="flex-col gap-2 pl-3.5 pr-5">
+    <div className="flex flex-col gap-4 pl-3.5 pr-5">
       <ChartPieDonutText />
       <OverlayLegend overlays={overlays} onToggleOverlay={onToggleOverlay} />
     </div>
