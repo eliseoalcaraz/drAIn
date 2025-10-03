@@ -15,7 +15,6 @@ export const OVERLAY_CONFIG = [
   { id: "storm_drains-layer", name: "Storm Drains", color: "#0088ff" },
   { id: "inlets-layer", name: "Inlets", color: "#00cc44" },
   { id: "outlets-layer", name: "Outlets", color: "#cc0000" },
-  { id: "reports-layer", name: "Reports", color: "#ff6b00" },
 ];
 
 export const LAYER_IDS: string[] = [
