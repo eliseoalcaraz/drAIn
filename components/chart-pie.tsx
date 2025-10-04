@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Label, Pie, PieChart } from "recharts";
+import { EllipsisVertical } from "lucide-react";
 
 import {
   Card,
@@ -16,6 +17,13 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import { useInlets } from "@/hooks/useInlets";
 import { useOutlets } from "@/hooks/useOutlets";
 import { useDrain } from "@/hooks/useDrain";
@@ -45,7 +53,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ChartPieDonutText() {
+interface ChartPieDonutTextProps {
+  onNavigate?: (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => void;
+}
+
+export function ChartPieDonutText({ onNavigate }: ChartPieDonutTextProps = {}) {
   const { inlets, loading: loadingInlets } = useInlets();
   const { outlets, loading: loadingOutlets } = useOutlets();
   const { drains, loading: loadingDrains } = useDrain();
@@ -97,13 +109,44 @@ export function ChartPieDonutText() {
     );
   }
 
+  const handleNavigate = (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => {
+    onNavigate?.(dataset);
+  };
+
   return (
     <Card className="flex gap-0 pb-0 flex-col">
-      <CardHeader className="items-center pb-0">
+      <CardHeader className="items-center pb-0 relative">
         <CardTitle>Drainage Infrastructure</CardTitle>
         <CardDescription className="text-xs">
           Distribution of components
         </CardDescription>
+        {onNavigate && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-2 h-8 w-8"
+              >
+                <EllipsisVertical className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => handleNavigate("man_pipes")}>
+                Pipes
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleNavigate("storm_drains")}>
+                Drains
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleNavigate("inlets")}>
+                Inlets
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => handleNavigate("outlets")}>
+                Outlets
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
       </CardHeader>
       <CardContent className="flex-1 pb-0 ">
         <ChartContainer

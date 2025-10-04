@@ -52,6 +52,9 @@ interface ContentRendererProps {
     visible: boolean;
   }>;
   onToggleOverlay: (id: string) => void;
+
+  // Navigation props
+  onNavigateToTable?: (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => void;
 }
 
 export function ContentRenderer({
@@ -79,6 +82,7 @@ export function ContentRenderer({
   onSelectDrain,
   overlays,
   onToggleOverlay,
+  onNavigateToTable,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -96,6 +100,7 @@ export function ContentRenderer({
         <OverlaysContent
           overlays={overlays}
           onToggleOverlay={onToggleOverlay}
+          onNavigateToTable={onNavigateToTable}
         />
       );
 

@@ -43,6 +43,11 @@ export function ControlPanel({
     selectedInlet || selectedPipe || selectedOutlet || selectedDrain;
   const selectedItemTitle = selectedItem ? DETAIL_TITLES[dataset] : "";
 
+  const handleNavigateToTable = (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => {
+    onDatasetChange(dataset);
+    onTabChange("stats");
+  };
+
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
       {/* Sidebar */}
@@ -89,6 +94,7 @@ export function ControlPanel({
             onSelectDrain={onSelectDrain}
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
+            onNavigateToTable={handleNavigateToTable}
           />
         </div>
 
