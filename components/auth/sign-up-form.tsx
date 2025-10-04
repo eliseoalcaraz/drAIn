@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import client from "@/api/client";
+import client from "@/app/api/client";
 
 export default function SignUpForm() {
   const router = useRouter();

@@ -1,4 +1,4 @@
-import client from "@/api/client";
+import client from "@/app/api/client";
 
 
 export const uploadReport = async (file: File, category: string, description: string ) => {

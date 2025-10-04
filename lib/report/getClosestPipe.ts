@@ -4,7 +4,7 @@ interface Location {
 }
 
 interface PipeResult {
-    name: string;
+    in_name: string;
     lat: number;
     long: number;
     distance: number;

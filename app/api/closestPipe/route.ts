@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import server from '@/api/server';
+import server from '@/app/api/server';
 
 interface Location {
     lat: number;
@@ -7,7 +7,7 @@ interface Location {
 }
 
 interface PipeResult {
-    name: string;
+    in_name: string;
     lat: number;
     long: number;
     distance: number;
@@ -59,8 +59,8 @@ export async function POST(req: NextRequest) {
 
         // Call the appropriate RPC function
         const { data, error } = await supabase.rpc(rpcFunction, {
-            lat: location.lat,
-            lon: location.lon
+            input_lat: location.lat,
+            input_lon: location.lon
         });
 
         if (error) {

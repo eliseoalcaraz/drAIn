@@ -17,7 +17,7 @@ import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
 
 interface CategoryData {
-    name: string;
+    in_name: string;
     lat: number;
     long: number;
     distance: number;
@@ -67,7 +67,7 @@ export default function ReportForm() {
       // }
       const location = {
         latitude: 10.360172475881017,
-        longitude: 915424397260537
+        longitude: 123.915424397260537
       };
 
       try {
@@ -187,7 +187,7 @@ export default function ReportForm() {
               </label>
               <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50">
                 <select
-                  value={0}
+                  value={CategoryName}
                   onChange={(e) => setCategoryName(e.target.value)}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   required
@@ -195,8 +195,8 @@ export default function ReportForm() {
                   <option value="">Please select the correct ID</option>
                   
                   {categoryData.map((pipe, index) => (
-                    <option key={index} value={pipe.name}>
-                      {pipe.name} - {pipe.distance?.toFixed(0)}m away
+                    <option key={index} value={pipe.in_name}>
+                      {pipe.in_name} - {pipe.distance?.toFixed(0)}m away
                       {index === 0 && ' (Best Match)'}
                     </option>
                   ))}
