@@ -1,7 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(pnpm dlx shadcn@latest add:*)"
     ],
     "deny": [],
     "ask": []

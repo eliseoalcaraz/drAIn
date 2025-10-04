@@ -54,7 +54,9 @@ interface ContentRendererProps {
   onToggleOverlay: (id: string) => void;
 
   // Navigation props
-  onNavigateToTable?: (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => void;
+  onNavigateToTable?: (
+    dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
+  ) => void;
 }
 
 export function ContentRenderer({
@@ -111,8 +113,8 @@ export function ContentRenderer({
       return null;
 
     case "report":
-    case "thread":
       return <ReportForm />;
+    case "thread":
 
     default:
       return null;
