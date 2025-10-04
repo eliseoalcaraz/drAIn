@@ -21,7 +21,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { OverlayLegend } from "./overlay-legend";
 import { ChartPieDonutText } from "./chart-pie";
 import { ReportsToggle } from "./reports-toggle";
-import { GripVertical } from "lucide-react";
+import { MoveVertical } from "lucide-react";
 
 interface OverlayContentProps {
   overlays: {
@@ -36,6 +36,8 @@ interface OverlayContentProps {
   ) => void;
   onNavigateToReportForm?: () => void;
   searchTerm?: string;
+  isDragEnabled?: boolean;
+  onToggleDrag?: (enabled: boolean) => void;
 }
 
 type ComponentId = "chart" | "layers" | "reports";
@@ -49,9 +51,10 @@ interface ComponentMetadata {
 interface SortableItemProps {
   id: string;
   children: React.ReactNode;
+  isDragEnabled: boolean;
 }
 
-function SortableItem({ id, children }: SortableItemProps) {
+function SortableItem({ id, children, isDragEnabled }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -59,25 +62,40 @@ function SortableItem({ id, children }: SortableItemProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id });
+  } = useSortable({ id, disabled: !isDragEnabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    width: isDragging ? '100%' : undefined,
+    width: isDragging ? "100%" : undefined,
   };
 
   return (
     <div ref={setNodeRef} style={style} className="relative group">
-      <div
-        className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing z-10"
-        {...attributes}
-        {...listeners}
-      >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </div>
-      {children}
+      {isDragEnabled ? (
+        <>
+          {/* Gray overlay when unlocked (drag mode active) */}
+          <div className="absolute inset-0 bg-gray-100/50 dark:bg-gray-900/20 rounded-xl z-10 pointer-events-none" />
+
+          {/* Centered grip when unlocked - always visible and draggable */}
+          <div
+            className="absolute inset-0 flex items-center justify-center z-20 cursor-grab active:cursor-grabbing"
+            {...attributes}
+            {...listeners}
+          >
+            Drag Component
+          </div>
+
+          {/* Disabled content when unlocked (drag mode) */}
+          <div className="pointer-events-none">{children}</div>
+        </>
+      ) : (
+        <>
+          {/* Locked: normal component, no grip, fully interactive */}
+          {children}
+        </>
+      )}
     </div>
   );
 }
@@ -88,6 +106,8 @@ export default function OverlaysContent({
   onNavigateToTable,
   onNavigateToReportForm,
   searchTerm = "",
+  isDragEnabled = true,
+  onToggleDrag,
 }: OverlayContentProps) {
   const [componentOrder, setComponentOrder] = useState<ComponentId[]>([
     "chart",
@@ -96,7 +116,9 @@ export default function OverlaysContent({
   ]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor),
+    useSensor(PointerSensor, {
+      activationConstraint: isDragEnabled ? undefined : { distance: 999999 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
@@ -201,6 +223,8 @@ export default function OverlaysContent({
   }, [searchTerm, componentOrder, componentsMetadata]);
 
   const handleDragEnd = (event: DragEndEvent) => {
+    if (!isDragEnabled) return;
+
     const { active, over } = event;
 
     if (over && active.id !== over.id) {
@@ -224,7 +248,11 @@ export default function OverlaysContent({
           strategy={verticalListSortingStrategy}
         >
           {orderedComponents.map((comp) => (
-            <SortableItem key={comp.id} id={comp.id}>
+            <SortableItem
+              key={comp.id}
+              id={comp.id}
+              isDragEnabled={isDragEnabled}
+            >
               {comp.component}
             </SortableItem>
           ))}

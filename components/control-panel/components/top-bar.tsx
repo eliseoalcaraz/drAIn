@@ -1,9 +1,15 @@
 "use client";
 
-import { ChevronLeft, MoreHorizontal } from "lucide-react";
+import { ChevronLeft, MoreHorizontal, Lock, LockOpen } from "lucide-react";
 import { SearchBar } from "../../search-bar";
 import { ComboboxForm } from "../../combobox-form";
 import { OverlayToggle } from "../../overlay-toggle";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import type { DatasetType } from "../types";
 
 interface TopBarProps {
@@ -16,6 +22,8 @@ interface TopBarProps {
   selectedItemTitle: string;
   overlaysVisible: boolean;
   onToggleOverlays: (visible: boolean) => void;
+  isDragEnabled?: boolean;
+  onToggleDrag?: (enabled: boolean) => void;
 }
 
 export function TopBar({
@@ -28,6 +36,8 @@ export function TopBar({
   selectedItemTitle,
   overlaysVisible,
   onToggleOverlays,
+  isDragEnabled = true,
+  onToggleDrag,
 }: TopBarProps) {
   const showSearchBar =
     (activeTab === "stats" && !hasSelectedItem) ||
@@ -45,9 +55,26 @@ export function TopBar({
 
       {/* Settings Button */}
       {showSettings && (
-        <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors">
-          <MoreHorizontal className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]">
+              <MoreHorizontal className="w-5 h-5 text-[#8D8D8D]" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="start">
+            <DropdownMenuItem
+              onClick={() => onToggleDrag?.(!isDragEnabled)}
+              className="gap-2"
+            >
+              {isDragEnabled ? (
+                <Lock className="h-4 w-4" />
+              ) : (
+                <LockOpen className="h-4 w-4" />
+              )}
+              <span>{isDragEnabled ? "Lock Layout" : "Unlock Layout"}</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       )}
 
       {/* Toggle Button */}

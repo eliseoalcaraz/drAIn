@@ -10,7 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageSquareWarning, Info, Power } from "lucide-react";
+import { Info, Power } from "lucide-react";
 import Flag from "@/public/icons/flag.svg";
 import { report } from "@/data/content";
 import { useMemo } from "react";

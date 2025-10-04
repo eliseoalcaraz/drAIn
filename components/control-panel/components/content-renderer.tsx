@@ -58,6 +58,10 @@ interface ContentRendererProps {
     dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
   ) => void;
   onNavigateToReportForm?: () => void;
+
+  // Drag control props
+  isDragEnabled?: boolean;
+  onToggleDrag?: (enabled: boolean) => void;
 }
 
 export function ContentRenderer({
@@ -87,6 +91,8 @@ export function ContentRenderer({
   onToggleOverlay,
   onNavigateToTable,
   onNavigateToReportForm,
+  isDragEnabled,
+  onToggleDrag,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -107,6 +113,8 @@ export function ContentRenderer({
           onNavigateToTable={onNavigateToTable}
           onNavigateToReportForm={onNavigateToReportForm}
           searchTerm={searchTerm}
+          isDragEnabled={isDragEnabled}
+          onToggleDrag={onToggleDrag}
         />
       );
 

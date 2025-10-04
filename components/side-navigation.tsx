@@ -1,6 +1,8 @@
 "use client";
 
 import { BarChart3, Layers, PlayCircle } from "lucide-react";
+import Person from "@/public/icons/person.svg";
+
 const tabs = [
   { id: "overlays", label: "Overlay", icon: Layers },
   { id: "stats", label: "Stats", icon: BarChart3 },
@@ -41,7 +43,7 @@ export function SideNavigation({
         })}
       </div>
 
-      <div className="w-7.5 h-7.5 bg-black rounded-full" />
+      <Person className="w-7 h-7 text-[#B2ADAB]" />
     </div>
   );
 }

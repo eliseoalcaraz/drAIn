@@ -33,6 +33,13 @@ export function ControlPanel({
   const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
     useControlPanelState();
 
+  // Drag control state
+  const [isDragEnabled, setIsDragEnabled] = useState(false);
+
+  const handleToggleDrag = (enabled: boolean) => {
+    setIsDragEnabled(enabled);
+  };
+
   // Data hooks
   const { inlets, loading: loadingInlets } = useInlets();
   const { outlets, loading: loadingOutlets } = useOutlets();
@@ -69,6 +76,8 @@ export function ControlPanel({
           selectedItemTitle={selectedItemTitle}
           overlaysVisible={overlaysVisible}
           onToggleOverlays={onToggle}
+          isDragEnabled={isDragEnabled}
+          onToggleDrag={handleToggleDrag}
         />
 
         {/* Main Content */}
@@ -100,6 +109,8 @@ export function ControlPanel({
             onToggleOverlay={onToggleOverlay}
             onNavigateToTable={handleNavigateToTable}
             onNavigateToReportForm={handleNavigateToReportForm}
+            isDragEnabled={isDragEnabled}
+            onToggleDrag={handleToggleDrag}
           />
         </div>
 

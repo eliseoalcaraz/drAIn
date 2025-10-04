@@ -54,7 +54,9 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface ChartPieDonutTextProps {
-  onNavigate?: (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => void;
+  onNavigate?: (
+    dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
+  ) => void;
 }
 
 export function ChartPieDonutText({ onNavigate }: ChartPieDonutTextProps = {}) {
@@ -109,25 +111,25 @@ export function ChartPieDonutText({ onNavigate }: ChartPieDonutTextProps = {}) {
     );
   }
 
-  const handleNavigate = (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => {
+  const handleNavigate = (
+    dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
+  ) => {
     onNavigate?.(dataset);
   };
 
   return (
     <Card className="flex gap-0 pb-0 flex-col">
-      <CardHeader className="items-center pb-0 relative">
-        <CardTitle>Drainage Infrastructure</CardTitle>
-        <CardDescription className="text-xs">
-          Distribution of components
-        </CardDescription>
+      <CardHeader className="flex items-start justify-between pr-4 pb-0 relative">
+        <div className="flex flex-col gap-1.5 ">
+          <CardTitle>Drainage Infrastructure</CardTitle>
+          <CardDescription className="text-xs">
+            Distribution of components
+          </CardDescription>
+        </div>
         {onNavigate && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="absolute right-2 top-2 h-8 w-8"
-              >
+              <Button variant="ghost" size="icon" className="h-8 w-8">
                 <EllipsisVertical className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
