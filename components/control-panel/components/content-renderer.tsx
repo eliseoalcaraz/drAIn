@@ -106,6 +106,7 @@ export function ContentRenderer({
           onToggleOverlay={onToggleOverlay}
           onNavigateToTable={onNavigateToTable}
           onNavigateToReportForm={onNavigateToReportForm}
+          searchTerm={searchTerm}
         />
       );
 
