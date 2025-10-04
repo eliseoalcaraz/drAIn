@@ -57,6 +57,7 @@ interface ContentRendererProps {
   onNavigateToTable?: (
     dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
   ) => void;
+  onNavigateToReportForm?: () => void;
 }
 
 export function ContentRenderer({
@@ -85,6 +86,7 @@ export function ContentRenderer({
   overlays,
   onToggleOverlay,
   onNavigateToTable,
+  onNavigateToReportForm,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -103,6 +105,7 @@ export function ContentRenderer({
           overlays={overlays}
           onToggleOverlay={onToggleOverlay}
           onNavigateToTable={onNavigateToTable}
+          onNavigateToReportForm={onNavigateToReportForm}
         />
       );
 

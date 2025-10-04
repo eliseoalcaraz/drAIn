@@ -13,12 +13,14 @@ interface OverlayContentProps {
   }[];
   onToggleOverlay: (id: string) => void;
   onNavigateToTable?: (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => void;
+  onNavigateToReportForm?: () => void;
 }
 
 export default function OverlaysContent({
   overlays,
   onToggleOverlay,
   onNavigateToTable,
+  onNavigateToReportForm,
 }: OverlayContentProps) {
   return (
     <div className="flex flex-col gap-4 pl-3.5 pr-5">
@@ -27,6 +29,7 @@ export default function OverlaysContent({
       <ReportsToggle
         isVisible={overlays.find(o => o.id === "reports-layer")?.visible ?? true}
         onToggle={() => onToggleOverlay("reports-layer")}
+        onNavigateToReportForm={onNavigateToReportForm}
       />
     </div>
   );

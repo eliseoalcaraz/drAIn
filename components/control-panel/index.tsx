@@ -48,6 +48,10 @@ export function ControlPanel({
     onTabChange("stats");
   };
 
+  const handleNavigateToReportForm = () => {
+    onTabChange("report");
+  };
+
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
       {/* Sidebar */}
@@ -95,6 +99,7 @@ export function ControlPanel({
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
             onNavigateToTable={handleNavigateToTable}
+            onNavigateToReportForm={handleNavigateToReportForm}
           />
         </div>
 
