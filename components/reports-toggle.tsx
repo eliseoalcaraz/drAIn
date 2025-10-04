@@ -11,8 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { MessageSquareWarning, Info, Power } from "lucide-react";
+import Flag from "@/public/icons/flag.svg";
 import { report } from "@/data/content";
-import Image from "next/image";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -35,7 +35,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ReportsToggle({ isVisible, onToggle, onNavigateToReportForm }: ReportsToggleProps) {
+export function ReportsToggle({
+  isVisible,
+  onToggle,
+  onNavigateToReportForm,
+}: ReportsToggleProps) {
   const totalReports = report.length;
 
   const chartData = useMemo(() => {
@@ -68,7 +72,7 @@ export function ReportsToggle({ isVisible, onToggle, onNavigateToReportForm }: R
         <CardHeader className="flex-col gap-3 pb-0">
           <CardTitle className="flex flex-row">
             <div className="flex flex-row items-center gap-2">
-              <MessageSquareWarning className="w-4 h-4" />
+              <Flag className="w-4 h-4" />
               <span>{totalReports} reports</span>
             </div>
 

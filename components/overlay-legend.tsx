@@ -48,27 +48,25 @@ export function OverlayLegend({
   };
 
   return (
-    <Card className="flex gap-2 pb-0 flex-col">
-      <CardHeader className="items-center pb-0 relative">
-        <CardTitle>Map Layers</CardTitle>
-        <CardDescription className="text-xs">
-          Click an item to toggle on or off
-        </CardDescription>
-        <div className="absolute right-3 top-3 flex items-center gap-2">
-          <Label htmlFor="toggle-all" className="text-xs text-muted-foreground cursor-pointer">
-            All
-          </Label>
-          <Toggle
-            id="toggle-all"
-            pressed={allDrainageVisible}
-            onPressedChange={handleToggleAll}
-            variant="outline"
-            size="sm"
-            aria-label="Toggle all layers"
-          >
-            <Layers className="h-4 w-4" />
-          </Toggle>
+    <Card className="flex gap-2 flex-col">
+      <CardHeader className="flex items-center justify-between pb-0 relative">
+        <div className="flex flex-col gap-1.5">
+          <CardTitle>Map Layers</CardTitle>
+          <CardDescription className="text-xs">
+            Click an item to toggle on or off
+          </CardDescription>
         </div>
+
+        <Toggle
+          id="toggle-all"
+          pressed={allDrainageVisible}
+          onPressedChange={handleToggleAll}
+          variant="outline"
+          size="sm"
+          aria-label="Toggle all layers"
+        >
+          <Layers className="h-4 w-4" />
+        </Toggle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         {overlays.map((overlay, index) => (

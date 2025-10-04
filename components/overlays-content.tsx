@@ -65,6 +65,7 @@ function SortableItem({ id, children }: SortableItemProps) {
     transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
+    width: isDragging ? '100%' : undefined,
   };
 
   return (
