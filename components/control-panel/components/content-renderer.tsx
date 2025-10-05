@@ -3,6 +3,7 @@ import { FIELD_CONFIGS, MODEL_URLS } from "../constants";
 import { DetailView } from "./detail-view";
 import OverlaysContent from "../../overlays-content";
 import ReportForm from "../../report-form";
+import { ChatbotView } from "./chatbot-view";
 import {
   PipeTable,
   InletTable,
@@ -128,7 +129,7 @@ export function ContentRenderer({
       return <ReportForm />;
 
     case "chatbot":
-      return null;
+      return <ChatbotView />;
 
     default:
       return null;
