@@ -17,7 +17,7 @@ import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
 
 interface CategoryData {
-    in_name: string;
+    name: string;
     lat: number;
     long: number;
     distance: number;
@@ -195,8 +195,8 @@ export default function ReportForm() {
                   <option value="">Please select the correct ID</option>
                   
                   {categoryData.map((pipe, index) => (
-                    <option key={index} value={pipe.in_name}>
-                      {pipe.in_name} - {pipe.distance?.toFixed(0)}m away
+                    <option key={index} value={pipe.name}>
+                      {pipe.name} - {pipe.distance?.toFixed(0)}m away
                       {index === 0 && ' (Best Match)'}
                     </option>
                   ))}
@@ -261,7 +261,7 @@ export default function ReportForm() {
             <Button
               type="button"
               onClick={handleConfirmSubmit}
-              disabled={!termsAccepted}
+              disabled={!termsAccepted && !CategoryName}
               className="w-full sm:w-auto bg-[#4b72f3] border border-[#2b3ea7] text-white hover:bg-blue-600"
             >
               Confirm
