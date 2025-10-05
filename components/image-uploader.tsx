@@ -2,6 +2,7 @@
 import React, { useState, useRef } from "react";
 import { Image as IconImage } from "lucide-react";
 import Image from "next/image";
+import { AddIcon } from "./add-icon";
 
 interface ImageUploaderProps {
   onImageChange?: (file: File | null) => void;
@@ -78,18 +79,16 @@ export default function ImageUploader({ onImageChange }: ImageUploaderProps) {
             isDragging
               ? "border-blue-500 bg-blue-50"
               : fileName
-              ? "border-gray-200"
-              : "border-gray-300 border-dashed hover:border-blue-400 cursor-pointer"
+              ? "border-gray-200 "
+              : "border-gray-300 border-dashed bg-[#f1f3ff] hover:border-blue-400 cursor-pointer"
           }
         `}
       >
         {!fileName ? (
-          <div className="flex flex-col items-center text-center p-6">
-            <IconImage size={32} />
-
+          <div className="flex flex-col gap-3 items-center text-center p-6">
             {/* MODIFIED LABEL CLASSNAME: */}
-            <label className="w-auto bg-[#4b72f3] border border-[#2b3ea7] text-white py-2 px-5 rounded-md font-base text-xs hover:bg-blue-600 transition-colors cursor-pointer">
-              Add Image
+            <label className="w-12 h-12 flex items-center justify-center bg-[#4b72f3] border border-[#2b3ea7] text-white rounded-full hover:bg-blue-600 transition-colors cursor-pointer">
+              <AddIcon className="w-5 h-5" /> {/* icon inside the circle */}
               <input
                 type="file"
                 accept="image/*"
@@ -98,6 +97,12 @@ export default function ImageUploader({ onImageChange }: ImageUploaderProps) {
                 ref={fileInputRef}
               />
             </label>
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-medium">Drag Your Files Here</span>
+              <span className="text-xs text-muted-foreground ">
+                Upload files with maximum 20mb
+              </span>
+            </div>
           </div>
         ) : (
           <div className="relative w-full h-full flex items-center justify-center">

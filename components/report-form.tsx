@@ -17,10 +17,10 @@ import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
 
 interface CategoryData {
-    name: string;
-    lat: number;
-    long: number;
-    distance: number;
+  name: string;
+  lat: number;
+  long: number;
+  distance: number;
 }
 
 export default function ReportForm() {
@@ -54,10 +54,10 @@ export default function ReportForm() {
     e.preventDefault();
 
     if (!image) {
-        setIsErrorModalOpen(true);
-        setErrorCode("No valid image");
-    }else{
-      // const location = await extractExifLocation(image);  
+      setIsErrorModalOpen(true);
+      setErrorCode("No valid image");
+    } else {
+      // const location = await extractExifLocation(image);
 
       // if (!location.latitude || !location.longitude) {
       //     setIsErrorModalOpen(true);
@@ -66,7 +66,7 @@ export default function ReportForm() {
       // }
       const location = {
         latitude: 10.328531541760796,
-        longitude: 123.924274242405161
+        longitude: 123.924274242405161,
       };
 
       try {
@@ -79,19 +79,18 @@ export default function ReportForm() {
         setIsModalOpen(true);
         return;
       } catch (error) {
-          setIsErrorModalOpen(true);
-          setErrorCode(String(error));
-          return;
+        setIsErrorModalOpen(true);
+        setErrorCode(String(error));
+        return;
       }
     }
-      
   };
-  
-  const handleConfirmSubmit = async  () => {
-    let long = categoryData[categoryIndex].long;
-    let lat = categoryData[categoryIndex].lat;
-    let component_id = categoryData[categoryIndex].name;
-    await uploadReport(image!, category, description, component_id, long, lat)
+
+  const handleConfirmSubmit = async () => {
+    const long = categoryData[categoryIndex].long;
+    const lat = categoryData[categoryIndex].lat;
+    const component_id = categoryData[categoryIndex].name;
+    await uploadReport(image!, category, description, component_id, long, lat);
 
     setIsModalOpen(false);
     setTermsAccepted(false);
@@ -108,7 +107,6 @@ export default function ReportForm() {
         onSubmit={handlePreSubmit}
         className="w-full h-full p-2.5 bg-white rounded-xl space-y-4"
       >
-
         {/* Category Dropdown */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -135,7 +133,7 @@ export default function ReportForm() {
           {/* The ImageUploader component itself must be updated to remove 'max-w-xs'
             so it can inherit the full 'w-full' width here. */}
           <div className="w-full">
-            <ImageUploader onImageChange={setImage}/>
+            <ImageUploader onImageChange={setImage} />
           </div>
         </div>
 
@@ -186,21 +184,21 @@ export default function ReportForm() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category ID
               </label>
-                <select
-                  value={categoryIndex}
-                  onChange= {(e) => setCategoryIndex(parseInt(e.target.value))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  required
-                >
-                  <option value="">Please select the correct ID</option>
-                  
-                  {categoryData.map((pipe, index) => (
-                    <option key={index} value={index}>
-                      {pipe.name} - {pipe.distance?.toFixed(0)}m away
-                      {index === 0 && ' (Best Match)'}
-                    </option>
-                  ))}
-                </select>
+              <select
+                value={categoryIndex}
+                onChange={(e) => setCategoryIndex(parseInt(e.target.value))}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                required
+              >
+                <option value="">Please select the correct ID</option>
+
+                {categoryData.map((pipe, index) => (
+                  <option key={index} value={index}>
+                    {pipe.name} - {pipe.distance?.toFixed(0)}m away
+                    {index === 0 && " (Best Match)"}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Description Display */}
@@ -268,7 +266,7 @@ export default function ReportForm() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       <Dialog open={isErrorModalOpen} onOpenChange={setIsErrorModalOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -289,7 +287,6 @@ export default function ReportForm() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
     </>
   );
 }
