@@ -1,8 +1,6 @@
 "use client";
 
 import { Toggle } from "@/components/ui/toggle";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import {
   Card,
   CardContent,

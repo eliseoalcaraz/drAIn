@@ -21,7 +21,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { OverlayLegend } from "./overlay-legend";
 import { ChartPieDonutText } from "./chart-pie";
 import { ReportsToggle } from "./reports-toggle";
-import { MoveVertical } from "lucide-react";
 
 interface OverlayContentProps {
   overlays: {
@@ -65,10 +64,9 @@ function SortableItem({ id, children, isDragEnabled }: SortableItemProps) {
   } = useSortable({ id, disabled: !isDragEnabled });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    width: isDragging ? "100%" : undefined,
   };
 
   return (
@@ -83,9 +81,7 @@ function SortableItem({ id, children, isDragEnabled }: SortableItemProps) {
             className="absolute inset-0 flex items-center justify-center z-20 cursor-grab active:cursor-grabbing"
             {...attributes}
             {...listeners}
-          >
-            Drag Component
-          </div>
+          ></div>
 
           {/* Disabled content when unlocked (drag mode) */}
           <div className="pointer-events-none">{children}</div>
@@ -237,7 +233,7 @@ export default function OverlaysContent({
   };
 
   return (
-    <div className="flex flex-col gap-4 pl-3.5 pr-5">
+    <div className="flex flex-col gap-4 pl-3.5 pb-5 pr-5 overflow-hidden">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
