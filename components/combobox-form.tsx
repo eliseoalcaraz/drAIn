@@ -42,9 +42,10 @@ const FormSchema = z.object({
 interface ComboboxFormProps {
   onSelect: (value: string) => void;
   value?: string;
+  showSearch?: boolean;
 }
 
-export function ComboboxForm({ onSelect, value }: ComboboxFormProps) {
+export function ComboboxForm({ onSelect, value, showSearch = true }: ComboboxFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: { language: value ?? "inlets" }, // use parent value as initial default
@@ -60,13 +61,12 @@ export function ComboboxForm({ onSelect, value }: ComboboxFormProps) {
 
   return (
     <Form {...form}>
-      {/* prevent actual form submission */}
-      <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
+      <div className="space-y-6">
         <FormField
           control={form.control}
           name="language"
           render={({ field }) => (
-            <FormItem className="flex flex-col">
+            <FormItem className="flex flex-col w-full">
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -74,7 +74,7 @@ export function ComboboxForm({ onSelect, value }: ComboboxFormProps) {
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-[100px] justify-between",
+                        "w-full justify-between",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -86,9 +86,9 @@ export function ComboboxForm({ onSelect, value }: ComboboxFormProps) {
                   </FormControl>
                 </PopoverTrigger>
 
-                <PopoverContent className="w-[200px] p-0">
+                <PopoverContent className="p-0" style={{ width: 'var(--radix-popover-trigger-width)' }}>
                   <Command>
-                    <CommandInput placeholder="Search..." className="h-9" />
+                    {showSearch && <CommandInput placeholder="Search..." className="h-9" />}
                     <CommandList>
                       <CommandEmpty>Not Found</CommandEmpty>
                       <CommandGroup>
@@ -123,7 +123,7 @@ export function ComboboxForm({ onSelect, value }: ComboboxFormProps) {
             </FormItem>
           )}
         />
-      </form>
+      </div>
     </Form>
   );
 }

@@ -66,7 +66,7 @@ export default function ImageUploader({ onImageChange }: ImageUploaderProps) {
   );
 
   return (
-    <div className="flex flex-col items-center p-1 rounded-lg w-full max-w-xs font-sans">
+    <div className="flex flex-col items-center rounded-lg w-full max-w-xs font-sans">
       <div
         onDrop={handleDrop}
         onDragOver={(e) => {

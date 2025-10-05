@@ -15,6 +15,10 @@ import { Checkbox } from "./ui/checkbox";
 import { uploadReport } from "@/lib/supabase/report";
 import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
+import { ComboboxForm } from "./combobox-form";
+import { Field, FieldLabel, FieldContent } from "./ui/field";
+import { Textarea } from "./ui/textarea";
+import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 
 interface CategoryData {
   name: string;
@@ -35,17 +39,16 @@ export default function ReportForm() {
   const [errorCode, setErrorCode] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 
-  const handleCategory = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const value = e.target.value;
+  const handleCategory = (value: string) => {
     setCategory(value);
 
-    if (value === "inlet") {
+    if (value === "inlets") {
       setCategoryLabel("Inlet");
-    } else if (value === "storm_drain") {
+    } else if (value === "storm_drains") {
       setCategoryLabel("Storm Drain");
-    } else if (value === "man_pipe") {
+    } else if (value === "man_pipes") {
       setCategoryLabel("Manduae Pipe");
-    } else if (value === "outlet") {
+    } else if (value === "outlets") {
       setCategoryLabel("Outlet");
     }
   };
@@ -105,51 +108,38 @@ export default function ReportForm() {
     <>
       <form
         onSubmit={handlePreSubmit}
-        className="w-full h-full p-2.5 bg-white rounded-xl space-y-4"
+        className="w-full h-full gap-0 p-5 bg-white rounded-xl space-y-4"
       >
-        {/* Category Dropdown */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Category
-          </label>
-          <select
-            value={category}
-            onChange={handleCategory}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-          >
-            <option value="">Please select a category</option>
-            <option value="inlet">Inlet</option>
-            <option value="Storm_drain">Storm Drain</option>
-            <option value="man_pipe">Mandaue Pipe</option>
-            <option value="outlet">Outlet</option>
-          </select>
+        <CardHeader className="py-0 px-1 mb-3">
+          <CardTitle>Report an issue</CardTitle>
+          <CardDescription className="text-xs">
+            Click an item to toggle on or off
+          </CardDescription>
+        </CardHeader>
+
+        {/* Category Combobox */}
+        <div className="flex flex-col w-full">
+          <label className="block text-sm font-medium text-gray-700 mb-1"></label>
+          <ComboboxForm onSelect={handleCategory} value={category} />
         </div>
 
-        {/* Image Uploader */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Upload Image to Report
-          </label>
-          {/* The ImageUploader component itself must be updated to remove 'max-w-xs'
+        {/* The ImageUploader component itself must be updated to remove 'max-w-xs'
             so it can inherit the full 'w-full' width here. */}
-          <div className="w-full">
-            <ImageUploader onImageChange={setImage} />
-          </div>
+        <div className="w-full">
+          <ImageUploader onImageChange={setImage} />
         </div>
 
         {/* Description Input */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description
-          </label>
-          <textarea
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            placeholder="Enter description"
-            rows={4}
-          />
-        </div>
+        <Field>
+          <FieldContent>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter description"
+              rows={4}
+            />
+          </FieldContent>
+        </Field>
 
         <Button
           disabled={!category.trim() || !description.trim() || !image}

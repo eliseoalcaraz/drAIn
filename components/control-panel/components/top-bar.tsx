@@ -94,6 +94,7 @@ export function TopBar({
               value as "inlets" | "man_pipes" | "outlets" | "storm_drains"
             )
           }
+          showSearch={false}
         />
       )}
 
