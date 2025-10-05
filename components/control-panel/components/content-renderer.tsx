@@ -126,7 +126,9 @@ export function ContentRenderer({
 
     case "report":
       return <ReportForm />;
-    case "thread":
+
+    case "chatbot":
+      return null;
 
     default:
       return null;
