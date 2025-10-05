@@ -11,7 +11,6 @@ interface ImageViewerProps {
   category: string;
   description: string;
   coordinates: [number, number];
-  componentType: string;
   componentId: string;
   onClose: () => void;
 }
@@ -23,7 +22,6 @@ export function ImageViewer({
   category,
   description,
   coordinates,
-  componentType,
   componentId,
   onClose,
 }: ImageViewerProps) {
@@ -120,7 +118,7 @@ export function ImageViewer({
               Component
             </h3>
             <p className="text-sm text-gray-900">
-              {componentType.charAt(0).toUpperCase() + componentType.slice(1)} -{" "}
+              {category.charAt(0).toUpperCase() + category.slice(1)} -{" "}
               {componentId}
             </p>
           </div>

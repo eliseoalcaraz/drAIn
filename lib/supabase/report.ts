@@ -1,7 +1,7 @@
 import client from "@/app/api/client";
 
 
-export const uploadReport = async (file: File, category: string, description: string ) => {
+export const uploadReport = async (file: File, category: string, description: string, component_id: string, long: number, lat: number)  => {
     try {
         const { error } = await client.storage
             .from('ReportImage')
@@ -19,16 +19,14 @@ export const uploadReport = async (file: File, category: string, description: st
             .from('reports')
             .insert([
                 {
-                    image: `public/${file.name}`,
                     category,
                     description,
+                    image: `public/${file.name}`,
+                    report_name: 'Anonymous',
                     status: 'pending',
-                    component_type: 'outlet',
-                    component_id: 'O1',
-                    coordinates: {
-                        lat: 10.357608641506733,
-                        lng: 123.918361755162664
-                    }
+                    component_id: component_id,
+                    long: long,
+                    lat: lat,
                 },
             ]);
 
@@ -63,19 +61,16 @@ export const fetchReports = async () => {
     // Transform into desired format
     const formattedReports = data.map((report: any, index: number) => ({
       id: report.id?.toString() ?? String(index + 1),
+      date: report.created_at ?? new Date().toISOString(),
       category: report.category,
       description: report.description,
       image: report.image ? `/storage/v1/object/public/ReportImage/${report.image}` : "",
       reporterName: report.reporter_name ?? "Unknown Reporter",
-      date: report.created_at ?? new Date().toISOString(),
       status: report.status,
-      componentType: report.component_type,
-      componentId: report.component_id ?? `I-${index}`,
-      coordinates: report.coordinates
-        ? [report.coordinates.lng, report.coordinates.lat]
-        : [0, 0],
+      componentId: report.component_id ?? "N/A",
+      coordinates: [report.long, report.lat],
     }));
-
+    console.log("Formatted Reports:", formattedReports);
     return formattedReports;
   } catch (error) {
     console.error("Error fetching reports:", error);

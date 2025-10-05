@@ -31,7 +31,7 @@ export default function ReportForm() {
   const [categoryLabel, setCategoryLabel] = useState("");
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
   const [category, setCategory] = useState("");
-  const [CategoryName, setCategoryName] = useState("");
+  const [categoryIndex, setCategoryIndex] = useState(0);
   const [errorCode, setErrorCode] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
 
@@ -50,7 +50,6 @@ export default function ReportForm() {
     }
   };
 
-
   const handlePreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -66,8 +65,8 @@ export default function ReportForm() {
       //     return;
       // }
       const location = {
-        latitude: 10.360172475881017,
-        longitude: 123.915424397260537
+        latitude: 10.328531541760796,
+        longitude: 123.924274242405161
       };
 
       try {
@@ -75,7 +74,7 @@ export default function ReportForm() {
           { lat: location.latitude, lon: location.longitude },
           category
         );
-
+        console.log("Closest Pipes:", Pipedata);
         setCategoryData(Pipedata);
         setIsModalOpen(true);
         return;
@@ -89,8 +88,10 @@ export default function ReportForm() {
   };
   
   const handleConfirmSubmit = async  () => {
-
-    await uploadReport(image!, category, description)
+    let long = categoryData[categoryIndex].long;
+    let lat = categoryData[categoryIndex].lat;
+    let component_id = categoryData[categoryIndex].name;
+    await uploadReport(image!, category, description, component_id, long, lat)
 
     setIsModalOpen(false);
     setTermsAccepted(false);
@@ -185,23 +186,21 @@ export default function ReportForm() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category ID
               </label>
-              <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50">
                 <select
-                  value={CategoryName}
-                  onChange={(e) => setCategoryName(e.target.value)}
+                  value={categoryIndex}
+                  onChange= {(e) => setCategoryIndex(parseInt(e.target.value))}
                   className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                   required
                 >
                   <option value="">Please select the correct ID</option>
                   
                   {categoryData.map((pipe, index) => (
-                    <option key={index} value={pipe.name}>
+                    <option key={index} value={index}>
                       {pipe.name} - {pipe.distance?.toFixed(0)}m away
                       {index === 0 && ' (Best Match)'}
                     </option>
                   ))}
                 </select>
-              </div>
             </div>
 
             {/* Description Display */}
@@ -261,7 +260,7 @@ export default function ReportForm() {
             <Button
               type="button"
               onClick={handleConfirmSubmit}
-              disabled={!termsAccepted && !CategoryName}
+              disabled={!termsAccepted && !categoryIndex}
               className="w-full sm:w-auto bg-[#4b72f3] border border-[#2b3ea7] text-white hover:bg-blue-600"
             >
               Confirm
