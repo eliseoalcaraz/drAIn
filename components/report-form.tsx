@@ -20,6 +20,8 @@ import { Field, FieldLabel, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
 import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SpinnerEmpty } from "./spinner-empty";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
+import { AlertCircle } from "lucide-react";
 
 interface CategoryData {
   name: string;
@@ -291,26 +293,32 @@ export default function ReportForm() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={isErrorModalOpen} onOpenChange={setIsErrorModalOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-red-600">Error</DialogTitle>
-            <DialogDescription>
-              {errorCode || "An unexpected error occurred."}
-            </DialogDescription>
-          </DialogHeader>
+      {isErrorModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="max-w-md mx-4 space-y-4">
+            <Alert variant="destructive" className="p-5">
+              <AlertCircle />
+              <AlertTitle>Unable to process location</AlertTitle>
+              <AlertDescription>
+                Please ensure your photo was taken at the issue site.
+                <ul className="mt-3 space-y-1.5 list-disc list-inside">
+                  <li>Enable location services</li>
+                  <li>Capture the photo directly from your camera</li>
+                  <li>Ensure your device embeds location data in the image</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
 
-          <DialogFooter>
             <Button
               type="button"
               onClick={() => setIsErrorModalOpen(false)}
-              className="w-full bg-gray-200 text-gray-700 hover:bg-gray-300"
+              className="w-full"
             >
               Go Back
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </div>
+        </div>
+      )}
     </>
   );
 }
