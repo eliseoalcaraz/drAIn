@@ -111,7 +111,7 @@ export default function ImageUploader({ onImageChange }: ImageUploaderProps) {
                 src={fileUrl}
                 alt="Uploaded preview"
                 fill
-                className="object-cover w-full h-full rounded-xl"
+                className="object-cover w-full h-full rounded-md"
               />
             )}
             <div className="absolute inset-0 flex items-end justify-between p-2">

@@ -19,6 +19,7 @@ import { ComboboxForm } from "./combobox-form";
 import { Field, FieldLabel, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
 import { CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { SpinnerEmpty } from "./spinner-empty";
 
 interface CategoryData {
   name: string;
@@ -38,6 +39,7 @@ export default function ReportForm() {
   const [categoryIndex, setCategoryIndex] = useState(0);
   const [errorCode, setErrorCode] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleCategory = (value: string) => {
     setCategory(value);
@@ -55,10 +57,12 @@ export default function ReportForm() {
 
   const handlePreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsSubmitting(true);
 
     if (!image) {
       setIsErrorModalOpen(true);
       setErrorCode("No valid image");
+      setIsSubmitting(false);
     } else {
       // const location = await extractExifLocation(image);
 
@@ -80,10 +84,12 @@ export default function ReportForm() {
         console.log("Closest Pipes:", Pipedata);
         setCategoryData(Pipedata);
         setIsModalOpen(true);
+        setIsSubmitting(false);
         return;
       } catch (error) {
         setIsErrorModalOpen(true);
         setErrorCode(String(error));
+        setIsSubmitting(false);
         return;
       }
     }
@@ -113,11 +119,19 @@ export default function ReportForm() {
     setCategoryIndex(0);
   };
 
+  if (isSubmitting) {
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <SpinnerEmpty />
+      </div>
+    );
+  }
+
   return (
     <>
       <form
         onSubmit={handlePreSubmit}
-        className="w-full h-full gap-0 p-5 bg-white rounded-xl space-y-4"
+        className="w-full h-full p-5 rounded-xl flex flex-col space-y-4"
       >
         <CardHeader className="py-0 px-1 mb-3">
           <CardTitle>Report an issue</CardTitle>
@@ -132,8 +146,7 @@ export default function ReportForm() {
           <ComboboxForm onSelect={handleCategory} value={category} />
         </div>
 
-        {/* The ImageUploader component itself must be updated to remove 'max-w-xs'
-            so it can inherit the full 'w-full' width here. */}
+        {/* Image Uploader */}
         <div className="w-full">
           <ImageUploader onImageChange={setImage} />
         </div>
@@ -150,7 +163,8 @@ export default function ReportForm() {
           </FieldContent>
         </Field>
 
-        <div className="flex gap-3 min-w-0">
+        {/* Buttons pinned at the bottom */}
+        <div className="flex gap-3 min-w-0 mt-auto">
           <Button
             type="button"
             onClick={handleCancel}
