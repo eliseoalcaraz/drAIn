@@ -100,7 +100,7 @@ export default function ImageUploader({ onImageChange }: ImageUploaderProps) {
             <div className="flex flex-col gap-1">
               <span className="text-sm font-medium">Drag Your Files Here</span>
               <span className="text-xs text-muted-foreground ">
-                Upload files with maximum 20mb
+                Upload files with maximum 10mb
               </span>
             </div>
           </div>

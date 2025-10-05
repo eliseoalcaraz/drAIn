@@ -45,7 +45,11 @@ interface ComboboxFormProps {
   showSearch?: boolean;
 }
 
-export function ComboboxForm({ onSelect, value, showSearch = true }: ComboboxFormProps) {
+export function ComboboxForm({
+  onSelect,
+  value,
+  showSearch = true,
+}: ComboboxFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: { language: value ?? "inlets" }, // use parent value as initial default
@@ -74,7 +78,7 @@ export function ComboboxForm({ onSelect, value, showSearch = true }: ComboboxFor
                       variant="outline"
                       role="combobox"
                       className={cn(
-                        "w-full justify-between",
+                        "w-full justify-between font-normal",
                         !field.value && "text-muted-foreground"
                       )}
                     >
@@ -86,9 +90,14 @@ export function ComboboxForm({ onSelect, value, showSearch = true }: ComboboxFor
                   </FormControl>
                 </PopoverTrigger>
 
-                <PopoverContent className="p-0" style={{ width: 'var(--radix-popover-trigger-width)' }}>
+                <PopoverContent
+                  className="p-0"
+                  style={{ width: "var(--radix-popover-trigger-width)" }}
+                >
                   <Command>
-                    {showSearch && <CommandInput placeholder="Search..." className="h-9" />}
+                    {showSearch && (
+                      <CommandInput placeholder="Search..." className="h-9" />
+                    )}
                     <CommandList>
                       <CommandEmpty>Not Found</CommandEmpty>
                       <CommandGroup>

@@ -104,6 +104,15 @@ export default function ReportForm() {
     setTermsAccepted(false);
   };
 
+  const handleCancel = () => {
+    setDescription("");
+    setImage(null);
+    setCategory("");
+    setCategoryLabel("");
+    setCategoryData([]);
+    setCategoryIndex(0);
+  };
+
   return (
     <>
       <form
@@ -113,7 +122,7 @@ export default function ReportForm() {
         <CardHeader className="py-0 px-1 mb-3">
           <CardTitle>Report an issue</CardTitle>
           <CardDescription className="text-xs">
-            Click an item to toggle on or off
+            Pick which category to submit a report in
           </CardDescription>
         </CardHeader>
 
@@ -141,12 +150,23 @@ export default function ReportForm() {
           </FieldContent>
         </Field>
 
-        <Button
-          disabled={!category.trim() || !description.trim() || !image}
-          className="w-full bg-[#4b72f3] border border-[#2b3ea7] text-white py-6 rounded-xl font-medium text-base hover:bg-blue-600 transition-colors mt-2 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Submit
-        </Button>
+        <div className="flex gap-3 min-w-0">
+          <Button
+            type="button"
+            onClick={handleCancel}
+            variant="outline"
+            className="flex-1"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            disabled={!category.trim() || !description.trim() || !image}
+            className="flex-1"
+          >
+            Submit
+          </Button>
+        </div>
       </form>
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
