@@ -37,6 +37,7 @@ interface OverlayContentProps {
   searchTerm?: string;
   isDragEnabled?: boolean;
   onToggleDrag?: (enabled: boolean) => void;
+  reports: any[];
 }
 
 type ComponentId = "chart" | "layers" | "reports";
@@ -104,6 +105,7 @@ export default function OverlaysContent({
   searchTerm = "",
   isDragEnabled = true,
   onToggleDrag,
+  reports,
 }: OverlayContentProps) {
   const [componentOrder, setComponentOrder] = useState<ComponentId[]>([
     "chart",
@@ -187,11 +189,18 @@ export default function OverlaysContent({
             }
             onToggle={() => onToggleOverlay("reports-layer")}
             onNavigateToReportForm={onNavigateToReportForm}
+            reports={reports}
           />
         ),
       },
     ],
-    [overlays, onToggleOverlay, onNavigateToTable, onNavigateToReportForm]
+    [
+      overlays,
+      onToggleOverlay,
+      onNavigateToTable,
+      onNavigateToReportForm,
+      reports,
+    ]
   );
 
   // Calculate relevance scores and reorder based on search

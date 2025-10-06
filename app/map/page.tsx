@@ -21,7 +21,7 @@ import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
-import { fetchReports } from "@/lib/supabase/report";
+import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -108,6 +108,12 @@ export default function MapPage() {
       }
     };
     loadReports();
+    const unsubscribe = subscribeToNewReports((newReport) => {
+      setReports((currentReports) => [...currentReports, newReport]);
+    });
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   // Update refs when data changes
@@ -727,6 +733,7 @@ export default function MapPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
+          reports={reports}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
@@ -738,5 +745,3 @@ export default function MapPage() {
     </>
   );
 }
-
-
