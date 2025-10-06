@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useContext } from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,7 @@ export default function ProfilePage() {
   const authContext = useContext(AuthContext);
   const session = authContext?.session;
   const supabase = client;
+  const router = useRouter();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
@@ -72,6 +74,7 @@ export default function ProfilePage() {
       localStorage.removeItem(cacheKey);
     }
     await supabase.auth.signOut();
+    router.push("/login");
   };
 
   const handleEdit = () => {
