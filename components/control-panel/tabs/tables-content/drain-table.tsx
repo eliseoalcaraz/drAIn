@@ -2,8 +2,21 @@
 
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpDown } from "lucide-react";
+import {
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
 import { Drain } from "@/hooks/useDrain";
 
 interface DrainTableProps {
@@ -63,79 +76,76 @@ export function DrainTable({
   // --- Helpers ---
   const renderSortIcon = (field: DrainSortField) => {
     if (sortField !== field) {
-      return <ArrowUpDown className="w-4 h-4 opacity-50" />;
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
     }
-    return (
-      <ArrowUpDown
-        className={`w-4 h-4 ${sortDirection === "desc" ? "rotate-180" : ""}`}
-      />
+    return sortDirection === "asc" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
     );
   };
 
   return (
-    <div className="flex flex-col flex-1 pb-5 gap-8">
-      <CardHeader>
+    <div className="flex flex-col flex-1 pl-5 pr-2 pt-3 pb-5 gap-6">
+      <CardHeader className="py-0 px-1">
         <CardTitle>Storm Drains Inventory</CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <CardDescription className="text-xs">
           Showing {sortedData.length} of {data.length} drains
-        </p>
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="text-[#808080]">
-              <tr>
-                <th className="text-center">
+
+      <CardContent className="px-0">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center">
                   <Button
                     variant="ghost"
                     onClick={() => onSort("id")}
-                    className="h-auto p-0 hover:bg-transparent"
+                    className="hover:bg-accent"
                   >
-                    Drain ID {renderSortIcon("id")}
+                    Drain ID
+                    {renderSortIcon("id")}
                   </Button>
-                </th>
-                <th className="text-center">
+                </TableHead>
+                <TableHead className="text-center">
                   <Button
                     variant="ghost"
                     onClick={() => onSort("InvElev")}
-                    className="h-auto p-0 hover:bg-transparent"
+                    className="hover:bg-accent"
                   >
-                    Inv. Elev (m) {renderSortIcon("InvElev")}
+                    Inv. Elev (m)
+                    {renderSortIcon("InvElev")}
                   </Button>
-                </th>
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("clog_per")}
-                    className="h-auto p-0 hover:bg-transparent"
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={2} className="h-24 text-center">
+                    No drains found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sortedData.map((drain) => (
+                  <TableRow
+                    key={drain.In_Name}
+                    onClick={() => onSelectDrain(drain)}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
                   >
-                    Clog % {renderSortIcon("clog_per")}
-                  </Button>
-                </th> */}
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="h-5"></tr>
-              {sortedData.map((drain) => (
-                <tr
-                  key={drain.In_Name}
-                  onClick={() => onSelectDrain(drain)}
-                  className="cursor-pointer hover:bg-gray-100 transition-colors"
-                >
-                  <td className="p-2 text-center font-mono text-sm rounded-l-xl">
-                    {drain.In_Name}
-                  </td>
-                  <td className="p-2 text-center rounded-r-xl">
-                    {drain.InvElev}
-                  </td>
-                  {/* <td className="p-2 text-center">{drain.Max_Depth}</td>
-                  <td className="p-2 text-center">{drain.Length}</td>
-                  <td className="p-2 text-center">{drain.Height}</td>
-                  <td className="p-2 text-center">{drain.clog_per}</td> */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <TableCell className="text-center font-mono text-sm">
+                      {drain.In_Name}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {drain.InvElev}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </CardContent>
     </div>

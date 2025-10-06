@@ -2,8 +2,21 @@
 
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpDown } from "lucide-react";
+import {
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
 import { Pipe } from "@/hooks/usePipes";
 
 interface PipeTableProps {
@@ -68,101 +81,75 @@ export function PipeTable({
   // --- Helpers ---
   const renderSortIcon = (field: PipeSortField) => {
     if (sortField !== field) {
-      return <ArrowUpDown className="w-4 h-4 opacity-50" />;
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
     }
-    return (
-      <ArrowUpDown
-        className={`w-4 h-4 ${sortDirection === "desc" ? "rotate-180" : ""}`}
-      />
+    return sortDirection === "asc" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
     );
   };
 
   return (
-    <div className="flex flex-col flex-1 pb-5 gap-8">
-      <CardHeader>
+    <div className="flex flex-col flex-1 pl-5 pr-2 pt-3 pb-5 gap-6">
+      <CardHeader className="py-0 px-1">
         <CardTitle>Pipes Inventory</CardTitle>
-        <p className="text-sm text-muted-foreground">
+        <CardDescription className="text-xs">
           Showing {sortedData.length} of {data.length} pipes
-        </p>
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="text-[#808080]">
-              <tr>
-                <th className="text-center">
+      <CardContent className="px-0">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center">
                   <Button
                     variant="ghost"
                     onClick={() => onSort("id")}
-                    className="h-auto p-0 hover:bg-transparent"
+                    className="hover:bg-accent"
                   >
-                    Pipe ID {renderSortIcon("id")}
+                    Pipe ID
+                    {renderSortIcon("id")}
                   </Button>
-                </th>
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("TYPE")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Type {renderSortIcon("TYPE")}
-                  </Button>
-                </th> */}
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("Pipe_Shape")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Shape {renderSortIcon("Pipe_Shape")}
-                  </Button>
-                </th> */}
-                <th className="text-center">
+                </TableHead>
+                <TableHead className="text-center">
                   <Button
                     variant="ghost"
                     onClick={() => onSort("Pipe_Lngth")}
-                    className="h-auto p-0 hover:bg-transparent"
+                    className="hover:bg-accent"
                   >
-                    Length (m) {renderSortIcon("Pipe_Lngth")}
+                    Length (m)
+                    {renderSortIcon("Pipe_Lngth")}
                   </Button>
-                </th>
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("ClogPer")}
-                    className="h-auto p-0 hover:bg-transparent"
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={2} className="h-24 text-center">
+                    No pipes found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sortedData.map((pipe) => (
+                  <TableRow
+                    key={pipe.id}
+                    onClick={() => onSelectPipe(pipe)}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
                   >
-                    Clog % {renderSortIcon("ClogPer")}
-                  </Button>
-                </th> */}
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="h-5"></tr>
-              {sortedData.map((pipe) => (
-                <tr
-                  key={pipe.id}
-                  onClick={() => onSelectPipe(pipe)}
-                  className="cursor-pointer hover:bg-gray-100 transition-colors"
-                >
-                  <td className="p-2 text-center font-mono text-sm rounded-l-xl">
-                    {pipe.id}
-                  </td>
-                  {/* <td className="p-2 text-center">{pipe.TYPE}</td>
-              <td className="p-2 text-center">{pipe.Pipe_Shape}</td> */}
-                  <td className="p-2 text-center rounded-r-xl">
-                    {pipe.Pipe_Lngth}
-                  </td>
-                  {/* <td className="p-2 text-center">{pipe.Height}</td>
-              <td className="p-2 text-center">{pipe.Width}</td>
-              <td className="p-2 text-center">{pipe.Barrels}</td>
-              <td className="p-2 text-center">{pipe.Mannings}</td>
-              <td className="p-2 text-center">{pipe.ClogPer}</td>
-              <td className="p-2 text-center">{pipe.ClogTime}</td> */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <TableCell className="text-center font-mono text-sm">
+                      {pipe.id}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {pipe.Pipe_Lngth}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </CardContent>
     </div>
