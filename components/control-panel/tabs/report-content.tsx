@@ -46,13 +46,13 @@ export default function ReportContent() {
   const handleCategory = (value: string) => {
     setCategory(value);
 
-    if (value === "inlets") {
+    if (value === "inlet") {
       setCategoryLabel("Inlet");
-    } else if (value === "storm_drains") {
+    } else if (value === "storm_drain") {
       setCategoryLabel("Storm Drain");
-    } else if (value === "man_pipes") {
+    } else if (value === "man_pipe") {
       setCategoryLabel("Manduae Pipe");
-    } else if (value === "outlets") {
+    } else if (value === "outlet") {
       setCategoryLabel("Outlet");
     }
   };
@@ -62,34 +62,16 @@ export default function ReportContent() {
     setIsSubmitting(true);
 
     if (!image) {
-<<<<<<< HEAD:components/report-form.tsx
         setIsErrorModalOpen(true);
         setErrorCode("No valid image");
     }else{
       const location = await extractExifLocation(image);  
-
+      console.log("Extracted Location:", location);
       if (!location.latitude || !location.longitude) {
           setIsErrorModalOpen(true);
           setErrorCode("No GPS data found in image");
           return;
       }
-=======
-      setIsErrorModalOpen(true);
-      setErrorCode("No valid image");
-      setIsSubmitting(false);
-    } else {
-      // const location = await extractExifLocation(image);
-
-      // if (!location.latitude || !location.longitude) {
-      //     setIsErrorModalOpen(true);
-      //     setErrorCode("No GPS data found in image");
-      //     return;
-      // }
-      const location = {
-        latitude: 10.328531541760796,
-        longitude: 123.924274242405161,
-      };
->>>>>>> edac41546eb1c43159253572d0e605cc125299bc:components/control-panel/tabs/report-content.tsx
 
       try {
         const Pipedata = await getClosestPipes(
