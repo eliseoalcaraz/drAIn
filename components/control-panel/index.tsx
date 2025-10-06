@@ -85,7 +85,11 @@ export function ControlPanel({
         />
 
         {/* Main Content */}
-        <div className="relative overflow-auto flex-1">
+        <div
+          className={`relative flex-1 overflow-auto ${
+            activeTab === "stats" ? "overflow-y-scroll" : ""
+          }`}
+        >
           <ContentRenderer
             activeTab={activeTab}
             dataset={dataset}

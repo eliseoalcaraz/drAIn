@@ -2,8 +2,21 @@
 
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowUpDown } from "lucide-react";
+import {
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
 import type { Outlet } from "@/hooks/useOutlets";
 
 export type OutletSortField = "id" | "Inv_Elev" | "AllowQ" | "FlapGate";
@@ -55,86 +68,76 @@ export function OutletTable({
 
   const renderSortIcon = (field: OutletSortField) => {
     if (sortField !== field) {
-      return <ArrowUpDown className="w-4 h-4 opacity-50" />;
+      return <ArrowUpDown className="ml-2 h-4 w-4" />;
     }
-    return (
-      <ArrowUpDown
-        className={`w-4 h-4 ${sortDirection === "desc" ? "rotate-180" : ""}`}
-      />
+    return sortDirection === "asc" ? (
+      <ArrowUp className="ml-2 h-4 w-4" />
+    ) : (
+      <ArrowDown className="ml-2 h-4 w-4" />
     );
   };
 
   return (
-    <div className="flex flex-col flex-1 pb-5 gap-8">
-      <CardHeader>
-        <CardTitle>Outlets Inventory</CardTitle>
-        <p className="text-sm text-muted-foreground">
+    <div className="flex flex-col flex-1 pl-5 pr-2 pt-3 pb-5 gap-6">
+      <CardHeader className="py-0 px-1">
+        <CardTitle>Outlet Inventory</CardTitle>
+        <CardDescription className="text-xs">
           Showing {sortedData.length} of {data.length} outlets
-        </p>
+        </CardDescription>
       </CardHeader>
-      <CardContent>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="text-[#808080]">
-              <tr>
-                <th className="text-center">
+
+      <CardContent className="px-0">
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center">
                   <Button
                     variant="ghost"
                     onClick={() => onSort("id")}
-                    className="h-auto p-0 hover:bg-transparent"
+                    className="hover:bg-accent"
                   >
-                    Outlet ID {renderSortIcon("id")}
+                    Outlet ID
+                    {renderSortIcon("id")}
                   </Button>
-                </th>
-                <th className="text-center">
+                </TableHead>
+                <TableHead className="text-center">
                   <Button
                     variant="ghost"
                     onClick={() => onSort("Inv_Elev")}
-                    className="h-auto p-0 hover:bg-transparent"
+                    className="hover:bg-accent"
                   >
-                    Invert Elev {renderSortIcon("Inv_Elev")}
+                    Inv. Elev (m)
+                    {renderSortIcon("Inv_Elev")}
                   </Button>
-                </th>
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("AllowQ")}
-                    className="h-auto p-0 hover:bg-transparent"
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedData.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={2} className="h-24 text-center">
+                    No outlets found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                sortedData.map((outlet) => (
+                  <TableRow
+                    key={outlet.id}
+                    onClick={() => onSelectOutlet(outlet)}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
                   >
-                    Allow Q {renderSortIcon("AllowQ")}
-                  </Button>
-                </th> */}
-                {/* <th className="text-center">
-                  <Button
-                    variant="ghost"
-                    onClick={() => onSort("FlapGate")}
-                    className="h-auto p-0 hover:bg-transparent"
-                  >
-                    Flap Gate {renderSortIcon("FlapGate")}
-                  </Button>
-                </th> */}
-              </tr>
-            </thead>
-            <tbody>
-              <tr className="h-5"></tr>
-              {sortedData.map((outlet) => (
-                <tr
-                  key={outlet.id}
-                  onClick={() => onSelectOutlet(outlet)}
-                  className="cursor-pointer hover:bg-gray-100 transition-colors"
-                >
-                  <td className="p-2 text-center font-mono text-sm rounded-l-xl">
-                    {outlet.id}
-                  </td>
-                  <td className="p-2 text-center rounded-r-xl">
-                    {outlet.Inv_Elev}
-                  </td>
-                  {/* <td className="p-2 text-center">{outlet.AllowQ}</td> */}
-                  {/* <td className="p-2 text-center">{outlet.FlapGate}</td> */}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    <TableCell className="text-center font-mono text-sm">
+                      {outlet.id}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {outlet.Inv_Elev}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </CardContent>
     </div>

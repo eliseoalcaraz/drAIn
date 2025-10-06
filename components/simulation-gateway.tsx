@@ -29,7 +29,8 @@ export function SimulationGateway() {
         </EmptyMedia>
         <EmptyTitle>Simulation Mode</EmptyTitle>
         <EmptyDescription>
-          Try out our drainage vulnerability simulation model
+          Try out our drainage vulnerability simulation model Try out our
+          drainage vulnerability simulation model
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
@@ -41,6 +42,7 @@ export function SimulationGateway() {
           href="https://github.com/eliseoalcaraz/pjdsc/tree/main/app"
           target="_blank"
           rel="noopener noreferrer"
+          className="text-sm flex flex-row text-muted-foreground hover:text-primary hover:underline underline-offset-4 items-center gap-1"
           className="text-sm flex flex-row text-muted-foreground hover:text-primary hover:underline underline-offset-4 items-center gap-1"
         >
           Learn More

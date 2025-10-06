@@ -87,15 +87,17 @@ export function TopBar({
 
       {/* Dataset Selector */}
       {showCombobox && (
-        <ComboboxForm
-          value={dataset}
-          onSelect={(value) =>
-            onDatasetChange(
-              value as "inlets" | "man_pipes" | "outlets" | "storm_drains"
-            )
-          }
-          showSearch={false}
-        />
+        <div className="w-24">
+          <ComboboxForm
+            value={dataset}
+            onSelect={(value) =>
+              onDatasetChange(
+                value as "inlets" | "man_pipes" | "outlets" | "storm_drains"
+              )
+            }
+            showSearch={false}
+          />
+        </div>
       )}
 
       {/* Back Button */}
