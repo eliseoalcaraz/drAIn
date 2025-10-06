@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useRef } from "react";
-import { Image as IconImage } from "lucide-react";
 import Image from "next/image";
 import { AddIcon } from "./add-icon";
 
