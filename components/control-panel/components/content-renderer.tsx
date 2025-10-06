@@ -2,7 +2,7 @@ import type { DatasetType, Pipe, Inlet, Outlet, Drain } from "../types";
 import { FIELD_CONFIGS, MODEL_URLS } from "../constants";
 import { DetailView } from "./detail-view";
 import OverlaysContent from "../../overlays-content";
-import ReportForm from "../../report-form";
+import ReportContent from "../../report-content";
 import { ChatbotView } from "./chatbot-view";
 import {
   PipeTable,
@@ -14,6 +14,7 @@ import {
   OutletSortField,
   DrainSortField,
 } from "@/components/tables";
+import SimulationsContent from "@/components/simulations-content";
 
 interface ContentRendererProps {
   activeTab: string;
@@ -63,6 +64,10 @@ interface ContentRendererProps {
   // Drag control props
   isDragEnabled?: boolean;
   onToggleDrag?: (enabled: boolean) => void;
+
+  // Simulation mode
+  isSimulationMode?: boolean;
+  selectedPointForSimulation?: string | null;
 }
 
 export function ContentRenderer({
@@ -94,6 +99,8 @@ export function ContentRenderer({
   onNavigateToReportForm,
   isDragEnabled,
   onToggleDrag,
+  isSimulationMode = false,
+  selectedPointForSimulation = null,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -123,10 +130,15 @@ export function ContentRenderer({
       return renderStatsContent();
 
     case "simulations":
-      return null;
+      return (
+        <SimulationsContent
+          isSimulationMode={isSimulationMode}
+          selectedPointId={selectedPointForSimulation}
+        />
+      );
 
     case "report":
-      return <ReportForm />;
+      return <ReportContent />;
 
     case "chatbot":
       return <ChatbotView />;
