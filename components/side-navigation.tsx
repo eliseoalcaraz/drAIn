@@ -15,6 +15,7 @@ const tabs = [
   { id: "stats", label: "Stats", icon: BarChart3 },
   { id: "simulations", label: "Simulations", icon: PlayCircle },
   { id: "report", label: "Report", icon: MessageCircleWarning },
+  { id: "profile", label: "Profile", icon: Person },
 ];
 interface SideNavigationProps {
   activeTab: string;
@@ -61,10 +62,6 @@ export function SideNavigation({
       {/* Other tabs at the bottom */}
       <div className="flex w-full flex-col gap-5">
         {otherTabs.map((tab) => renderTab(tab))}
-      </div>
-
-      <div className="mt-5">
-        <Person className="w-7 h-7 text-[#B2ADAB]" />
       </div>
     </div>
   );

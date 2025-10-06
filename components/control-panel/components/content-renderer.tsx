@@ -4,6 +4,7 @@ import { DetailView } from "./detail-view";
 import OverlaysContent from "../../overlays-content";
 import ReportContent from "../../report-content";
 import { ChatbotView } from "./chatbot-view";
+import ProfilePage from "@/components/profile";
 import {
   PipeTable,
   InletTable,
@@ -142,6 +143,9 @@ export function ContentRenderer({
 
     case "chatbot":
       return <ChatbotView />;
+
+    case "profile":
+      return <ProfilePage />;
 
     default:
       return null;
