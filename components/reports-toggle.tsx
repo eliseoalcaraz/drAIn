@@ -37,7 +37,7 @@ export function ReportsToggle({
   isVisible,
   onToggle,
   onNavigateToReportForm,
-  reports,
+  reports = [],
 }: ReportsToggleProps) {
   const totalReports = reports.length;
 
