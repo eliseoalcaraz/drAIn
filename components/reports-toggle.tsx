@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/card";
 import { Info, Power } from "lucide-react";
 import Flag from "@/public/icons/flag.svg";
-import { report } from "@/data/content";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -24,6 +23,7 @@ interface ReportsToggleProps {
   isVisible: boolean;
   onToggle: () => void;
   onNavigateToReportForm?: () => void;
+  reports: any[];
 }
 
 const chartConfig = {
@@ -37,12 +37,13 @@ export function ReportsToggle({
   isVisible,
   onToggle,
   onNavigateToReportForm,
+  reports = [],
 }: ReportsToggleProps) {
-  const totalReports = report.length;
+  const totalReports = reports.length;
 
   const chartData = useMemo(() => {
-    const dateCounts = report.reduce((acc, item) => {
-      const date = item.date;
+    const dateCounts = reports.reduce((acc, item) => {
+      const date = new Date(item.date).toISOString().split("T")[0];
       acc[date] = (acc[date] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
@@ -54,7 +55,7 @@ export function ReportsToggle({
       date,
       count: dateCounts[date],
     }));
-  }, []);
+  }, [reports]);
 
   return (
     <div className="bg-[#eeeeee] rounded-xl border border-[#e2e2e2]">

@@ -12,6 +12,7 @@ import type { Inlet, Pipe, Outlet, Drain, DatasetType } from "./types";
 import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
 
 export function ControlPanel({
+  reports,
   activeTab,
   dataset,
   selectedInlet,
@@ -31,7 +32,7 @@ export function ControlPanel({
   onToggleOverlay,
   isSimulationMode = false,
   selectedPointForSimulation = null,
-}: ControlPanelProps) {
+}: ControlPanelProps & { reports: any[] }) {
   const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
     useControlPanelState();
 
@@ -121,6 +122,7 @@ export function ControlPanel({
             onToggleDrag={handleToggleDrag}
             isSimulationMode={isSimulationMode}
             selectedPointForSimulation={selectedPointForSimulation}
+            reports={reports}
           />
         </div>
       </div>
