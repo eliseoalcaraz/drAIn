@@ -16,8 +16,7 @@ import { ImageViewer } from "@/components/image-viewer";
 interface Report {
   reporterName: string;
   date: string;
-  status: "pending" | "in-progress" | "resolved";
-  componentType: "pipe" | "drain" | "inlet" | "outlet";
+  status: string;
   componentId: string;
   category: string;
   description: string;
@@ -151,7 +150,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             handleOpen();
           }}
           className={`relative w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold transition-all duration-200 hover:scale-110 hover:shadow-lg active:scale-95 ${getComponentColor(
-            report.componentType
+            report.category
           )}`}
         >
           {initials}
@@ -178,7 +177,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             <div className="flex items-center gap-3 mb-3">
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm ${getComponentColor(
-                  report.componentType
+                  report.category
                 )}`}
               >
                 {initials}
@@ -244,7 +243,6 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             category={report.category}
             description={report.description}
             coordinates={coordinates}
-            componentType={report.componentType}
             componentId={report.componentId}
             onClose={() => setShowImageViewer(false)}
           />

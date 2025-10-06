@@ -33,6 +33,13 @@ export function ControlPanel({
   const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
     useControlPanelState();
 
+  // Drag control state
+  const [isDragEnabled, setIsDragEnabled] = useState(false);
+
+  const handleToggleDrag = (enabled: boolean) => {
+    setIsDragEnabled(enabled);
+  };
+
   // Data hooks
   const { inlets, loading: loadingInlets } = useInlets();
   const { outlets, loading: loadingOutlets } = useOutlets();
@@ -42,6 +49,15 @@ export function ControlPanel({
   const selectedItem =
     selectedInlet || selectedPipe || selectedOutlet || selectedDrain;
   const selectedItemTitle = selectedItem ? DETAIL_TITLES[dataset] : "";
+
+  const handleNavigateToTable = (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => {
+    onDatasetChange(dataset);
+    onTabChange("stats");
+  };
+
+  const handleNavigateToReportForm = () => {
+    onTabChange("report");
+  };
 
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
@@ -60,6 +76,8 @@ export function ControlPanel({
           selectedItemTitle={selectedItemTitle}
           overlaysVisible={overlaysVisible}
           onToggleOverlays={onToggle}
+          isDragEnabled={isDragEnabled}
+          onToggleDrag={handleToggleDrag}
         />
 
         {/* Main Content */}
@@ -89,6 +107,10 @@ export function ControlPanel({
             onSelectDrain={onSelectDrain}
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
+            onNavigateToTable={handleNavigateToTable}
+            onNavigateToReportForm={handleNavigateToReportForm}
+            isDragEnabled={isDragEnabled}
+            onToggleDrag={handleToggleDrag}
           />
         </div>
 

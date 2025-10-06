@@ -1,8 +1,6 @@
 "use client";
 
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { Toggle } from "@/components/ui/toggle";
 import {
   Card,
   CardContent,
@@ -10,9 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { MessageSquareWarning, Info } from "lucide-react";
+import { Info, Power } from "lucide-react";
+import Flag from "@/public/icons/flag.svg";
 import { report } from "@/data/content";
-import Image from "next/image";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -25,6 +23,7 @@ import {
 interface ReportsToggleProps {
   isVisible: boolean;
   onToggle: () => void;
+  onNavigateToReportForm?: () => void;
 }
 
 const chartConfig = {
@@ -34,7 +33,11 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export function ReportsToggle({ isVisible, onToggle }: ReportsToggleProps) {
+export function ReportsToggle({
+  isVisible,
+  onToggle,
+  onNavigateToReportForm,
+}: ReportsToggleProps) {
   const totalReports = report.length;
 
   const chartData = useMemo(() => {
@@ -55,7 +58,10 @@ export function ReportsToggle({ isVisible, onToggle }: ReportsToggleProps) {
 
   return (
     <div className="bg-[#eeeeee] rounded-xl border border-[#e2e2e2]">
-      <div className="py-2 px-4 flex flex-row items-center justify-between">
+      <div
+        className="py-2 px-4 flex flex-row items-center justify-between cursor-pointer hover:bg-[#e8e8e8] transition-colors rounded-t-xl"
+        onClick={onNavigateToReportForm}
+      >
         <span className="text-xs">User Reports</span>
         <Info className="h-3.5 w-3.5 opacity-70" />
       </div>
@@ -64,16 +70,22 @@ export function ReportsToggle({ isVisible, onToggle }: ReportsToggleProps) {
         <CardHeader className="flex-col gap-3 pb-0">
           <CardTitle className="flex flex-row">
             <div className="flex flex-row items-center gap-2">
-              <MessageSquareWarning className="w-4 h-4" />
+              <Flag className="w-4 h-4" />
               <span>{totalReports} reports</span>
             </div>
 
-            <Switch
+            <Toggle
               id="reports-toggle"
-              checked={isVisible}
-              onCheckedChange={onToggle}
+              pressed={isVisible}
+              onPressedChange={() => onToggle()}
+              onClick={(e) => e.stopPropagation()}
+              variant="outline"
+              size="sm"
+              aria-label="Toggle reports visibility"
               className="ml-auto"
-            />
+            >
+              <Power className="h-4 w-4" />
+            </Toggle>
           </CardTitle>
           <CardDescription className="text-xs">
             Toggle visibility of drainage issue reports on the map
