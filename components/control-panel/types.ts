@@ -88,4 +88,6 @@ export interface ControlPanelProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
+  // Simulation mode
+  isSimulationMode?: boolean;
 }

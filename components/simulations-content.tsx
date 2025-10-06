@@ -33,6 +33,7 @@ import {
   calculateDistanceToOutlet,
   calculateDistanceToOutletForDrain,
 } from "@/lib/distance-calculator";
+import { SimulationGateway } from "@/components/simulation-gateway";
 
 type EndpointType = "predict-100yr" | "predict-50yr" | "predict-25yr";
 
@@ -57,15 +58,20 @@ const DEFAULT_PARAMS: PredictionParams = {
   inletDensity: 25,
 };
 
-export default function SimulationsContent() {
+interface SimulationsContentProps {
+  isSimulationMode?: boolean;
+}
+
+export default function SimulationsContent({
+  isSimulationMode = false,
+}: SimulationsContentProps) {
   const [endpoint, setEndpoint] = useState<EndpointType>("predict-100yr");
   const [params, setParams] = useState<PredictionParams>(DEFAULT_PARAMS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [showResults, setShowResults] = useState(false);
-  const [selectedInletId, setSelectedInletId] = useState<string>("");
-  const [selectedDrainId, setSelectedDrainId] = useState<string>("");
+  const [selectedPointId, setSelectedPointId] = useState<string>("");
   const [calculatingDistance, setCalculatingDistance] = useState(false);
 
   // Load data from hooks
@@ -74,69 +80,55 @@ export default function SimulationsContent() {
   const { pipes, loading: pipesLoading } = usePipes();
   const { drains, loading: drainsLoading } = useDrain();
 
-  // Calculate distance when inlet is selected
+  // Calculate distance when inlet or drain is selected
   useEffect(() => {
     if (
-      selectedInletId &&
-      inlets.length > 0 &&
-      outlets.length > 0 &&
-      pipes.length > 0
+      !selectedPointId ||
+      inlets.length === 0 ||
+      drains.length === 0 ||
+      outlets.length === 0 ||
+      pipes.length === 0
     ) {
-      setCalculatingDistance(true);
-      try {
-        const distanceResult = calculateDistanceToOutlet(
-          selectedInletId,
+      return;
+    }
+
+    setCalculatingDistance(true);
+    try {
+      // Check if it's an inlet (starts with "I-") or a drain (starts with "ISD-")
+      const isInlet = inlets.some((i) => i.id === selectedPointId);
+      const isDrain = drains.some((d) => d.id === selectedPointId);
+
+      let distanceResult;
+
+      if (isInlet) {
+        distanceResult = calculateDistanceToOutlet(
+          selectedPointId,
           inlets,
           outlets,
           pipes
         );
-
-        if (distanceResult.distanceToOutlet !== null) {
-          setParams({
-            ...params,
-            distToOutlet: Math.round(distanceResult.distanceToOutlet),
-          });
-        }
-      } catch (err) {
-        console.error("Error calculating distance:", err);
-      } finally {
-        setCalculatingDistance(false);
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedInletId, inlets, outlets, pipes]);
-
-  // Calculate distance when storm drain is selected
-  useEffect(() => {
-    if (
-      selectedDrainId &&
-      drains.length > 0 &&
-      outlets.length > 0 &&
-      pipes.length > 0
-    ) {
-      setCalculatingDistance(true);
-      try {
-        const distanceResult = calculateDistanceToOutletForDrain(
-          selectedDrainId,
+      } else if (isDrain) {
+        distanceResult = calculateDistanceToOutletForDrain(
+          selectedPointId,
           drains,
           outlets,
           pipes
         );
-
-        if (distanceResult.distanceToOutlet !== null) {
-          setParams({
-            ...params,
-            distToOutlet: Math.round(distanceResult.distanceToOutlet),
-          });
-        }
-      } catch (err) {
-        console.error("Error calculating distance for drain:", err);
-      } finally {
-        setCalculatingDistance(false);
       }
+
+      if (distanceResult && distanceResult.distanceToOutlet !== null) {
+        setParams({
+          ...params,
+          distToOutlet: Math.round(distanceResult.distanceToOutlet),
+        });
+      }
+    } catch (err) {
+      console.error("Error calculating distance:", err);
+    } finally {
+      setCalculatingDistance(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDrainId, drains, outlets, pipes]);
+  }, [selectedPointId, inlets, drains, outlets, pipes]);
 
   const handlePredict = async () => {
     setLoading(true);
@@ -176,8 +168,7 @@ export default function SimulationsContent() {
     setResult(null);
     setError(null);
     setShowResults(false);
-    setSelectedInletId("");
-    setSelectedDrainId("");
+    setSelectedPointId("");
   };
 
   const getRiskLevel = (value: number): { color: string; label: string } => {
@@ -185,6 +176,11 @@ export default function SimulationsContent() {
     if (value >= 0.4) return { color: "default", label: "Medium Risk" };
     return { color: "secondary", label: "Low Risk" };
   };
+
+  // Show gateway if not in simulation mode
+  if (!isSimulationMode) {
+    return <SimulationGateway />;
+  }
 
   return (
     <div className="space-y-6">
@@ -196,66 +192,41 @@ export default function SimulationsContent() {
         </CardDescription>
       </CardHeader>
 
-      {/* Inlet Selector */}
+      {/* Inlet/Drain Selector */}
       <div className="space-y-2">
-        <Label htmlFor="inlet-selector">Select Inlet (Optional)</Label>
+        <Label htmlFor="point-selector">Select Inlet or Storm Drain (Optional)</Label>
         <Combobox
-          options={inlets.map((inlet) => ({
-            value: inlet.id,
-            label: inlet.id,
-          }))}
-          value={selectedInletId}
-          onValueChange={(value) => {
-            setSelectedInletId(value);
-            if (value) setSelectedDrainId(""); // Clear drain when inlet is selected
-          }}
-          placeholder="Select an inlet..."
-          searchPlaceholder="Search inlets..."
-          emptyText="No inlets found."
-          disabled={inletsLoading || outletsLoading || pipesLoading}
+          options={[
+            ...inlets.map((inlet) => ({
+              value: inlet.id,
+              label: `${inlet.id} (Inlet)`,
+            })),
+            ...drains.map((drain) => ({
+              value: drain.id,
+              label: `${drain.id} (Storm Drain)`,
+            })),
+          ]}
+          value={selectedPointId}
+          onValueChange={setSelectedPointId}
+          placeholder="Select an inlet or storm drain..."
+          searchPlaceholder="Search inlets or storm drains..."
+          emptyText="No inlets or drains found."
+          disabled={
+            inletsLoading ||
+            drainsLoading ||
+            outletsLoading ||
+            pipesLoading
+          }
         />
-        {calculatingDistance && selectedInletId && (
+        {calculatingDistance && selectedPointId && (
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <Spinner className="h-3 w-3" />
             Calculating distance...
           </p>
         )}
-        {selectedInletId && !calculatingDistance && (
+        {selectedPointId && !calculatingDistance && (
           <p className="text-xs text-muted-foreground">
-            Distance auto-calculated for {selectedInletId}
-          </p>
-        )}
-      </div>
-
-      {/* Storm Drain Selector */}
-      <div className="space-y-2">
-        <Label htmlFor="drain-selector">
-          Select Storm Drain (Optional Alternative)
-        </Label>
-        <Combobox
-          options={drains.map((drain) => ({
-            value: drain.id,
-            label: drain.id,
-          }))}
-          value={selectedDrainId}
-          onValueChange={(value) => {
-            setSelectedDrainId(value);
-            if (value) setSelectedInletId(""); // Clear inlet when drain is selected
-          }}
-          placeholder="Select a storm drain..."
-          searchPlaceholder="Search storm drains..."
-          emptyText="No storm drains found."
-          disabled={drainsLoading || outletsLoading || pipesLoading}
-        />
-        {calculatingDistance && selectedDrainId && (
-          <p className="text-xs text-muted-foreground flex items-center gap-1">
-            <Spinner className="h-3 w-3" />
-            Calculating distance...
-          </p>
-        )}
-        {selectedDrainId && !calculatingDistance && (
-          <p className="text-xs text-muted-foreground">
-            Distance auto-calculated for {selectedDrainId}
+            Distance auto-calculated for {selectedPointId}
           </p>
         )}
       </div>

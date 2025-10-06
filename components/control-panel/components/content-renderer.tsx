@@ -64,6 +64,9 @@ interface ContentRendererProps {
   // Drag control props
   isDragEnabled?: boolean;
   onToggleDrag?: (enabled: boolean) => void;
+
+  // Simulation mode
+  isSimulationMode?: boolean;
 }
 
 export function ContentRenderer({
@@ -95,6 +98,7 @@ export function ContentRenderer({
   onNavigateToReportForm,
   isDragEnabled,
   onToggleDrag,
+  isSimulationMode = false,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -124,7 +128,7 @@ export function ContentRenderer({
       return renderStatsContent();
 
     case "simulations":
-      return <SimulationsContent />;
+      return <SimulationsContent isSimulationMode={isSimulationMode} />;
 
     case "report":
       return <ReportContent />;
