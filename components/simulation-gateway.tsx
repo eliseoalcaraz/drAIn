@@ -10,8 +10,9 @@ import {
   EmptyDescription,
   EmptyContent,
 } from "@/components/ui/empty";
-import { Play, Droplets } from "lucide-react";
+import { Play, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import { IconCloud } from "@tabler/icons-react";
 
 export function SimulationGateway() {
   const router = useRouter();
@@ -21,33 +22,30 @@ export function SimulationGateway() {
   };
 
   return (
-    <Empty>
+    <Empty className="h-5/6">
       <EmptyHeader>
         <EmptyMedia variant="icon">
-          <Droplets className="size-6" />
+          <IconCloud />
         </EmptyMedia>
         <EmptyTitle>Simulation Mode</EmptyTitle>
         <EmptyDescription>
-          Try out our drainage vulnerability model
+          Try out our drainage vulnerability simulation model
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button
-          onClick={handleEnterSimulation}
-          size="lg"
-          className="w-full h-12"
-        >
-          <Play className="mr-2 h-5 w-5" />
-          Enter Simulation Mode
+        <Button onClick={handleEnterSimulation} className="flex justify-center">
+          <Play />
+          Simulate
         </Button>
-        <Link
+        {/* <Link
           href="https://github.com/eliseoalcaraz/pjdsc/tree/main/app"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4"
+          className="text-sm flex flex-row text-muted-foreground hover:text-primary hover:underline underline-offset-4 items-center gap-1"
         >
-          Learn more
-        </Link>
+          Learn More
+          <ArrowUpRight className="w-4.5 h-4.5" />
+        </Link> */}
       </EmptyContent>
     </Empty>
   );

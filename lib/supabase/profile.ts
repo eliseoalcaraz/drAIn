@@ -37,15 +37,8 @@ export const updateUserProfile = async (
         throw uploadError;
       }
 
-      // Get the public URL of the uploaded file
-      const { data: urlData } = client.storage
-        .from("Avatars")
-        .getPublicUrl(filePath);
-
-      if (!urlData) {
-        throw new Error("Could not get public URL for avatar.");
-      }
-      avatar_url = urlData.publicUrl;
+      // Store the file path (not the full URL) in the database
+      avatar_url = filePath;
     }
 
     let data, error;

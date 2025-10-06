@@ -9,7 +9,7 @@ import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
 import { updateUserProfile } from "@/lib/supabase/profile";
 
-export default function ProfilePage() {
+export default function ProfileContent() {
   const authContext = useContext(AuthContext);
   const session = authContext?.session;
   const supabase = client;
@@ -45,13 +45,8 @@ export default function ProfilePage() {
           if (error && error.code !== "PGRST116") {
             console.error("Error fetching profile:", error);
           } else if (data) {
-            let avatarUrl = null;
-            if (data.avatar_url) {
-              const { data: urlData } = supabase.storage
-                .from("Avatars")
-                .getPublicUrl(data.avatar_url);
-              avatarUrl = urlData.publicUrl;
-            }
+            const avatarUrl = data.avatar_url;
+            console.log(avatarUrl);
             setProfile(data);
             setPublicAvatarUrl(avatarUrl);
             localStorage.setItem(
@@ -67,6 +62,10 @@ export default function ProfilePage() {
       setLoading(false);
     }
   }, [session, supabase]);
+
+  useEffect(() => {
+    console.log(publicAvatarUrl);
+  }, [publicAvatarUrl]);
 
   const handleSignOut = async () => {
     if (session) {
@@ -172,7 +171,6 @@ export default function ProfilePage() {
                   className="mt-1"
                 />
               </div>
-
 
               {errorMessage && (
                 <p className="text-red-500 text-sm">{errorMessage}</p>
