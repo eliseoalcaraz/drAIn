@@ -1,10 +1,9 @@
 import type { DatasetType, Pipe, Inlet, Outlet, Drain } from "../types";
 import { FIELD_CONFIGS, MODEL_URLS } from "../constants";
 import { DetailView } from "./detail-view";
-import OverlaysContent from "../../overlays-content";
-import ReportContent from "../../report-content";
-import { ChatbotView } from "./chatbot-view";
-import ProfilePage from "@/components/profile";
+import OverlaysContent from "../tabs/overlays-content";
+import ReportContent from "../tabs/report-content";
+import { ChatbotView } from "../tabs/chatbot-content";
 import {
   PipeTable,
   InletTable,
@@ -14,8 +13,9 @@ import {
   InletSortField,
   OutletSortField,
   DrainSortField,
-} from "@/components/tables";
-import SimulationsContent from "@/components/simulations-content";
+} from "@/components/control-panel/tabs/tables-content";
+import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
+import ProfileContent from "@/components/control-panel/tabs/profile-content";
 
 interface ContentRendererProps {
   activeTab: string;
@@ -150,7 +150,7 @@ export function ContentRenderer({
       return <ChatbotView />;
 
     case "profile":
-      return <ProfilePage />;
+      return <ProfileContent />;
 
     default:
       return null;

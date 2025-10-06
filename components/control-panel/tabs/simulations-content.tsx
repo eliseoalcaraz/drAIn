@@ -203,7 +203,9 @@ export default function SimulationsContent({
 
       {/* Inlet/Drain Selector */}
       <div className="space-y-2">
-        <Label htmlFor="point-selector">Select Inlet or Storm Drain (Optional)</Label>
+        <Label htmlFor="point-selector">
+          Select Inlet or Storm Drain (Optional)
+        </Label>
         <Combobox
           options={[
             ...inlets.map((inlet) => ({
@@ -221,10 +223,7 @@ export default function SimulationsContent({
           searchPlaceholder="Search inlets or storm drains..."
           emptyText="No inlets or drains found."
           disabled={
-            inletsLoading ||
-            drainsLoading ||
-            outletsLoading ||
-            pipesLoading
+            inletsLoading || drainsLoading || outletsLoading || pipesLoading
           }
         />
         {calculatingDistance && selectedPointId && (
