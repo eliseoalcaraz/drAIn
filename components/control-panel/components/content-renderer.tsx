@@ -67,6 +67,7 @@ interface ContentRendererProps {
 
   // Simulation mode
   isSimulationMode?: boolean;
+  selectedPointForSimulation?: string | null;
 }
 
 export function ContentRenderer({
@@ -99,6 +100,7 @@ export function ContentRenderer({
   isDragEnabled,
   onToggleDrag,
   isSimulationMode = false,
+  selectedPointForSimulation = null,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -128,7 +130,12 @@ export function ContentRenderer({
       return renderStatsContent();
 
     case "simulations":
-      return <SimulationsContent isSimulationMode={isSimulationMode} />;
+      return (
+        <SimulationsContent
+          isSimulationMode={isSimulationMode}
+          selectedPointId={selectedPointForSimulation}
+        />
+      );
 
     case "report":
       return <ReportContent />;

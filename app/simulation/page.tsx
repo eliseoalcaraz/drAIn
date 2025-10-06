@@ -22,8 +22,6 @@ import { Outlet, useOutlets } from "@/hooks/useOutlets";
 import { Drain, useDrain } from "@/hooks/useDrain";
 import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -72,6 +70,9 @@ export default function SimulationPage() {
   const [controlPanelTab, setControlPanelTab] = useState<string>("simulations");
   const [controlPanelDataset, setControlPanelDataset] =
     useState<DatasetType>("inlets");
+  const [selectedPointForSimulation, setSelectedPointForSimulation] = useState<
+    string | null
+  >(null);
 
   // Function to clear all selections
   const clearSelections = () => {
@@ -463,8 +464,9 @@ export default function SimulationPage() {
 
     // Set the new selection state for control panel
     setSelectedInlet(inlet);
-    setControlPanelTab("simulations");
+    setControlPanelTab("simulations"); // Switch to simulations tab
     setControlPanelDataset("inlets");
+    setSelectedPointForSimulation(inlet.id); // Pass to simulations content
 
     // Set new map feature state
     mapRef.current.setFeatureState(
@@ -475,14 +477,6 @@ export default function SimulationPage() {
       id: inlet.id,
       source: "inlets",
       layer: "inlets-layer",
-    });
-
-    // Fly to the location on the map
-    mapRef.current.flyTo({
-      center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
     });
 
     // Add popup
@@ -509,7 +503,7 @@ export default function SimulationPage() {
 
     // Set the new selection state for control panel
     setSelectedOutlet(outlet);
-    setControlPanelTab("simulations");
+    // DON'T change tab - stay on current tab
     setControlPanelDataset("outlets");
 
     // Set new map feature state
@@ -521,14 +515,6 @@ export default function SimulationPage() {
       id: outlet.id,
       source: "outlets",
       layer: "outlets-layer",
-    });
-
-    // Fly to the location on the map
-    mapRef.current.flyTo({
-      center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
     });
 
     // Add popup
@@ -554,8 +540,9 @@ export default function SimulationPage() {
 
     // Set the new selection state for control panel
     setSelectedDrain(drain);
-    setControlPanelTab("simulations");
+    setControlPanelTab("simulations"); // Switch to simulations tab
     setControlPanelDataset("storm_drains");
+    setSelectedPointForSimulation(drain.id); // Pass to simulations content
 
     // Set new map feature state
     mapRef.current.setFeatureState(
@@ -566,14 +553,6 @@ export default function SimulationPage() {
       id: drain.id,
       source: "storm_drains",
       layer: "storm_drains-layer",
-    });
-
-    // Fly to the location on the map
-    mapRef.current.flyTo({
-      center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
     });
 
     // Add popup
@@ -601,7 +580,7 @@ export default function SimulationPage() {
 
     // Set the new selection state for control panel
     setSelectedPipe(pipe);
-    setControlPanelTab("simulations");
+    // DON'T change tab - stay on current tab
     setControlPanelDataset("man_pipes");
 
     // Set new map feature state
@@ -614,11 +593,6 @@ export default function SimulationPage() {
       source: "man_pipes",
       layer: "man_pipes-layer",
     });
-
-    // Fit map to line
-    const bounds = new mapboxgl.LngLatBounds();
-    pipe.coordinates.forEach((coord) => bounds.extend(coord));
-    mapRef.current.fitBounds(bounds, { padding: 100, duration: 1200 });
 
     // Popup at midpoint
     const midIndex = Math.floor(pipe.coordinates.length / 2);
@@ -664,18 +638,6 @@ export default function SimulationPage() {
               </div>
             </div>
           )}
-
-          {/* Exit button when simulation is active */}
-          {isSimulationActive && (
-            <Button
-              onClick={handleExitSimulation}
-              variant="outline"
-              className="absolute top-4 right-4 z-20"
-            >
-              <X className="mr-2 h-4 w-4" />
-              Exit Simulation Mode
-            </Button>
-          )}
         </div>
 
         <ControlPanel
@@ -697,12 +659,15 @@ export default function SimulationPage() {
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
           isSimulationMode={isSimulationActive}
+          selectedPointForSimulation={selectedPointForSimulation}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           onResetPosition={handleResetPosition}
           onChangeStyle={handleChangeStyle}
+          isSimulationActive={isSimulationActive}
+          onExitSimulation={handleExitSimulation}
         />
       </main>
     </>

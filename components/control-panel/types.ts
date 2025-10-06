@@ -90,4 +90,5 @@ export interface ControlPanelProps {
   onToggleOverlay: (id: string) => void;
   // Simulation mode
   isSimulationMode?: boolean;
+  selectedPointForSimulation?: string | null;
 }

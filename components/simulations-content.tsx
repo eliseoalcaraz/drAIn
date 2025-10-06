@@ -60,10 +60,12 @@ const DEFAULT_PARAMS: PredictionParams = {
 
 interface SimulationsContentProps {
   isSimulationMode?: boolean;
+  selectedPointId?: string | null;
 }
 
 export default function SimulationsContent({
   isSimulationMode = false,
+  selectedPointId: externalSelectedPointId = null,
 }: SimulationsContentProps) {
   const [endpoint, setEndpoint] = useState<EndpointType>("predict-100yr");
   const [params, setParams] = useState<PredictionParams>(DEFAULT_PARAMS);
@@ -79,6 +81,13 @@ export default function SimulationsContent({
   const { outlets, loading: outletsLoading } = useOutlets();
   const { pipes, loading: pipesLoading } = usePipes();
   const { drains, loading: drainsLoading } = useDrain();
+
+  // Update selected point when external prop changes (from map click)
+  useEffect(() => {
+    if (externalSelectedPointId) {
+      setSelectedPointId(externalSelectedPointId);
+    }
+  }, [externalSelectedPointId]);
 
   // Calculate distance when inlet or drain is selected
   useEffect(() => {

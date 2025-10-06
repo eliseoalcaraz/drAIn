@@ -2,8 +2,16 @@
 
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Play } from "lucide-react";
+import {
+  Empty,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+  EmptyDescription,
+  EmptyContent,
+} from "@/components/ui/empty";
+import { Play, Droplets } from "lucide-react";
+import Link from "next/link";
 
 export function SimulationGateway() {
   const router = useRouter();
@@ -13,23 +21,34 @@ export function SimulationGateway() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center p-8 space-y-6">
-      <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Simulation Mode</CardTitle>
-        <CardDescription className="text-base mt-2">
-          Enter simulation mode to run flood predictions and interact with the
-          drainage network in real-time on a dedicated dark-themed map.
-        </CardDescription>
-      </CardHeader>
-
-      <Button
-        onClick={handleEnterSimulation}
-        size="lg"
-        className="w-full max-w-sm h-14 text-lg"
-      >
-        <Play className="mr-2 h-5 w-5" />
-        Enter Simulation Mode
-      </Button>
-    </div>
+    <Empty>
+      <EmptyHeader>
+        <EmptyMedia variant="icon">
+          <Droplets className="size-6" />
+        </EmptyMedia>
+        <EmptyTitle>Simulation Mode</EmptyTitle>
+        <EmptyDescription>
+          Try out our drainage vulnerability model
+        </EmptyDescription>
+      </EmptyHeader>
+      <EmptyContent>
+        <Button
+          onClick={handleEnterSimulation}
+          size="lg"
+          className="w-full h-12"
+        >
+          <Play className="mr-2 h-5 w-5" />
+          Enter Simulation Mode
+        </Button>
+        <Link
+          href="https://github.com/eliseoalcaraz/pjdsc/tree/main/app"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm text-muted-foreground hover:text-primary underline underline-offset-4"
+        >
+          Learn more
+        </Link>
+      </EmptyContent>
+    </Empty>
   );
 }

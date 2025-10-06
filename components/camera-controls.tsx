@@ -1,13 +1,15 @@
 "use client";
 
 import { FC } from "react";
-import { Plus, Minus, Crosshair, Map as MapIcon } from "lucide-react";
+import { Plus, Minus, Crosshair, Map as MapIcon, X } from "lucide-react";
 
 type CameraControlsProps = {
   onZoomIn: () => void;
   onZoomOut: () => void;
   onResetPosition: () => void;
   onChangeStyle: () => void;
+  isSimulationActive?: boolean;
+  onExitSimulation?: () => void;
 };
 
 export const CameraControls: FC<CameraControlsProps> = ({
@@ -15,10 +17,22 @@ export const CameraControls: FC<CameraControlsProps> = ({
   onZoomOut,
   onResetPosition,
   onChangeStyle,
+  isSimulationActive,
+  onExitSimulation,
 }) => {
   return (
-    <div className="absolute right-0 mx-5 flex h-full py-5 flex-col justify-between">
+    <div className="absolute right-0 mx-5 flex h-full py-5 flex-col justify-between z-30">
       <div className="flex flex-col gap-2">
+        {/* Exit button when simulation is active */}
+        {isSimulationActive && onExitSimulation && (
+          <button
+            onClick={onExitSimulation}
+            className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+
         {/* Zoom In / Zoom Out */}
         <div className="flex flex-col bg-white rounded-sm shadow-md overflow-hidden">
           <button

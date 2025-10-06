@@ -30,6 +30,7 @@ export function ControlPanel({
   overlays,
   onToggleOverlay,
   isSimulationMode = false,
+  selectedPointForSimulation = null,
 }: ControlPanelProps) {
   const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
     useControlPanelState();
@@ -115,6 +116,7 @@ export function ControlPanel({
             isDragEnabled={isDragEnabled}
             onToggleDrag={handleToggleDrag}
             isSimulationMode={isSimulationMode}
+            selectedPointForSimulation={selectedPointForSimulation}
           />
         </div>
       </div>
