@@ -1,11 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import React, { useState, useEffect } from "react";
+import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -26,8 +22,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Combobox } from "@/components/ui/combobox";
 import { predict } from "@/lib/predictions/predict";
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
+import { useInlets } from "@/hooks/useInlets";
+import { useOutlets } from "@/hooks/useOutlets";
+import { usePipes } from "@/hooks/usePipes";
+import { calculateDistanceToOutlet } from "@/lib/distance-calculator";
 
 type EndpointType = "predict-100yr" | "predict-50yr" | "predict-25yr";
 
@@ -59,6 +60,45 @@ export default function SimulationsContent() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [selectedInletId, setSelectedInletId] = useState<string>("");
+  const [calculatingDistance, setCalculatingDistance] = useState(false);
+
+  // Load data from hooks
+  const { inlets, loading: inletsLoading } = useInlets();
+  const { outlets, loading: outletsLoading } = useOutlets();
+  const { pipes, loading: pipesLoading } = usePipes();
+
+  // Calculate distance when inlet is selected
+  useEffect(() => {
+    if (
+      selectedInletId &&
+      inlets.length > 0 &&
+      outlets.length > 0 &&
+      pipes.length > 0
+    ) {
+      setCalculatingDistance(true);
+      try {
+        const distanceResult = calculateDistanceToOutlet(
+          selectedInletId,
+          inlets,
+          outlets,
+          pipes
+        );
+
+        if (distanceResult.distanceToOutlet !== null) {
+          setParams({
+            ...params,
+            distToOutlet: Math.round(distanceResult.distanceToOutlet),
+          });
+        }
+      } catch (err) {
+        console.error("Error calculating distance:", err);
+      } finally {
+        setCalculatingDistance(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedInletId, inlets, outlets, pipes]);
 
   const handlePredict = async () => {
     setLoading(true);
@@ -98,6 +138,7 @@ export default function SimulationsContent() {
     setResult(null);
     setError(null);
     setShowResults(false);
+    setSelectedInletId("");
   };
 
   const getRiskLevel = (value: number): { color: string; label: string } => {
@@ -115,6 +156,34 @@ export default function SimulationsContent() {
           risk
         </CardDescription>
       </CardHeader>
+
+      {/* Inlet Selector */}
+      <div className="space-y-2">
+        <Label htmlFor="inlet-selector">Select Inlet (Optional)</Label>
+        <Combobox
+          options={inlets.map((inlet) => ({
+            value: inlet.id,
+            label: inlet.id,
+          }))}
+          value={selectedInletId}
+          onValueChange={setSelectedInletId}
+          placeholder="Select an inlet..."
+          searchPlaceholder="Search inlets..."
+          emptyText="No inlets found."
+          disabled={inletsLoading || outletsLoading || pipesLoading}
+        />
+        {calculatingDistance && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Spinner className="h-3 w-3" />
+            Calculating distance...
+          </p>
+        )}
+        {selectedInletId && !calculatingDistance && (
+          <p className="text-xs text-muted-foreground">
+            Distance auto-calculated for {selectedInletId}
+          </p>
+        )}
+      </div>
 
       <div className="px-5">
         {/* Model Selection */}
