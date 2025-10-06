@@ -22,36 +22,55 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (session) {
-      const fetchProfile = async () => {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-        if (error && error.code !== "PGRST116") {
-          // PGRST116 = "No rows found"
-          console.error("Error fetching profile:", error);
-        } else if (data) {
-          setProfile(data);
-          if (data.avatar_url) {
-            const { data: urlData } = supabase.storage
-              .from("Avatars")
-              .getPublicUrl(data.avatar_url);
-            setPublicAvatarUrl(urlData.publicUrl);
-          } else {
-            setPublicAvatarUrl(null);
-          }
-        }
+      const cacheKey = `profile-${session.user.id}`;
+      const cachedProfile = localStorage.getItem(cacheKey);
+
+      if (cachedProfile) {
+        const { profile: cachedData, publicAvatarUrl: cachedAvatarUrl } =
+          JSON.parse(cachedProfile);
+        setProfile(cachedData);
+        setPublicAvatarUrl(cachedAvatarUrl);
         setLoading(false);
-      };
-      fetchProfile();
+      } else {
+        const fetchProfile = async () => {
+          setLoading(true);
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
+
+          if (error && error.code !== "PGRST116") {
+            console.error("Error fetching profile:", error);
+          } else if (data) {
+            let avatarUrl = null;
+            if (data.avatar_url) {
+              const { data: urlData } = supabase.storage
+                .from("Avatars")
+                .getPublicUrl(data.avatar_url);
+              avatarUrl = urlData.publicUrl;
+            }
+            setProfile(data);
+            setPublicAvatarUrl(avatarUrl);
+            localStorage.setItem(
+              cacheKey,
+              JSON.stringify({ profile: data, publicAvatarUrl: avatarUrl })
+            );
+          }
+          setLoading(false);
+        };
+        fetchProfile();
+      }
     } else {
       setLoading(false);
     }
   }, [session, supabase]);
 
   const handleSignOut = async () => {
+    if (session) {
+      const cacheKey = `profile-${session.user.id}`;
+      localStorage.removeItem(cacheKey);
+    }
     await supabase.auth.signOut();
   };
 
@@ -76,15 +95,25 @@ export default function ProfilePage() {
         avatarFile,
         profile
       );
-      setProfile(updatedProfile);
+      let newPublicAvatarUrl = null;
       if (updatedProfile.avatar_url) {
         const { data: urlData } = supabase.storage
           .from("Avatars")
           .getPublicUrl(updatedProfile.avatar_url);
-        setPublicAvatarUrl(urlData.publicUrl);
-      } else {
-        setPublicAvatarUrl(null);
+        newPublicAvatarUrl = urlData.publicUrl;
       }
+      setProfile(updatedProfile);
+      setPublicAvatarUrl(newPublicAvatarUrl);
+
+      const cacheKey = `profile-${session.user.id}`;
+      localStorage.setItem(
+        cacheKey,
+        JSON.stringify({
+          profile: updatedProfile,
+          publicAvatarUrl: newPublicAvatarUrl,
+        })
+      );
+
       setAvatarFile(null);
       setIsEditing(false);
     } catch (error: any) {
