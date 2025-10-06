@@ -57,17 +57,13 @@ export default function ReportForm() {
         setIsErrorModalOpen(true);
         setErrorCode("No valid image");
     }else{
-      // const location = await extractExifLocation(image);  
+      const location = await extractExifLocation(image);  
 
-      // if (!location.latitude || !location.longitude) {
-      //     setIsErrorModalOpen(true);
-      //     setErrorCode("No GPS data found in image");
-      //     return;
-      // }
-      const location = {
-        latitude: 10.328531541760796,
-        longitude: 123.924274242405161
-      };
+      if (!location.latitude || !location.longitude) {
+          setIsErrorModalOpen(true);
+          setErrorCode("No GPS data found in image");
+          return;
+      }
 
       try {
         const Pipedata = await getClosestPipes(
