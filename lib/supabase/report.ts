@@ -87,3 +87,35 @@ export const fetchReports = async () => {
     throw error;
   }
 };
+
+const formatReport = (report: any) => {
+  return {
+    id: report.id?.toString(),
+    date: report.created_at,
+    category: report.category,
+    description: report.description,
+    image: report.image ? `/storage/v1/object/public/ReportImage/${report.image}` : "",
+    reporterName: report.reporter_name ?? "Unknown Reporter",
+    status: report.status,
+    componentId: report.component_id ?? "N/A",
+    coordinates: [report.long, report.lat],
+  };
+}
+
+export const subscribeToNewReports = (callback: (newReport: any) => void) => {
+  const channel = client
+    .channel('realtime-reports')
+    .on(
+      'postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'reports' },
+      (payload) => {
+        const formattedReport = formatReport(payload.new);
+        callback(formattedReport);
+      }
+    )
+    .subscribe();
+
+  return () => {
+    client.removeChannel(channel);
+  };
+};

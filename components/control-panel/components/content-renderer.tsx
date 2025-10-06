@@ -1,8 +1,9 @@
 import type { DatasetType, Pipe, Inlet, Outlet, Drain } from "../types";
 import { FIELD_CONFIGS, MODEL_URLS } from "../constants";
 import { DetailView } from "./detail-view";
-import OverlaysContent from "../../overlays-content";
-import ReportForm from "../../report-form";
+import OverlaysContent from "../tabs/overlays-content";
+import ReportContent from "../tabs/report-content";
+import { ChatbotView } from "../tabs/chatbot-content";
 import {
   PipeTable,
   InletTable,
@@ -12,7 +13,9 @@ import {
   InletSortField,
   OutletSortField,
   DrainSortField,
-} from "@/components/tables";
+} from "@/components/control-panel/tabs/tables-content";
+import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
+import ProfileContent from "@/components/control-panel/tabs/profile-content";
 
 interface ContentRendererProps {
   activeTab: string;
@@ -52,6 +55,23 @@ interface ContentRendererProps {
     visible: boolean;
   }>;
   onToggleOverlay: (id: string) => void;
+
+  // Navigation props
+  onNavigateToTable?: (
+    dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
+  ) => void;
+  onNavigateToReportForm?: () => void;
+
+  // Drag control props
+  isDragEnabled?: boolean;
+  onToggleDrag?: (enabled: boolean) => void;
+
+  // Simulation mode
+  isSimulationMode?: boolean;
+  selectedPointForSimulation?: string | null;
+
+  // Reports
+  reports: any[];
 }
 
 export function ContentRenderer({
@@ -79,6 +99,13 @@ export function ContentRenderer({
   onSelectDrain,
   overlays,
   onToggleOverlay,
+  onNavigateToTable,
+  onNavigateToReportForm,
+  isDragEnabled,
+  onToggleDrag,
+  isSimulationMode = false,
+  selectedPointForSimulation = null,
+  reports,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -96,6 +123,12 @@ export function ContentRenderer({
         <OverlaysContent
           overlays={overlays}
           onToggleOverlay={onToggleOverlay}
+          onNavigateToTable={onNavigateToTable}
+          onNavigateToReportForm={onNavigateToReportForm}
+          searchTerm={searchTerm}
+          isDragEnabled={isDragEnabled}
+          onToggleDrag={onToggleDrag}
+          reports={reports}
         />
       );
 
@@ -103,11 +136,21 @@ export function ContentRenderer({
       return renderStatsContent();
 
     case "simulations":
-      return null;
+      return (
+        <SimulationsContent
+          isSimulationMode={isSimulationMode}
+          selectedPointId={selectedPointForSimulation}
+        />
+      );
 
     case "report":
-    case "thread":
-      return <ReportForm />;
+      return <ReportContent />;
+
+    case "chatbot":
+      return <ChatbotView />;
+
+    case "profile":
+      return <ProfileContent />;
 
     default:
       return null;

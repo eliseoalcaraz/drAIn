@@ -3,39 +3,41 @@
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
 import { useRef, useEffect, useState, useMemo } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
-  DEFAULT_STYLE,
   MAP_BOUNDS,
   MAPBOX_ACCESS_TOKEN,
-  OVERLAY_CONFIG,
-  LAYER_IDS,
-  MAP_STYLES,
 } from "@/lib/map/config";
+import {
+  SIMULATION_MAP_STYLE,
+  SIMULATION_PITCH,
+  SIMULATION_BEARING,
+  SIMULATION_LAYER_IDS,
+} from "@/lib/map/simulation-config";
 import mapboxgl from "mapbox-gl";
 import { Inlet, useInlets } from "@/hooks/useInlets";
 import { Outlet, useOutlets } from "@/hooks/useOutlets";
 import { Drain, useDrain } from "@/hooks/useDrain";
 import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
-import ReactDOM from "react-dom/client";
-import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
-import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
-export default function MapPage() {
+export default function SimulationPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const isSimulationActive = searchParams.get("active") === "true";
+
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [reports, setReports] = useState<any[]>([]);
 
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
     "storm_drains-layer": true,
     "inlets-layer": true,
     "outlets-layer": true,
-    "reports-layer": true,
   });
 
   const [selectedFeature, setSelectedFeature] = useState<{
@@ -50,9 +52,7 @@ export default function MapPage() {
     layer: string;
   } | null>(null);
 
-  const reportPopupsRef = useRef<mapboxgl.Popup[]>([]);
-
-  const layerIds = useMemo(() => LAYER_IDS, []);
+  const layerIds = useMemo(() => SIMULATION_LAYER_IDS, []);
 
   // Load data from hooks
   const { inlets } = useInlets();
@@ -67,9 +67,12 @@ export default function MapPage() {
   const [selectedDrain, setSelectedDrain] = useState<Drain | null>(null);
 
   // Control panel state
-  const [controlPanelTab, setControlPanelTab] = useState<string>("overlays");
+  const [controlPanelTab, setControlPanelTab] = useState<string>("simulations");
   const [controlPanelDataset, setControlPanelDataset] =
     useState<DatasetType>("inlets");
+  const [selectedPointForSimulation, setSelectedPointForSimulation] = useState<
+    string | null
+  >(null);
 
   // Function to clear all selections
   const clearSelections = () => {
@@ -97,25 +100,6 @@ export default function MapPage() {
   const pipesRef = useRef<Pipe[]>([]);
   const drainsRef = useRef<Drain[]>([]);
 
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        const data = await fetchReports();
-        setReports(data);
-        console.log("Fetched reports:", data);
-      } catch (err) {
-        console.error("Failed to load reports:", err);
-      }
-    };
-    loadReports();
-    const unsubscribe = subscribeToNewReports((newReport) => {
-      setReports((currentReports) => [...currentReports, newReport]);
-    });
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
   // Update refs when data changes
   useEffect(() => {
     inletsRef.current = inlets;
@@ -138,37 +122,18 @@ export default function MapPage() {
     selectedFeatureRef.current = selectedFeature;
   }, [selectedFeature]);
 
-  // Toggle report popups visibility
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    const isVisible = overlayVisibility["reports-layer"];
-    const popups = reportPopupsRef.current;
-
-    popups.forEach((popup) => {
-      if (isVisible) {
-        if (!popup.isOpen()) {
-          popup.addTo(map);
-        }
-      } else {
-        popup.remove();
-      }
-    });
-  }, [overlayVisibility]);
-
   useEffect(() => {
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
     if (mapContainerRef.current && !mapRef.current) {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
-        style: DEFAULT_STYLE,
+        style: SIMULATION_MAP_STYLE,
         center: DEFAULT_CENTER,
         zoom: DEFAULT_ZOOM,
         maxBounds: MAP_BOUNDS,
-        pitch: 60,
-        bearing: -17.6,
+        pitch: SIMULATION_PITCH,
+        bearing: SIMULATION_BEARING,
       });
       mapRef.current = map;
 
@@ -346,6 +311,8 @@ export default function MapPage() {
 
       // Click handlers
       map.on("click", (e) => {
+        if (!isSimulationActive) return;
+
         const validLayers = [
           "inlets-layer",
           "outlets-layer",
@@ -361,7 +328,7 @@ export default function MapPage() {
 
         if (!features.length) {
           clearSelections();
-          setControlPanelTab("overlays");
+          setControlPanelTab("simulations");
           return;
         }
 
@@ -396,61 +363,16 @@ export default function MapPage() {
       // Cursor style
       layerIds.forEach((layerId) => {
         map.on("mouseenter", layerId, () => {
-          map.getCanvas().style.cursor = "pointer";
+          if (isSimulationActive) {
+            map.getCanvas().style.cursor = "pointer";
+          }
         });
         map.on("mouseleave", layerId, () => {
           map.getCanvas().style.cursor = "";
         });
       });
     }
-  }, [layerIds]);
-
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (!map || !reports || reports.length === 0) return;
-
-    // Remove old popups
-    reportPopupsRef.current.forEach((popup) => popup.remove());
-    reportPopupsRef.current = [];
-
-    const reportBubbleRefs: Array<ReportBubbleRef | null> = [];
-
-    reports.forEach((report, index) => {
-      const container = document.createElement("div");
-      const root = ReactDOM.createRoot(container);
-      
-      const popup = new mapboxgl.Popup({
-        maxWidth: "320px",
-        closeButton: false,
-        className: "no-bg-popup",
-        closeOnClick: false,
-      })
-        .setLngLat(report.coordinates)
-        .setDOMContent(container)
-        .addTo(map);
-
-      reportPopupsRef.current.push(popup);
-
-      const handleOpenBubble = () => {
-        reportBubbleRefs.forEach((ref, i) => {
-          if (i !== index && ref) ref.close();
-        });
-      };
-
-      root.render(
-        <ReportBubble
-          ref={(ref) => {
-            reportBubbleRefs[index] = ref;
-          }}
-          report={report}
-          map={map}
-          coordinates={report.coordinates}
-          onOpen={handleOpenBubble}
-        />
-      );
-    });
-  }, [reports]);
+  }, [layerIds, isSimulationActive]);
 
   useEffect(() => {
     if (mapRef.current) {
@@ -474,18 +396,8 @@ export default function MapPage() {
     mapRef.current?.flyTo({ center: DEFAULT_CENTER, zoom: DEFAULT_ZOOM });
 
   const handleChangeStyle = () => {
-    const currentStyle = mapRef.current?.getStyle().name;
-    let newStyle = "";
-
-    if (currentStyle === "Mapbox Streets") {
-      newStyle = MAP_STYLES.SATELLITE;
-    } else if (currentStyle === "Mapbox Satellite Streets") {
-      newStyle = MAP_STYLES.STREETS;
-    }
-
-    if (newStyle) {
-      mapRef.current?.setStyle(newStyle);
-    }
+    // Keep dark style in simulation mode
+    return;
   };
 
   const handleOverlayToggle = (layerId: string) => {
@@ -495,10 +407,32 @@ export default function MapPage() {
     }));
   };
 
-  const overlayData = OVERLAY_CONFIG.map((config) => ({
-    ...config,
-    visible: overlayVisibility[config.id as keyof typeof overlayVisibility],
-  }));
+  const overlayData = [
+    {
+      id: "man_pipes-layer",
+      name: "Man Pipes",
+      color: "#8B008B",
+      visible: overlayVisibility["man_pipes-layer"],
+    },
+    {
+      id: "storm_drains-layer",
+      name: "Storm Drains",
+      color: "#0088ff",
+      visible: overlayVisibility["storm_drains-layer"],
+    },
+    {
+      id: "inlets-layer",
+      name: "Inlets",
+      color: "#00cc44",
+      visible: overlayVisibility["inlets-layer"],
+    },
+    {
+      id: "outlets-layer",
+      name: "Outlets",
+      color: "#cc0000",
+      visible: overlayVisibility["outlets-layer"],
+    },
+  ];
 
   const handleToggleAllOverlays = () => {
     const someVisible = Object.values(overlayVisibility).some(Boolean);
@@ -508,7 +442,6 @@ export default function MapPage() {
       "storm_drains-layer": !someVisible,
       "inlets-layer": !someVisible,
       "outlets-layer": !someVisible,
-      "reports-layer": !someVisible,
     };
 
     setOverlayVisibility(updated);
@@ -519,7 +452,7 @@ export default function MapPage() {
   // Handler for the back button in control panel
   const handleControlPanelBack = () => {
     clearSelections();
-    setControlPanelTab("stats");
+    setControlPanelTab("simulations");
   };
 
   const handleSelectInlet = (inlet: Inlet) => {
@@ -531,8 +464,9 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedInlet(inlet);
-    setControlPanelTab("stats");
+    setControlPanelTab("simulations"); // Switch to simulations tab
     setControlPanelDataset("inlets");
+    setSelectedPointForSimulation(inlet.id); // Pass to simulations content
 
     // Set new map feature state
     mapRef.current.setFeatureState(
@@ -543,14 +477,6 @@ export default function MapPage() {
       id: inlet.id,
       source: "inlets",
       layer: "inlets-layer",
-    });
-
-    // Fly to the location on the map
-    mapRef.current.flyTo({
-      center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
     });
 
     // Add popup
@@ -577,7 +503,7 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedOutlet(outlet);
-    setControlPanelTab("stats");
+    // DON'T change tab - stay on current tab
     setControlPanelDataset("outlets");
 
     // Set new map feature state
@@ -589,14 +515,6 @@ export default function MapPage() {
       id: outlet.id,
       source: "outlets",
       layer: "outlets-layer",
-    });
-
-    // Fly to the location on the map
-    mapRef.current.flyTo({
-      center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
     });
 
     // Add popup
@@ -622,8 +540,9 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedDrain(drain);
-    setControlPanelTab("stats");
+    setControlPanelTab("simulations"); // Switch to simulations tab
     setControlPanelDataset("storm_drains");
+    setSelectedPointForSimulation(drain.id); // Pass to simulations content
 
     // Set new map feature state
     mapRef.current.setFeatureState(
@@ -634,14 +553,6 @@ export default function MapPage() {
       id: drain.id,
       source: "storm_drains",
       layer: "storm_drains-layer",
-    });
-
-    // Fly to the location on the map
-    mapRef.current.flyTo({
-      center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
     });
 
     // Add popup
@@ -669,7 +580,7 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedPipe(pipe);
-    setControlPanelTab("stats");
+    // DON'T change tab - stay on current tab
     setControlPanelDataset("man_pipes");
 
     // Set new map feature state
@@ -682,11 +593,6 @@ export default function MapPage() {
       source: "man_pipes",
       layer: "man_pipes-layer",
     });
-
-    // Fit map to line
-    const bounds = new mapboxgl.LngLatBounds();
-    pipe.coordinates.forEach((coord) => bounds.extend(coord));
-    mapRef.current.fitBounds(bounds, { padding: 100, duration: 1200 });
 
     // Popup at midpoint
     const midIndex = Math.floor(pipe.coordinates.length / 2);
@@ -711,10 +617,29 @@ export default function MapPage() {
       .addTo(mapRef.current);
   };
 
+  const handleExitSimulation = () => {
+    router.push("/map");
+  };
+
   return (
     <>
-      <main className="relative min-h-screen flex flex-col bg-blue-200">
-        <div className="w-full h-screen" ref={mapContainerRef} />
+      <main className="relative min-h-screen flex flex-col bg-gray-900">
+        <div
+          className="w-full h-screen relative"
+          style={{ pointerEvents: isSimulationActive ? "auto" : "none" }}
+        >
+          <div ref={mapContainerRef} className="w-full h-full" />
+
+          {/* Grey overlay when simulation is not active */}
+          {!isSimulationActive && (
+            <div className="absolute inset-0 bg-black/60 z-10 flex items-center justify-center">
+              <div className="text-white text-xl font-medium">
+                Enter Simulation Mode to activate map
+              </div>
+            </div>
+          )}
+        </div>
+
         <ControlPanel
           activeTab={controlPanelTab}
           dataset={controlPanelDataset}
@@ -733,13 +658,16 @@ export default function MapPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
-          reports={reports}
+          isSimulationMode={isSimulationActive}
+          selectedPointForSimulation={selectedPointForSimulation}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
           onZoomOut={handleZoomOut}
           onResetPosition={handleResetPosition}
           onChangeStyle={handleChangeStyle}
+          isSimulationActive={isSimulationActive}
+          onExitSimulation={handleExitSimulation}
         />
       </main>
     </>

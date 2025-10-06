@@ -12,6 +12,7 @@ import type { Inlet, Pipe, Outlet, Drain, DatasetType } from "./types";
 import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
 
 export function ControlPanel({
+  reports,
   activeTab,
   dataset,
   selectedInlet,
@@ -29,9 +30,18 @@ export function ControlPanel({
   onToggle,
   overlays,
   onToggleOverlay,
-}: ControlPanelProps) {
+  isSimulationMode = false,
+  selectedPointForSimulation = null,
+}: ControlPanelProps & { reports: any[] }) {
   const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
     useControlPanelState();
+
+  // Drag control state
+  const [isDragEnabled, setIsDragEnabled] = useState(false);
+
+  const handleToggleDrag = (enabled: boolean) => {
+    setIsDragEnabled(enabled);
+  };
 
   // Data hooks
   const { inlets, loading: loadingInlets } = useInlets();
@@ -42,6 +52,17 @@ export function ControlPanel({
   const selectedItem =
     selectedInlet || selectedPipe || selectedOutlet || selectedDrain;
   const selectedItemTitle = selectedItem ? DETAIL_TITLES[dataset] : "";
+
+  const handleNavigateToTable = (
+    dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
+  ) => {
+    onDatasetChange(dataset);
+    onTabChange("stats");
+  };
+
+  const handleNavigateToReportForm = () => {
+    onTabChange("report");
+  };
 
   return (
     <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
@@ -60,10 +81,16 @@ export function ControlPanel({
           selectedItemTitle={selectedItemTitle}
           overlaysVisible={overlaysVisible}
           onToggleOverlays={onToggle}
+          isDragEnabled={isDragEnabled}
+          onToggleDrag={handleToggleDrag}
         />
 
         {/* Main Content */}
-        <div className="relative overflow-auto flex-1">
+        <div
+          className={`relative flex-1 overflow-auto ${
+            activeTab === "stats" ? "overflow-y-scroll" : ""
+          }`}
+        >
           <ContentRenderer
             activeTab={activeTab}
             dataset={dataset}
@@ -89,17 +116,15 @@ export function ControlPanel({
             onSelectDrain={onSelectDrain}
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
+            onNavigateToTable={handleNavigateToTable}
+            onNavigateToReportForm={handleNavigateToReportForm}
+            isDragEnabled={isDragEnabled}
+            onToggleDrag={handleToggleDrag}
+            isSimulationMode={isSimulationMode}
+            selectedPointForSimulation={selectedPointForSimulation}
+            reports={reports}
           />
         </div>
-
-        {/* Bottom Blue Button */}
-        {activeTab === "simulations" && (
-          <div className="w-full mt-4 p-3">
-            <Button className="w-full bg-[#4b72f3] border border-[#2b3ea7] text-white py-6 rounded-xl font-medium text-base hover:bg-blue-600 transition-colors">
-              Simulate
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );
