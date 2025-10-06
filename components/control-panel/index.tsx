@@ -50,7 +50,9 @@ export function ControlPanel({
     selectedInlet || selectedPipe || selectedOutlet || selectedDrain;
   const selectedItemTitle = selectedItem ? DETAIL_TITLES[dataset] : "";
 
-  const handleNavigateToTable = (dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes") => {
+  const handleNavigateToTable = (
+    dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
+  ) => {
     onDatasetChange(dataset);
     onTabChange("stats");
   };
@@ -113,15 +115,6 @@ export function ControlPanel({
             onToggleDrag={handleToggleDrag}
           />
         </div>
-
-        {/* Bottom Blue Button */}
-        {activeTab === "simulations" && (
-          <div className="w-full mt-4 p-3">
-            <Button className="w-full bg-[#4b72f3] border border-[#2b3ea7] text-white py-6 rounded-xl font-medium text-base hover:bg-blue-600 transition-colors">
-              Simulate
-            </Button>
-          </div>
-        )}
       </div>
     </div>
   );

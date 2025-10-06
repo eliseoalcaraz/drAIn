@@ -30,7 +30,7 @@ interface CategoryData {
   distance: number;
 }
 
-export default function ReportForm() {
+export default function ReportContent() {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
