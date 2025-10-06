@@ -4,9 +4,16 @@ import { point, lineString } from "@turf/helpers";
 import type { Inlet } from "@/hooks/useInlets";
 import type { Outlet } from "@/hooks/useOutlets";
 import type { Pipe } from "@/hooks/usePipes";
+import type { Drain } from "@/hooks/useDrain";
 
 interface DistanceResult {
   inletId: string;
+  nearestOutlet: string | null;
+  distanceToOutlet: number | null;
+}
+
+interface DrainDistanceResult {
+  drainId: string;
   nearestOutlet: string | null;
   distanceToOutlet: number | null;
 }
@@ -220,6 +227,66 @@ export function calculateDistanceToOutlet(
 
   return {
     inletId,
+    nearestOutlet: nearestOutletId || null,
+    distanceToOutlet: result.distance,
+  };
+}
+
+/**
+ * Calculate the shortest distance from a specific storm drain to the nearest outlet
+ * using the pipe network as a graph.
+ *
+ * @param drainId - The ID of the storm drain (e.g., "ISD-1")
+ * @param drains - Array of storm drain objects
+ * @param outlets - Array of outlet objects
+ * @param pipes - Array of pipe objects
+ * @returns Distance result with drain ID, nearest outlet, and distance in meters
+ */
+export function calculateDistanceToOutletForDrain(
+  drainId: string,
+  drains: Drain[],
+  outlets: Outlet[],
+  pipes: Pipe[]
+): DrainDistanceResult {
+  // Find the storm drain
+  const drain = drains.find((d) => d.id === drainId);
+  if (!drain) {
+    return { drainId, nearestOutlet: null, distanceToOutlet: null };
+  }
+
+  // Build pipe network graph
+  const graph = buildPipeGraph(pipes);
+
+  // Find nearest node to storm drain
+  const drainNodeId = findNearestNode(drain.coordinates, graph);
+  if (!drainNodeId) {
+    return { drainId, nearestOutlet: null, distanceToOutlet: null };
+  }
+
+  // Find nearest nodes to all outlets
+  const outletNodes = new Map<string, string>(); // nodeId -> outletId
+  for (const outlet of outlets) {
+    const outletNodeId = findNearestNode(outlet.coordinates, graph);
+    if (outletNodeId) {
+      outletNodes.set(outletNodeId, outlet.id);
+    }
+  }
+
+  if (outletNodes.size === 0) {
+    return { drainId, nearestOutlet: null, distanceToOutlet: null };
+  }
+
+  // Run Dijkstra to find shortest path to any outlet
+  const result = dijkstra(graph, drainNodeId, new Set(outletNodes.keys()));
+
+  if (!result) {
+    return { drainId, nearestOutlet: null, distanceToOutlet: null };
+  }
+
+  const nearestOutletId = outletNodes.get(result.targetId);
+
+  return {
+    drainId,
     nearestOutlet: nearestOutletId || null,
     distanceToOutlet: result.distance,
   };

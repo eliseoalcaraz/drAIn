@@ -28,7 +28,11 @@ import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
 import { useInlets } from "@/hooks/useInlets";
 import { useOutlets } from "@/hooks/useOutlets";
 import { usePipes } from "@/hooks/usePipes";
-import { calculateDistanceToOutlet } from "@/lib/distance-calculator";
+import { useDrain } from "@/hooks/useDrain";
+import {
+  calculateDistanceToOutlet,
+  calculateDistanceToOutletForDrain,
+} from "@/lib/distance-calculator";
 
 type EndpointType = "predict-100yr" | "predict-50yr" | "predict-25yr";
 
@@ -61,12 +65,14 @@ export default function SimulationsContent() {
   const [result, setResult] = useState<PredictionResult | null>(null);
   const [showResults, setShowResults] = useState(false);
   const [selectedInletId, setSelectedInletId] = useState<string>("");
+  const [selectedDrainId, setSelectedDrainId] = useState<string>("");
   const [calculatingDistance, setCalculatingDistance] = useState(false);
 
   // Load data from hooks
   const { inlets, loading: inletsLoading } = useInlets();
   const { outlets, loading: outletsLoading } = useOutlets();
   const { pipes, loading: pipesLoading } = usePipes();
+  const { drains, loading: drainsLoading } = useDrain();
 
   // Calculate distance when inlet is selected
   useEffect(() => {
@@ -99,6 +105,38 @@ export default function SimulationsContent() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedInletId, inlets, outlets, pipes]);
+
+  // Calculate distance when storm drain is selected
+  useEffect(() => {
+    if (
+      selectedDrainId &&
+      drains.length > 0 &&
+      outlets.length > 0 &&
+      pipes.length > 0
+    ) {
+      setCalculatingDistance(true);
+      try {
+        const distanceResult = calculateDistanceToOutletForDrain(
+          selectedDrainId,
+          drains,
+          outlets,
+          pipes
+        );
+
+        if (distanceResult.distanceToOutlet !== null) {
+          setParams({
+            ...params,
+            distToOutlet: Math.round(distanceResult.distanceToOutlet),
+          });
+        }
+      } catch (err) {
+        console.error("Error calculating distance for drain:", err);
+      } finally {
+        setCalculatingDistance(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDrainId, drains, outlets, pipes]);
 
   const handlePredict = async () => {
     setLoading(true);
@@ -139,6 +177,7 @@ export default function SimulationsContent() {
     setError(null);
     setShowResults(false);
     setSelectedInletId("");
+    setSelectedDrainId("");
   };
 
   const getRiskLevel = (value: number): { color: string; label: string } => {
@@ -166,13 +205,16 @@ export default function SimulationsContent() {
             label: inlet.id,
           }))}
           value={selectedInletId}
-          onValueChange={setSelectedInletId}
+          onValueChange={(value) => {
+            setSelectedInletId(value);
+            if (value) setSelectedDrainId(""); // Clear drain when inlet is selected
+          }}
           placeholder="Select an inlet..."
           searchPlaceholder="Search inlets..."
           emptyText="No inlets found."
           disabled={inletsLoading || outletsLoading || pipesLoading}
         />
-        {calculatingDistance && (
+        {calculatingDistance && selectedInletId && (
           <p className="text-xs text-muted-foreground flex items-center gap-1">
             <Spinner className="h-3 w-3" />
             Calculating distance...
@@ -181,6 +223,39 @@ export default function SimulationsContent() {
         {selectedInletId && !calculatingDistance && (
           <p className="text-xs text-muted-foreground">
             Distance auto-calculated for {selectedInletId}
+          </p>
+        )}
+      </div>
+
+      {/* Storm Drain Selector */}
+      <div className="space-y-2">
+        <Label htmlFor="drain-selector">
+          Select Storm Drain (Optional Alternative)
+        </Label>
+        <Combobox
+          options={drains.map((drain) => ({
+            value: drain.id,
+            label: drain.id,
+          }))}
+          value={selectedDrainId}
+          onValueChange={(value) => {
+            setSelectedDrainId(value);
+            if (value) setSelectedInletId(""); // Clear inlet when drain is selected
+          }}
+          placeholder="Select a storm drain..."
+          searchPlaceholder="Search storm drains..."
+          emptyText="No storm drains found."
+          disabled={drainsLoading || outletsLoading || pipesLoading}
+        />
+        {calculatingDistance && selectedDrainId && (
+          <p className="text-xs text-muted-foreground flex items-center gap-1">
+            <Spinner className="h-3 w-3" />
+            Calculating distance...
+          </p>
+        )}
+        {selectedDrainId && !calculatingDistance && (
+          <p className="text-xs text-muted-foreground">
+            Distance auto-calculated for {selectedDrainId}
           </p>
         )}
       </div>
