@@ -18,9 +18,9 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { OverlayLegend } from "./overlay-legend";
-import { ChartPieDonutText } from "./chart-pie";
-import { ReportsToggle } from "./reports-toggle";
+import { OverlayLegend } from "../../overlay-legend";
+import { ChartPieDonutText } from "../../chart-pie";
+import { ReportsToggle } from "../../reports-toggle";
 
 interface OverlayContentProps {
   overlays: {
