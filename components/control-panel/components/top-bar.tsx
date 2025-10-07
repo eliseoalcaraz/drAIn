@@ -6,7 +6,10 @@ import {
   Lock,
   LockOpen,
   LogOut,
+  Bell,
+  BellRing,
 } from "lucide-react";
+import { Toggle } from "@/components/ui/toggle";
 import { SearchBar } from "../../search-bar";
 import { ComboboxForm } from "../../combobox-form";
 import { OverlayToggle } from "../../overlay-toggle";
@@ -56,6 +59,7 @@ export function TopBar({
   const showCombobox = activeTab === "stats" && !hasSelectedItem;
   const showBackButton = hasSelectedItem && activeTab === "stats";
   const showSignOut = activeTab === "profile";
+  const showNotification = activeTab === "profile";
 
   return (
     <div className="flex items-center gap-2 p-3">
@@ -94,6 +98,13 @@ export function TopBar({
         >
           <LogOut className="w-4 h-4 text-[#8D8D8D]" />
         </button>
+      )}
+
+      {/* Sign Out Button */}
+      {showNotification && (
+        <Toggle className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]">
+          <Bell className="w-4 h-4 text-[#8D8D8D]" />
+        </Toggle>
       )}
 
       {/* Toggle Button */}
