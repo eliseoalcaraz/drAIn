@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Share2, User } from "lucide-react";
+import { User, Edit, Link2, MessageSquare, BadgeCheck } from "lucide-react";
 import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
 import { updateUserProfile } from "@/lib/supabase/profile";
@@ -183,78 +183,73 @@ export default function ProfileContent() {
           </CardContent>
         </Card>
       ) : (
-        <div className="relative px-5">
-          {/* Header Banner */}
-          <div className="h-30 bg-gradient-to-r from-blue-400 via-blue-500 to-purple-500 relative rounded-2xl">
-            <div className="absolute top-4 right-4 flex gap-2">
-              <Button
-                size="icon"
-                variant="secondary"
-                className="rounded-full bg-white/90 hover:bg-white"
-              >
-                <Share2 className="h-5 w-5" />
-              </Button>
-            </div>
-          </div>
+        <div className="flex items-center justify-center p-4 pt-0">
+          {/* Profile Card */}
+          <div className="w-full max-w-xl  rounded-2xl bg-[#eeeeee] border border-[#e2e2e2] overflow-hidden">
+            {/* Header Section */}
+            <div className="relative p-1">
+              <Card className="flex flex-row p-1 gap-2">
+                {/* Avatar */}
+                <Avatar className="w-20 h-20 rounded-lg overflow-hidden bg-amber-100 flex-shrink-0">
+                  <AvatarImage
+                    src={publicAvatarUrl || undefined}
+                    alt="User Avatar"
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-amber-100">
+                    <User className="h-12 w-12 text-zinc-900" />
+                  </AvatarFallback>
+                </Avatar>
 
-          {/* Avatar - positioned to overlap header */}
-          <div className="flex justify-center -mt-16 mb-4">
-            <Avatar className="w-28 h-28 border-4 border-background">
-              <AvatarImage
-                src={publicAvatarUrl || undefined}
-                alt="User Avatar"
-              />
-              <AvatarFallback>
-                <User className="h-12 w-12 text-muted-foreground" />
-              </AvatarFallback>
-            </Avatar>
-          </div>
+                {/* Profile Info */}
+                <div className="flex-1 flex-col self-center min-w-0">
+                  <h1 className="text-base font-semibold text-black truncate">
+                    {profile?.full_name || "No name set"}
+                  </h1>
 
-          {/* Profile Content */}
-          <div className="px-6 pb-6 text-center">
-            {/* Full Name */}
-            <h1 className="text-2xl font-bold mb-1">
-              {profile?.full_name || "No name set"}
-            </h1>
-
-            <div className="flex justify-center">
-              {/* Username/Email */}
-              <p className="text-sm text-muted-foreground mb-1">
-                @{session?.user?.email?.split("@")[0] || "user"}
-              </p>
-              {/* Metadata
-              <div className="flex items-center justify-center gap-4 text-sm text-muted-foreground mb-6">
-                {profile?.agency_id && (
-                  <span>Agency ID: {profile.agency_id}</span>
-                )}
-                {profile?.agency_id && profile?.created_at && <span>•</span>}
-                {profile?.created_at && (
-                  <span>
-                    Joined{" "}
-                    {new Date(profile.created_at).toLocaleDateString("en-US", {
-                      month: "long",
-                      year: "numeric",
-                    })}
-                  </span>
-                )}
-              </div> */}
+                  <div className="flex flex-col ">
+                    <p className="text-zinc-400 text-xs truncate">
+                      {session?.user?.email || "No email"}
+                    </p>
+                    {/* Metadata
+                    <div className="flex items-center gap-2 text-xs text-zinc-400">
+                      {profile?.agency_id && (
+                        <span>Agency ID: {profile.agency_id}</span>
+                      )}
+                      {profile?.agency_id && profile?.created_at && (
+                        <span>•</span>
+                      )}
+                      {profile?.created_at && (
+                        <span>
+                          Joined{" "}
+                          {new Date(profile.created_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "long",
+                              year: "numeric",
+                            }
+                          )}
+                        </span>
+                      )}
+                    </div> */}
+                  </div>
+                </div>
+              </Card>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex gap-3 max-w-md mx-auto">
-              <Button
-                className="flex-1 bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white font-semibold"
-                onClick={handleEdit}
-              >
-                {profile ? "Edit profile" : "Add Profile"}
-              </Button>
-              <Button
-                className="flex-1 font-semibold"
-                variant="outline"
-                disabled
-              >
-                Link Agency
-              </Button>
+            <div className="p-2 pt-1">
+              <div className="flex gap-2">
+                <Button size="icon" onClick={handleEdit}>
+                  <Edit className="h-5 w-5" />
+                </Button>
+                <Button size="icon" disabled>
+                  <Link2 className="h-5 w-5" />
+                </Button>
+                <Button size="icon">
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
