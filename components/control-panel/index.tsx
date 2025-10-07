@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import type { ControlPanelProps } from "./types";
 import { DETAIL_TITLES } from "./constants";
@@ -10,6 +11,7 @@ import { TopBar } from "./components/top-bar";
 import { ContentRenderer } from "./components/content-renderer";
 import type { Inlet, Pipe, Outlet, Drain, DatasetType } from "./types";
 import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
+import client from "@/app/api/client";
 
 export function ControlPanel({
   reports,
@@ -33,6 +35,8 @@ export function ControlPanel({
   isSimulationMode = false,
   selectedPointForSimulation = null,
 }: ControlPanelProps & { reports: any[] }) {
+  const router = useRouter();
+  const supabase = client;
   const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
     useControlPanelState();
 
@@ -41,6 +45,17 @@ export function ControlPanel({
 
   const handleToggleDrag = (enabled: boolean) => {
     setIsDragEnabled(enabled);
+  };
+
+  const handleSignOut = async () => {
+    // Clear any cached profile data
+    const session = await supabase.auth.getSession();
+    if (session?.data?.session) {
+      const cacheKey = `profile-${session.data.session.user.id}`;
+      localStorage.removeItem(cacheKey);
+    }
+    await supabase.auth.signOut();
+    router.push("/login");
   };
 
   // Data hooks
@@ -83,6 +98,7 @@ export function ControlPanel({
           onToggleOverlays={onToggle}
           isDragEnabled={isDragEnabled}
           onToggleDrag={handleToggleDrag}
+          onSignOut={handleSignOut}
         />
 
         {/* Main Content */}

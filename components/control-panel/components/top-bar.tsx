@@ -1,6 +1,12 @@
 "use client";
 
-import { ChevronLeft, MoreHorizontal, Lock, LockOpen } from "lucide-react";
+import {
+  ChevronLeft,
+  MoreHorizontal,
+  Lock,
+  LockOpen,
+  LogOut,
+} from "lucide-react";
 import { SearchBar } from "../../search-bar";
 import { ComboboxForm } from "../../combobox-form";
 import { OverlayToggle } from "../../overlay-toggle";
@@ -24,6 +30,7 @@ interface TopBarProps {
   onToggleOverlays: (visible: boolean) => void;
   isDragEnabled?: boolean;
   onToggleDrag?: (enabled: boolean) => void;
+  onSignOut?: () => void;
 }
 
 export function TopBar({
@@ -38,6 +45,7 @@ export function TopBar({
   onToggleOverlays,
   isDragEnabled = true,
   onToggleDrag,
+  onSignOut,
 }: TopBarProps) {
   const showSearchBar =
     (activeTab === "stats" && !hasSelectedItem) ||
@@ -47,6 +55,7 @@ export function TopBar({
   const showToggle = activeTab === "overlays";
   const showCombobox = activeTab === "stats" && !hasSelectedItem;
   const showBackButton = hasSelectedItem && activeTab === "stats";
+  const showSignOut = activeTab === "profile";
 
   return (
     <div className="flex items-center gap-2 p-3">
@@ -75,6 +84,16 @@ export function TopBar({
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+      )}
+
+      {/* Sign Out Button */}
+      {showSignOut && (
+        <button
+          onClick={onSignOut}
+          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]"
+        >
+          <LogOut className="w-4 h-4 text-[#8D8D8D]" />
+        </button>
       )}
 
       {/* Toggle Button */}
