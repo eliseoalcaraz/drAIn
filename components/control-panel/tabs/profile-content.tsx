@@ -104,14 +104,14 @@ export default function ProfileContent({
   };
 
   return (
-    <div className="flex flex-col px-4 h-full overflow-y-auto">
+    <div className="flex flex-col px-4 gap-4 h-full overflow-y-auto">
       {loading ? (
         <div className="flex items-center justify-center h-full">
           <p className="text-muted-foreground">Loading profile...</p>
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-center py-4 flex-shrink-0">
+          <div className="flex items-center justify-center flex-shrink-0">
             {/* Profile Card */}
             <div className="w-full max-w-xl  rounded-2xl bg-[#eeeeee] border border-[#e2e2e2] overflow-hidden">
               {/* Header Section */}

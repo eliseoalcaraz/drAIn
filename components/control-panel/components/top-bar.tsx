@@ -13,6 +13,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { SearchBar } from "../../search-bar";
 import { ComboboxForm } from "../../combobox-form";
 import { OverlayToggle } from "../../overlay-toggle";
+import { ProfileProgress } from "@/components/ui/profile-progress";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -60,6 +61,7 @@ export function TopBar({
   const showBackButton = hasSelectedItem && activeTab === "stats";
   const showSignOut = activeTab === "profile";
   const showNotification = activeTab === "profile";
+  const showProfileProgress = activeTab === "profile";
 
   return (
     <div className="flex items-center gap-2 p-3">
@@ -113,6 +115,11 @@ export function TopBar({
           overlaysVisible={overlaysVisible}
           onToggle={onToggleOverlays}
         />
+      )}
+
+      {/* Profile Progress */}
+      {showProfileProgress && (
+        <ProfileProgress current={3} total={4} percentage={75} />
       )}
 
       {/* Dataset Selector */}
