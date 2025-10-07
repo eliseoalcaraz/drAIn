@@ -56,19 +56,29 @@ export const fetchReports = async () => {
       throw error;
     }
 
-    if (!data) return [];
+  if (!data) return [];
 
-    // Transform into desired format
-    const formattedReports = data.map((report: any, index: number) => ({
-      id: report.id?.toString() ?? String(index + 1),
-      date: report.created_at ?? new Date().toISOString(),
-      category: report.category,
-      description: report.description,
-      image: report.image ? `/storage/v1/object/public/ReportImage/${report.image}` : "",
-      reporterName: report.reporter_name ?? "Unknown Reporter",
-      status: report.status,
-      componentId: report.component_id ?? "N/A",
-      coordinates: [report.long, report.lat],
+  const imageUrls = data.map((report: any) => {
+    const {data: img} = client.storage
+      .from('ReportImage')
+      .getPublicUrl(report.image);
+
+    return {
+      imageUrl: img.publicUrl,
+    };
+  });
+
+  // Transform into desired format
+  const formattedReports = data.map((report: any, index: number) => ({
+    id: report.id?.toString() ?? String(index + 1),
+    date: report.created_at ?? new Date().toISOString(),
+    category: report.category,
+    description: report.description,
+    image: imageUrls[index].imageUrl ?? "",
+    reporterName: report.reporter_name ?? "Unknown Reporter",
+    status: report.status,
+    componentId: report.component_id ?? "N/A",
+    coordinates: [report.long, report.lat],
     }));
     console.log("Formatted Reports:", formattedReports);
     return formattedReports;

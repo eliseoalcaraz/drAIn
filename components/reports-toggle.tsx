@@ -79,7 +79,7 @@ export function ReportsToggle({
               id="reports-toggle"
               pressed={isVisible}
               onPressedChange={() => onToggle()}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: any) => e.stopPropagation()}
               variant="outline"
               size="sm"
               aria-label="Toggle reports visibility"

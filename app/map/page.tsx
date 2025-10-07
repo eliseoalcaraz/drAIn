@@ -419,7 +419,7 @@ export default function MapPage() {
     reports.forEach((report, index) => {
       const container = document.createElement("div");
       const root = ReactDOM.createRoot(container);
-
+      
       const popup = new mapboxgl.Popup({
         maxWidth: "320px",
         closeButton: false,
