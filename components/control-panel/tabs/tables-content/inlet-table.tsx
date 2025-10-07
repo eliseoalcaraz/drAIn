@@ -90,7 +90,7 @@ export function InletTable({
   return (
     <div className="flex flex-col flex-1 pl-5 pr-2 pt-3 pb-5 gap-6">
       <CardHeader className="py-0 px-1">
-        <CardTitle>Inlets Inventory</CardTitle>
+        <CardTitle>Inlet Inventory</CardTitle>
         <CardDescription className="text-xs">
           Showing {sortedData.length} of {data.length} inlets
         </CardDescription>

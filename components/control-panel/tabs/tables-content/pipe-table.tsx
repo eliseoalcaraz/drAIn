@@ -93,7 +93,7 @@ export function PipeTable({
   return (
     <div className="flex flex-col flex-1 pl-5 pr-2 pt-3 pb-5 gap-6">
       <CardHeader className="py-0 px-1">
-        <CardTitle>Pipes Inventory</CardTitle>
+        <CardTitle>Pipe Inventory</CardTitle>
         <CardDescription className="text-xs">
           Showing {sortedData.length} of {data.length} pipes
         </CardDescription>
