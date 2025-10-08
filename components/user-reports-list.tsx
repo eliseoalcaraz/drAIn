@@ -13,25 +13,22 @@ export default function UserReportsList({ userId }: UserReportsListProps) {
   const userReports = report;
 
   return (
-    <Card className="max-h-[340px] flex flex-col">
-      <CardHeader className="flex-shrink-0">
-        <CardTitle>My Reports</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          {userReports.length} report{userReports.length !== 1 ? "s" : ""}{" "}
-          submitted
-        </p>
-      </CardHeader>
-      <CardContent className="flex-1 overflow-hidden">
+    <Card className="max-h-[350px] flex flex-col border gap-0  border-[#e1e1e1] p-0">
+      <div className="border-b py-4 rounded-t-xl px-8 border-[#e1e1e1] bg-[#f7f7f7]">
+        <CardTitle className="p-0">Reports</CardTitle>
+      </div>
+
+      <CardContent className="flex-1 h-full bg-red-500 overflow-hidden  mt-0 pt-0 pr-0">
         {userReports.length === 0 ? (
           <div className="text-sm text-muted-foreground text-center py-8">
             You haven&apos;t submitted any reports yet.
           </div>
         ) : (
-          <div className="space-y-3 max-h-[320px] overflow-y-auto pr-2">
+          <div className="max-h-[320px] overflow-y-auto pr-2">
             {userReports.map((item, index) => (
               <div
                 key={index}
-                className="border rounded-lg p-3 hover:bg-accent transition-colors"
+                className="border rounded-lg p-3 my-4 hover:bg-accent transition-colors"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">

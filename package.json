@@ -6,7 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:headed": "playwright test --headed",
+    "test:profile": "playwright test tests/profile-progress.spec.ts --headed"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

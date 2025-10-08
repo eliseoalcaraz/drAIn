@@ -13,10 +13,11 @@ export function ProfileProgress({
   total,
   percentage,
 }: ProfileProgressProps) {
-  const calculatedPercentage = percentage ?? Math.round((current / total) * 100);
+  const calculatedPercentage =
+    percentage ?? Math.round((current / total) * 100);
 
   return (
-    <div className="flex items-center gap-2 px-3 py-1.5 bg-white border border-[#DCDCDC] rounded-full">
+    <div className="flex flex-1 items-center gap-2 px-3 py-1.5 bg-white border border-[#DCDCDC] rounded-full">
       {/* Check icon */}
       <CheckCircle2 className="w-4 h-4 text-[#8D8D8D]" />
 

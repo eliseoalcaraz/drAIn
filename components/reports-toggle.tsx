@@ -58,7 +58,7 @@ export function ReportsToggle({
   }, [reports]);
 
   return (
-    <div className="bg-[#eeeeee] rounded-xl border border-[#e2e2e2]">
+    <div className="bg-[#f7f7f7] rounded-xl border border-[#e2e2e2]">
       <div
         className="py-2 px-4 flex flex-row items-center justify-between cursor-pointer hover:bg-[#e8e8e8] transition-colors rounded-t-xl"
         onClick={onNavigateToReportForm}

@@ -113,7 +113,7 @@ export default function ProfileContent({
         <>
           <div className="flex items-center justify-center flex-shrink-0">
             {/* Profile Card */}
-            <div className="w-full max-w-xl  rounded-2xl bg-[#eeeeee] border border-[#e2e2e2] overflow-hidden">
+            <div className="w-full max-w-xl  rounded-2xl bg-[#f7f7f7] border border-[#e2e2e2] overflow-hidden">
               {/* Header Section */}
               <div className="relative p-1">
                 <Card className="flex flex-row p-1 gap-2">
@@ -174,7 +174,11 @@ export default function ProfileContent({
                   <Button
                     size="icon"
                     className="rounded-lg"
-                    variant={profileView === "reports" ? "default" : "outline"}
+                    variant={
+                      profileView === "reports" || profileView === "main"
+                        ? "default"
+                        : "outline"
+                    }
                     onClick={() =>
                       onProfileViewChange(
                         profileView === "reports" ? "main" : "reports"
@@ -200,7 +204,7 @@ export default function ProfileContent({
 
             {profileView === "links" && <UserLinks />}
 
-            {profileView === "reports" && (
+            {(profileView === "reports" || profileView === "main") && (
               <UserReportsList userId={session?.user?.id} />
             )}
           </div>
