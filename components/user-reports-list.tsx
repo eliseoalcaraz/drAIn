@@ -13,11 +13,10 @@ export default function UserReportsList({ userId }: UserReportsListProps) {
   const userReports = report;
 
   return (
-    <Card className="max-h-[350px] pt-0 pb-0 flex flex-col border gap-0 border-[#e1e1e1] overflow-hidden">
-      <div className="border-b py-4 px-8 border-[#e1e1e1] bg-[#f7f7f7] flex-shrink-0">
-        <CardTitle className="p-0">Reports</CardTitle>
-      </div>
-
+    <Card className="max-h-[350px] pb-0 rounded-t-none border-none flex flex-col gap-0 overflow-hidden">
+      <CardHeader>
+        <CardTitle>User Reports</CardTitle>
+      </CardHeader>
       <CardContent className="flex-1 overflow-y-auto px-6 py-4">
         {userReports.length === 0 ? (
           <div className="text-sm text-muted-foreground text-center py-8">

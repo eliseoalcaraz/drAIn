@@ -4,7 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { User, Edit, Link2, MessageSquare } from "lucide-react";
+import { User, Pencil, Link2, FileText } from "lucide-react";
 import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
 import { updateUserProfile } from "@/lib/supabase/profile";
@@ -150,24 +150,27 @@ export default function ProfileContent({
           <Tabs
             value={profileView === "main" ? "reports" : profileView}
             onValueChange={(value) => onProfileViewChange(value as ProfileView)}
-            className="flex-1 flex flex-col min-h-0 space-y-0"
+            className="flex-1 flex flex-col min-h-0 space-y-0 gap-0"
           >
-            <TabsList className="flex-shrink-0">
+            <TabsList className="flex-shrink-0 border-x-1 border-b-0 pb-0.5">
               <TabsTrigger value="edit">
-                <Edit className="h-4 w-4" />
-                Edit
+                <Pencil className="h-4 w-4" />
+                <span className="font-normal text-xs">Edit</span>
               </TabsTrigger>
               <TabsTrigger value="links">
                 <Link2 className="h-4 w-4" />
-                Links
+                <span className="font-normal text-xs">Links</span>
               </TabsTrigger>
               <TabsTrigger value="reports">
-                <MessageSquare className="h-4 w-4" />
-                Reports
+                <FileText className="h-4 w-4" />
+                <span className="font-normal text-xs">Reports</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="edit" className="pb-4 flex-1 overflow-y-auto">
+            <TabsContent
+              value="edit"
+              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+            >
               <EditProfile
                 profile={profile}
                 session={session}
@@ -176,13 +179,16 @@ export default function ProfileContent({
               />
             </TabsContent>
 
-            <TabsContent value="links" className="pb-4 flex-1 overflow-y-auto">
+            <TabsContent
+              value="links"
+              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+            >
               <UserLinks />
             </TabsContent>
 
             <TabsContent
               value="reports"
-              className="pb-4 flex-1 overflow-y-auto"
+              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
               <UserReportsList userId={session?.user?.id} />
             </TabsContent>
