@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useContext } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { User, Edit, Link2, MessageSquare } from "lucide-react";
 import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
@@ -111,9 +111,9 @@ export default function ProfileContent({
         </div>
       ) : (
         <>
-          <div className="flex flex-col gap-2 justify-center flex-shrink-0">
-            {/* Profile Card */}
-            <div className="w-full max-w-xl  rounded-2xl bg-[#f7f7f7] border border-[#e2e2e2] overflow-hidden">
+          {/* Profile Card */}
+          <div className="flex flex-col gap-2 mb-4 justify-center flex-shrink-0">
+            <div className="w-full max-w-xl rounded-2xl bg-[#f7f7f7] border border-[#e2e2e2] overflow-hidden">
               {/* Header Section */}
               <div className="relative p-1">
                 <Card className="flex flex-row p-1 gap-4">
@@ -135,7 +135,7 @@ export default function ProfileContent({
                       {profile?.full_name || "No name set"}
                     </h1>
 
-                    <div className="flex flex-col ">
+                    <div className="flex flex-col">
                       <p className="text-zinc-400 text-xs truncate">
                         {session?.user?.email || "No email"}
                       </p>
@@ -144,70 +144,49 @@ export default function ProfileContent({
                 </Card>
               </div>
             </div>
-
-            {/* Action Buttons */}
-            <div>
-              <div className="flex gap-2">
-                <Button
-                  size="icon"
-                  className="rounded-lg"
-                  variant={profileView === "edit" ? "default" : "outline"}
-                  onClick={() =>
-                    onProfileViewChange(
-                      profileView === "edit" ? "main" : "edit"
-                    )
-                  }
-                >
-                  <Edit className="h-5 w-5" />
-                </Button>
-                <Button
-                  size="icon"
-                  className="rounded-lg"
-                  variant={profileView === "links" ? "default" : "outline"}
-                  onClick={() =>
-                    onProfileViewChange(
-                      profileView === "links" ? "main" : "links"
-                    )
-                  }
-                >
-                  <Link2 className="h-5 w-5" />
-                </Button>
-                <Button
-                  size="icon"
-                  className="rounded-lg"
-                  variant={
-                    profileView === "reports" || profileView === "main"
-                      ? "default"
-                      : "outline"
-                  }
-                  onClick={() =>
-                    onProfileViewChange(
-                      profileView === "reports" ? "main" : "reports"
-                    )
-                  }
-                >
-                  <MessageSquare className="h-5 w-5" />
-                </Button>
-              </div>
-            </div>
           </div>
 
-          <div className="pb-4 flex-shrink-0">
-            {profileView === "edit" && (
+          {/* Tab Navigation */}
+          <Tabs
+            value={profileView === "main" ? "reports" : profileView}
+            onValueChange={(value) => onProfileViewChange(value as ProfileView)}
+            className="flex-1 flex flex-col min-h-0 space-y-0"
+          >
+            <TabsList className="flex-shrink-0">
+              <TabsTrigger value="edit">
+                <Edit className="h-4 w-4" />
+                Edit
+              </TabsTrigger>
+              <TabsTrigger value="links">
+                <Link2 className="h-4 w-4" />
+                Links
+              </TabsTrigger>
+              <TabsTrigger value="reports">
+                <MessageSquare className="h-4 w-4" />
+                Reports
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="edit" className="pb-4 flex-1 overflow-y-auto">
               <EditProfile
                 profile={profile}
                 session={session}
                 onSave={handleSave}
-                onCancel={() => onProfileViewChange("main")}
+                onCancel={() => onProfileViewChange("reports")}
               />
-            )}
+            </TabsContent>
 
-            {profileView === "links" && <UserLinks />}
+            <TabsContent value="links" className="pb-4 flex-1 overflow-y-auto">
+              <UserLinks />
+            </TabsContent>
 
-            {(profileView === "reports" || profileView === "main") && (
+            <TabsContent
+              value="reports"
+              className="pb-4 flex-1 overflow-y-auto"
+            >
               <UserReportsList userId={session?.user?.id} />
-            )}
-          </div>
+            </TabsContent>
+          </Tabs>
         </>
       )}
     </div>

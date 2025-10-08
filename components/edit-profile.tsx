@@ -49,10 +49,7 @@ export default function EditProfile({
   };
 
   return (
-    <Card className="rounded-t-none">
-      <CardHeader>
-        <CardTitle>Edit Profile</CardTitle>
-      </CardHeader>
+    <Card className="rounded-t-none border-t-0  ">
       <CardContent>
         <div className="space-y-4">
           <div>

@@ -15,14 +15,17 @@ import {
   IconAlertCircleFilled,
   IconSquaresFilled,
   IconFileDescriptionFilled,
+  IconFolderFilled,
+  IconArchiveFilled,
+  IconShieldHalfFilled,
 } from "@tabler/icons-react";
 
 const tabs = [
   { id: "chatbot", label: "Chatbot", icon: Bot },
   { id: "overlays", label: "Overlay", icon: IconSquaresFilled },
-  { id: "stats", label: "Stats", icon: IconClipboardTextFilled },
+  { id: "stats", label: "Stats", icon: IconFolderFilled },
   { id: "simulations", label: "Simulations", icon: Play },
-  { id: "report", label: "Report", icon: IconFileDescriptionFilled },
+  { id: "report", label: "Report", icon: IconShieldHalfFilled },
   { id: "profile", label: "Profile", icon: Person },
 ];
 interface SideNavigationProps {
