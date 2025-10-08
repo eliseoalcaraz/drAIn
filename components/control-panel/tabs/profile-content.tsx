@@ -104,19 +104,19 @@ export default function ProfileContent({
   };
 
   return (
-    <div className="flex flex-col px-4 gap-4 h-full overflow-y-auto">
+    <div className="flex flex-col px-4 h-full overflow-y-auto">
       {loading ? (
         <div className="flex items-center justify-center h-full">
           <p className="text-muted-foreground">Loading profile...</p>
         </div>
       ) : (
         <>
-          <div className="flex items-center justify-center flex-shrink-0">
+          <div className="flex flex-col gap-2 justify-center flex-shrink-0">
             {/* Profile Card */}
             <div className="w-full max-w-xl  rounded-2xl bg-[#f7f7f7] border border-[#e2e2e2] overflow-hidden">
               {/* Header Section */}
               <div className="relative p-1">
-                <Card className="flex flex-row p-1 gap-2">
+                <Card className="flex flex-row p-1 gap-4">
                   {/* Avatar */}
                   <Avatar className="w-20 h-20 rounded-lg overflow-hidden bg-amber-100 flex-shrink-0">
                     <AvatarImage
@@ -143,51 +143,51 @@ export default function ProfileContent({
                   </div>
                 </Card>
               </div>
+            </div>
 
-              {/* Action Buttons */}
-              <div className="p-2 pt-1">
-                <div className="flex gap-2">
-                  <Button
-                    size="icon"
-                    className="rounded-lg"
-                    variant={profileView === "edit" ? "default" : "outline"}
-                    onClick={() =>
-                      onProfileViewChange(
-                        profileView === "edit" ? "main" : "edit"
-                      )
-                    }
-                  >
-                    <Edit className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    className="rounded-lg"
-                    variant={profileView === "links" ? "default" : "outline"}
-                    onClick={() =>
-                      onProfileViewChange(
-                        profileView === "links" ? "main" : "links"
-                      )
-                    }
-                  >
-                    <Link2 className="h-5 w-5" />
-                  </Button>
-                  <Button
-                    size="icon"
-                    className="rounded-lg"
-                    variant={
-                      profileView === "reports" || profileView === "main"
-                        ? "default"
-                        : "outline"
-                    }
-                    onClick={() =>
-                      onProfileViewChange(
-                        profileView === "reports" ? "main" : "reports"
-                      )
-                    }
-                  >
-                    <MessageSquare className="h-5 w-5" />
-                  </Button>
-                </div>
+            {/* Action Buttons */}
+            <div>
+              <div className="flex gap-2">
+                <Button
+                  size="icon"
+                  className="rounded-lg"
+                  variant={profileView === "edit" ? "default" : "outline"}
+                  onClick={() =>
+                    onProfileViewChange(
+                      profileView === "edit" ? "main" : "edit"
+                    )
+                  }
+                >
+                  <Edit className="h-5 w-5" />
+                </Button>
+                <Button
+                  size="icon"
+                  className="rounded-lg"
+                  variant={profileView === "links" ? "default" : "outline"}
+                  onClick={() =>
+                    onProfileViewChange(
+                      profileView === "links" ? "main" : "links"
+                    )
+                  }
+                >
+                  <Link2 className="h-5 w-5" />
+                </Button>
+                <Button
+                  size="icon"
+                  className="rounded-lg"
+                  variant={
+                    profileView === "reports" || profileView === "main"
+                      ? "default"
+                      : "outline"
+                  }
+                  onClick={() =>
+                    onProfileViewChange(
+                      profileView === "reports" ? "main" : "reports"
+                    )
+                  }
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </Button>
               </div>
             </div>
           </div>

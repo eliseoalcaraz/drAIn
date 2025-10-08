@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   ChevronLeft,
   MoreHorizontal,
@@ -20,6 +21,17 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import type { DatasetType } from "../types";
 
 interface TopBarProps {
@@ -51,6 +63,9 @@ export function TopBar({
   onToggleDrag,
   onSignOut,
 }: TopBarProps) {
+  const [showSignOutDialog, setShowSignOutDialog] = useState(false);
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
   const showSearchBar =
     (activeTab === "stats" && !hasSelectedItem) ||
     activeTab === "thread" ||
@@ -62,6 +77,15 @@ export function TopBar({
   const showSignOut = activeTab === "profile";
   const showNotification = activeTab === "profile";
   const showProfileProgress = activeTab === "profile";
+
+  const handleNotificationToggle = (pressed: boolean) => {
+    setNotificationsEnabled(pressed);
+    if (pressed) {
+      toast.success("Notifications turned on");
+    } else {
+      toast("Notifications turned off");
+    }
+  };
 
   return (
     <div className="flex items-center gap-2 p-3 px-4">
@@ -141,18 +165,50 @@ export function TopBar({
 
       {/* Sign Out Button */}
       {showSignOut && (
-        <button
-          onClick={onSignOut}
-          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]"
-        >
-          <LogOut className="w-4 h-4 text-[#8D8D8D]" />
-        </button>
+        <>
+          <button
+            onClick={() => setShowSignOutDialog(true)}
+            className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]"
+          >
+            <LogOut className="w-4 h-4 text-[#8D8D8D]" />
+          </button>
+
+          <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Sign Out</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Are you sure you want to sign out? You&apos;ll need to log in again to access your account.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    setShowSignOutDialog(false);
+                    onSignOut?.();
+                  }}
+                >
+                  Sign Out
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </>
       )}
 
       {/* Notification Button */}
       {showNotification && (
-        <Toggle className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]">
-          <Bell className="w-4 h-4 text-[#8D8D8D]" />
+        <Toggle
+          pressed={notificationsEnabled}
+          onPressedChange={handleNotificationToggle}
+          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] data-[state=on]:bg-[#D0D0D0]"
+        >
+          {notificationsEnabled ? (
+            <BellRing className="w-4 h-4 text-[#8D8D8D]" />
+          ) : (
+            <Bell className="w-4 h-4 text-[#8D8D8D]" />
+          )}
         </Toggle>
       )}
     </div>
