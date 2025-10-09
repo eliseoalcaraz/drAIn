@@ -13,8 +13,8 @@ export default function UserLinks() {
       <CardContent>
         <div className="space-y-4">
           <div className="text-sm text-muted-foreground text-center py-8">
-            No links or connections yet. Add your social profiles, websites, or
-            other connections.
+            No agency linked yet. Connect your agency account to gain admin
+            controls and respond to user reports.
           </div>
 
           <Button className="w-full" variant="outline">
