@@ -1,24 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
+import {
+  fetchReports,
+  subscribeToNewReports,
+  type Report,
+} from "@/lib/supabase/report";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
 import { format } from "date-fns";
-
-interface Report {
-  id: string;
-  date: string;
-  category: string;
-  description: string;
-  image: string;
-  reporterName: string;
-  status: "pending" | "in-progress" | "resolved";
-  componentId: string;
-  coordinates: [number, number];
-}
 
 export default function AllReportsList() {
   const [reports, setReports] = useState<Report[]>([]);
@@ -66,16 +59,16 @@ export default function AllReportsList() {
     return "outline";
   };
 
-  const getStatusVariant = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
       case "resolved":
-        return "default";
-      case "in-progress":
-        return "secondary";
+        return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
+      case "unresolved":
+        return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20";
       case "pending":
-        return "outline";
+        return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
       default:
-        return "outline";
+        return "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20";
     }
   };
 
@@ -106,65 +99,68 @@ export default function AllReportsList() {
             {reports.map((report) => (
               <div
                 key={report.id}
-                className="border rounded-lg p-3 hover:bg-accent transition-colors"
+                className="flex flex-row gap-3 border rounded-lg p-3 hover:bg-accent transition-colors"
               >
                 <div className="flex items-start gap-3">
-                  {/* Image Thumbnail */}
+                  {/* Image Thumbnail with Badges */}
                   {report.image ? (
-                    <img
+                    <Image
                       src={report.image}
                       alt={report.category}
-                      className="w-20 h-20 object-cover rounded flex-shrink-0"
-                      onError={(e) => {
-                        const target = e.target as HTMLImageElement;
-                        target.style.display = "none";
-                      }}
+                      width={80}
+                      height={80}
+                      className="w-21 h-25 object-cover rounded"
+                      unoptimized
                     />
                   ) : (
-                    <div className="w-20 h-20 bg-gray-100 rounded flex-shrink-0 flex items-center justify-center text-xs text-gray-400">
+                    <div className="w-20 h-20 bg-gray-100 rounded flex items-center justify-center text-xs text-gray-400">
                       No image
                     </div>
                   )}
 
                   {/* Report Details */}
-                  <div className="flex-1 min-w-0">
-                    {/* Header with badges */}
-                    <div className="flex items-center gap-2 mb-2 flex-wrap">
-                      <Badge variant={getCategoryVariant(report.category)}>
-                        {report.category}
-                      </Badge>
-                      <Badge variant={getStatusVariant(report.status)}>
-                        {report.status}
-                      </Badge>
+                  <div className="flex-1 flex flex-col gap-3 min-w-0">
+                    <div className="flex-1">
+                      {/* Description */}
+                      <p className="text-sm text-foreground line-clamp-2 mb-2">
+                        {report.description}
+                      </p>
+
+                      {/* Metadata */}
+                      <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <span className="font-medium">
+                            {report.reporterName || "Anonymous"}
+                          </span>
+                          <span>on</span>
+                          <span>{report.componentId}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span>
+                            {format(new Date(report.date), "MMM dd, yyyy")}
+                          </span>
+                          {/*Apply Geocoding Here */}
+                          {/* <span>
+                            ({report.coordinates[1].toFixed(4)},{" "}
+                            {report.coordinates[0].toFixed(4)})
+                          </span> */}
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Description */}
-                    <p className="text-sm text-foreground line-clamp-2 mb-2">
-                      {report.description}
-                    </p>
-
-                    {/* Metadata */}
-                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Reporter:</span>
-                        <span>{report.reporterName || "Anonymous"}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Component:</span>
-                        <span>{report.componentId}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Date:</span>
-                        <span>
-                          {format(new Date(report.date), "MMM dd, yyyy HH:mm")}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">Location:</span>
-                        <span>
-                          {report.coordinates[1].toFixed(4)},{" "}
-                          {report.coordinates[0].toFixed(4)}
-                        </span>
+                    <div className="flex flex-row gap-2">
+                      <Badge
+                        variant={getCategoryVariant(report.category)}
+                        className="text-[10px] font-normal px-3 py-0 h-5 justify-center"
+                      >
+                        {report.category}
+                      </Badge>
+                      <div
+                        className={`text-[10px] font-normal px-3 py-0.5 h-5 rounded-md border font-medium flex items-center justify-center ${getStatusStyle(
+                          report.status
+                        )}`}
+                      >
+                        {report.status}
                       </div>
                     </div>
                   </div>
