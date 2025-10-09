@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import type { DatasetType } from "../types";
+import { LinkBar } from "@/components/link-bar";
 
 interface TopBarProps {
   activeTab: string;
@@ -104,6 +105,7 @@ export function TopBar({
   const showSignOut = activeTab === "profile";
   const showNotification = activeTab === "profile";
   const showProfileProgress = activeTab === "profile";
+  const showLinkBar = activeTab === "simulations";
 
   const handleNotificationToggle = (pressed: boolean) => {
     setNotificationsEnabled(pressed);
@@ -246,6 +248,9 @@ export function TopBar({
           </AlertDialog>
         </>
       )}
+
+      {/* Profile Progress */}
+      {showLinkBar && <LinkBar link="example.com" />}
     </div>
   );
 }

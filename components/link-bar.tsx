@@ -7,7 +7,6 @@ import {
   InputGroup,
   InputGroupAddon,
   InputGroupButton,
-  InputGroupInput,
 } from "@/components/ui/input-group";
 import {
   Popover,
@@ -15,32 +14,41 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-export function InputGroupButtonExample() {
+interface LinkBarProps {
+  link?: string;
+}
+
+export function LinkBar({ link = "" }: LinkBarProps) {
   const [isFavorite, setIsFavorite] = React.useState(false);
 
   return (
     <div className="grid w-full max-w-sm gap-6">
-      <InputGroup className="[--radius:9999px]">
+      <InputGroup className="px-1 [--radius:9999px]">
         <Popover>
           <PopoverTrigger asChild>
             <InputGroupAddon>
-              <InputGroupButton variant="secondary" size="icon-xs">
-                <IconInfoCircle />
+              <InputGroupButton variant="ghost" size="icon-xs">
+                <IconInfoCircle className="text-[#666666]" />
               </InputGroupButton>
             </InputGroupAddon>
           </PopoverTrigger>
           <PopoverContent
             align="start"
-            className="flex flex-col gap-1 rounded-xl text-sm"
+            className="flex flex-col gap-1 py-4 px-5 rounded-xl text-sm"
           >
-            <p className="font-medium">Your connection is not secure.</p>
-            <p>You should not enter any sensitive information on this site.</p>
+            <p className="font-medium mb-1">Jupyter Notebook</p>
+            <p className="text-xs text-muted-foreground">
+              Refer to the official documentation for details on the machine
+              learning model development process
+            </p>
           </PopoverContent>
         </Popover>
-        <InputGroupAddon className="text-muted-foreground pl-1.5">
+        <InputGroupAddon className="text-[#666666] font-normal pl-1.5">
           https://
         </InputGroupAddon>
-        <InputGroupInput id="input-secure-19" />
+        <span className="flex-1 py-2 text-sm text-[#666666]">
+          {link || "your-link-here.com"}
+        </span>
         <InputGroupAddon align="inline-end">
           <InputGroupButton
             onClick={() => setIsFavorite(!isFavorite)}

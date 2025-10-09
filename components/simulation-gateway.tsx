@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,32 +11,38 @@ import {
   EmptyDescription,
   EmptyContent,
 } from "@/components/ui/empty";
+import { IconPlayerPlayFilled } from "@tabler/icons-react";
 import { Play, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { IconCloud } from "@tabler/icons-react";
 
 export function SimulationGateway() {
   const router = useRouter();
+  const [isHovered, setIsHovered] = useState(false);
 
   const handleEnterSimulation = () => {
     router.push("/simulation?active=true");
   };
 
   return (
-    <Empty className="h-5/6">
+    <Empty className="h-5/6 flex gap-8">
       <EmptyHeader>
-        <EmptyMedia variant="icon">
-          <IconCloud />
+        <EmptyMedia variant="icon" className="!size-13 border border-input">
+          <IconCloud className="w-16 h-16" />
         </EmptyMedia>
         <EmptyTitle>Simulation Mode</EmptyTitle>
-        <EmptyDescription>
-          Try out our drainage vulnerability simulation model Try out our
-          drainage vulnerability simulation model
+        <EmptyDescription className="text-sm">
+          Try out our drainage vulnerability simulation model
         </EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button onClick={handleEnterSimulation} className="flex justify-center">
-          <Play />
+        <Button
+          onClick={handleEnterSimulation}
+          onMouseEnter={() => setIsHovered(true)}
+          onMouseLeave={() => setIsHovered(false)}
+          className="flex w-32 h-10 justify-center"
+        >
+          {isHovered ? <IconPlayerPlayFilled className="w-4 h-4" /> : <Play />}
           Simulate
         </Button>
         {/* <Link
