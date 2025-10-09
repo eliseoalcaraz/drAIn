@@ -154,9 +154,8 @@ export function TopBar({
       {/* Profile Progress */}
       {showProfileProgress && (
         <ProfileProgress
-          current={3}
-          total={4}
-          percentage={75}
+          current={profileSteps.filter((step) => step.completed).length}
+          total={profileSteps.length}
           steps={profileSteps}
         />
       )}
