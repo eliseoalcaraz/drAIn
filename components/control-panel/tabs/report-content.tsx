@@ -62,15 +62,15 @@ export default function ReportContent() {
     setIsSubmitting(true);
 
     if (!image) {
-        setIsErrorModalOpen(true);
-        setErrorCode("No valid image");
-    }else{
-      const location = await extractExifLocation(image);  
+      setIsErrorModalOpen(true);
+      setErrorCode("No valid image");
+    } else {
+      const location = await extractExifLocation(image);
       console.log("Extracted Location:", location);
       if (!location.latitude || !location.longitude) {
-          setIsErrorModalOpen(true);
-          setErrorCode("No GPS data found in image");
-          return;
+        setIsErrorModalOpen(true);
+        setErrorCode("No GPS data found in image");
+        return;
       }
 
       try {
