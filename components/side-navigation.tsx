@@ -6,15 +6,26 @@ import {
   Layers,
   PlayCircle,
   MessageCircleWarning,
+  Database,
 } from "lucide-react";
 import Person from "@/public/icons/person.svg";
+import Play from "@/public/icons/play.svg";
+import {
+  IconClipboardTextFilled,
+  IconAlertCircleFilled,
+  IconSquaresFilled,
+  IconFileDescriptionFilled,
+  IconFolderFilled,
+  IconArchiveFilled,
+  IconShieldHalfFilled,
+} from "@tabler/icons-react";
 
 const tabs = [
   { id: "chatbot", label: "Chatbot", icon: Bot },
-  { id: "overlays", label: "Overlay", icon: Layers },
-  { id: "stats", label: "Stats", icon: BarChart3 },
-  { id: "simulations", label: "Simulations", icon: PlayCircle },
-  { id: "report", label: "Report", icon: MessageCircleWarning },
+  { id: "overlays", label: "Overlay", icon: IconSquaresFilled },
+  { id: "stats", label: "Stats", icon: IconFolderFilled },
+  { id: "simulations", label: "Simulations", icon: Play },
+  { id: "report", label: "Report", icon: IconShieldHalfFilled },
   { id: "profile", label: "Profile", icon: Person },
 ];
 interface SideNavigationProps {
@@ -33,19 +44,17 @@ export function SideNavigation({
     const Icon = tab.icon;
     const isActive = activeTab === tab.id;
     return (
-      <div
+      <button
         key={tab.id}
         onClick={() => onTabChange(tab.id)}
         className="relative flex items-center justify-center"
       >
-        <button className="w-6.5 h-6.5 bg-[#B2ADAB] rounded-full flex items-center justify-center hover:bg-black transition-colors">
-          <Icon className="w-3 h-3 text-white" />
-        </button>
+        <Icon className="w-5 h-5 text-[#B2ADAB] hover:text-black" />
 
         {isActive && (
           <div className="absolute w-0.5 h-9 rounded-l-lg right-0 bg-[#B2ADAB]" />
         )}
-      </div>
+      </button>
     );
   };
 

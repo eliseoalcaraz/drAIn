@@ -37,8 +37,15 @@ export function ControlPanel({
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
-  const { sortField, sortDirection, searchTerm, handleSort, handleSearch } =
-    useControlPanelState();
+  const {
+    sortField,
+    sortDirection,
+    searchTerm,
+    profileView,
+    setProfileView,
+    handleSort,
+    handleSearch,
+  } = useControlPanelState();
 
   // Drag control state
   const [isDragEnabled, setIsDragEnabled] = useState(false);
@@ -139,6 +146,8 @@ export function ControlPanel({
             isSimulationMode={isSimulationMode}
             selectedPointForSimulation={selectedPointForSimulation}
             reports={reports}
+            profileView={profileView}
+            onProfileViewChange={setProfileView}
           />
         </div>
       </div>

@@ -16,6 +16,7 @@ import {
 } from "@/components/control-panel/tabs/tables-content";
 import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
 import ProfileContent from "@/components/control-panel/tabs/profile-content";
+import type { ProfileView } from "../hooks/use-control-panel-state";
 
 interface ContentRendererProps {
   activeTab: string;
@@ -72,6 +73,10 @@ interface ContentRendererProps {
 
   // Reports
   reports: any[];
+
+  // Profile view
+  profileView?: ProfileView;
+  onProfileViewChange?: (view: ProfileView) => void;
 }
 
 export function ContentRenderer({
@@ -106,6 +111,8 @@ export function ContentRenderer({
   isSimulationMode = false,
   selectedPointForSimulation = null,
   reports,
+  profileView = "main",
+  onProfileViewChange = () => {},
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -150,7 +157,12 @@ export function ContentRenderer({
       return <ChatbotView />;
 
     case "profile":
-      return <ProfileContent />;
+      return (
+        <ProfileContent
+          profileView={profileView}
+          onProfileViewChange={onProfileViewChange}
+        />
+      );
 
     default:
       return null;

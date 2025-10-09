@@ -3,11 +3,14 @@
 import { useState } from "react";
 import type { SortField, Pipe, Inlet, Outlet, Drain } from "../types";
 
+export type ProfileView = "main" | "edit" | "links" | "reports";
+
 export function useControlPanelState() {
   const [activeTab, setActiveTab] = useState("overlays");
   const [sortField, setSortField] = useState<SortField>("id");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState("");
+  const [profileView, setProfileView] = useState<ProfileView>("main");
 
   // Selected items state
   const [selectedInlet, setSelectedInlet] = useState<Inlet | null>(null);
@@ -52,6 +55,8 @@ export function useControlPanelState() {
     sortField,
     sortDirection,
     searchTerm,
+    profileView,
+    setProfileView,
     selectedInlet,
     selectedPipe,
     selectedOutlet,

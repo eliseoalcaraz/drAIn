@@ -29,10 +29,10 @@ import {
 } from "@/components/ui/popover";
 
 const languages = [
-  { label: "Inlets", value: "inlet" },
-  { label: "Outlets", value: "outlet" },
-  { label: "Pipes", value: "man_pipe" },
-  { label: "Drains", value: "storm_drain" },
+  { label: "Inlets", value: "inlets" },
+  { label: "Outlets", value: "outlets" },
+  { label: "Pipes", value: "man_pipes" },
+  { label: "Drains", value: "storm_drains" },
 ] as const;
 
 const FormSchema = z.object({
