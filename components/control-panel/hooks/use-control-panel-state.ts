@@ -11,6 +11,7 @@ export function useControlPanelState() {
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [searchTerm, setSearchTerm] = useState("");
   const [profileView, setProfileView] = useState<ProfileView>("main");
+  const [activeReportTab, setActiveReportTab] = useState<"submission" | "reports">("submission");
 
   // Selected items state
   const [selectedInlet, setSelectedInlet] = useState<Inlet | null>(null);
@@ -57,6 +58,8 @@ export function useControlPanelState() {
     searchTerm,
     profileView,
     setProfileView,
+    activeReportTab,
+    setActiveReportTab,
     selectedInlet,
     selectedPipe,
     selectedOutlet,

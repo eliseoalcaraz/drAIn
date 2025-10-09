@@ -128,7 +128,7 @@ export default function ReportContent() {
     <>
       <form
         onSubmit={handlePreSubmit}
-        className="w-full h-full p-5 rounded-xl flex flex-col space-y-4"
+        className="w-full h-full pb-5 px-5 pt-3 rounded-xl flex flex-col space-y-4"
       >
         <CardHeader className="py-0 px-1 mb-3">
           <CardTitle>Report an issue</CardTitle>

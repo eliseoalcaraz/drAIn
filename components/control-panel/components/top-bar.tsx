@@ -37,6 +37,7 @@ import {
 import { toast } from "sonner";
 import type { DatasetType } from "../types";
 import { LinkBar } from "@/components/link-bar";
+import { ReportsTabControl } from "./reports-tab-control";
 
 interface TopBarProps {
   activeTab: string;
@@ -51,6 +52,8 @@ interface TopBarProps {
   isDragEnabled?: boolean;
   onToggleDrag?: (enabled: boolean) => void;
   onSignOut?: () => void;
+  activeReportTab?: "submission" | "reports";
+  onReportTabChange?: (tab: "submission" | "reports") => void;
 }
 
 export function TopBar({
@@ -66,6 +69,8 @@ export function TopBar({
   isDragEnabled = true,
   onToggleDrag,
   onSignOut,
+  activeReportTab = "submission",
+  onReportTabChange,
 }: TopBarProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -106,6 +111,7 @@ export function TopBar({
   const showNotification = activeTab === "profile";
   const showProfileProgress = activeTab === "profile";
   const showLinkBar = activeTab === "simulations";
+  const showReportTabs = activeTab === "report";
 
   const handleNotificationToggle = (pressed: boolean) => {
     setNotificationsEnabled(pressed);
@@ -247,6 +253,14 @@ export function TopBar({
             </AlertDialogContent>
           </AlertDialog>
         </>
+      )}
+
+      {/* Reports Tab */}
+      {showReportTabs && onReportTabChange && (
+        <ReportsTabControl
+          activeTab={activeReportTab}
+          onTabChange={onReportTabChange}
+        />
       )}
 
       {/* Profile Progress */}
