@@ -28,40 +28,55 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-const languages = [
+const defaultLanguages: ComboboxOption[] = [
   { label: "Inlets", value: "inlets" },
   { label: "Outlets", value: "outlets" },
   { label: "Pipes", value: "man_pipes" },
   { label: "Drains", value: "storm_drains" },
-] as const;
+];
 
 const FormSchema = z.object({
   language: z.string().nonempty("Choose"),
 });
 
+interface ComboboxOption {
+  label: string;
+  value: string;
+}
+
 interface ComboboxFormProps {
   onSelect: (value: string) => void;
   value?: string;
   showSearch?: boolean;
+  options?: ComboboxOption[];
+  placeholder?: string;
+  searchPlaceholder?: string;
+  emptyText?: string;
+  disabled?: boolean;
 }
 
 export function ComboboxForm({
   onSelect,
   value,
   showSearch = true,
+  options = defaultLanguages,
+  placeholder = "Choose",
+  searchPlaceholder = "Search...",
+  emptyText = "Not Found",
+  disabled = false,
 }: ComboboxFormProps) {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { language: value ?? "inlets" }, // use parent value as initial default
+    defaultValues: { language: value ?? options[0]?.value ?? "" },
   });
 
   // Keep the form field in sync whenever parent 'value' changes
   useEffect(() => {
-    form.setValue("language", value ?? "inlets", {
+    form.setValue("language", value ?? options[0]?.value ?? "", {
       shouldValidate: false,
       shouldDirty: false,
     });
-  }, [value, form]);
+  }, [value, form, options]);
 
   return (
     <Form {...form}>
@@ -81,10 +96,11 @@ export function ComboboxForm({
                         "w-full justify-between font-normal",
                         !field.value && "text-muted-foreground"
                       )}
+                      disabled={disabled}
                     >
                       {field.value
-                        ? languages.find((l) => l.value === field.value)?.label
-                        : "Choose"}
+                        ? options.find((opt) => opt.value === field.value)?.label
+                        : placeholder}
                       <ChevronsUpDown className="opacity-50" />
                     </Button>
                   </FormControl>
@@ -96,26 +112,26 @@ export function ComboboxForm({
                 >
                   <Command>
                     {showSearch && (
-                      <CommandInput placeholder="Search..." className="h-9" />
+                      <CommandInput placeholder={searchPlaceholder} className="h-9" />
                     )}
                     <CommandList>
-                      <CommandEmpty>Not Found</CommandEmpty>
+                      <CommandEmpty>{emptyText}</CommandEmpty>
                       <CommandGroup>
-                        {languages.map((language) => (
+                        {options.map((option) => (
                           <CommandItem
-                            key={language.value}
-                            value={language.value} // <-- use language.value here
+                            key={option.value}
+                            value={option.value}
                             onSelect={() => {
                               // update RHF field and notify parent
-                              field.onChange(language.value);
-                              onSelect(language.value);
+                              field.onChange(option.value);
+                              onSelect(option.value);
                             }}
                           >
-                            {language.label}
+                            {option.label}
                             <Check
                               className={cn(
                                 "ml-auto",
-                                language.value === field.value
+                                option.value === field.value
                                   ? "opacity-100"
                                   : "opacity-0"
                               )}

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import { Button } from "./ui/button";
 import {
   Empty,
   EmptyHeader,
@@ -11,16 +11,21 @@ import {
   EmptyDescription,
   EmptyContent,
 } from "@/components/ui/empty";
-import { IconPlayerPlayFilled } from "@tabler/icons-react";
-import { Play, ArrowUpRight } from "lucide-react";
-import Link from "next/link";
+import {
+  IconPlayerPlayFilled,
+  IconPlayerPauseFilled,
+} from "@tabler/icons-react";
+import { Play } from "lucide-react";
 import { IconCloud } from "@tabler/icons-react";
+import { Spinner } from "@/components/ui/spinner";
 
 export function SimulationGateway() {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleEnterSimulation = () => {
+    setIsLoading(true);
     router.push("/simulation?active=true");
   };
 
@@ -28,7 +33,11 @@ export function SimulationGateway() {
     <Empty className="h-5/6 flex gap-8">
       <EmptyHeader>
         <EmptyMedia variant="icon" className="!size-13 border border-input">
-          <IconCloud className="w-16 h-16" />
+          {isLoading ? (
+            <Spinner className="w-6 h-6" />
+          ) : (
+            <IconCloud className="w-16 h-16" />
+          )}
         </EmptyMedia>
         <EmptyTitle>Simulation Mode</EmptyTitle>
         <EmptyDescription className="text-sm">
@@ -40,9 +49,16 @@ export function SimulationGateway() {
           onClick={handleEnterSimulation}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
+          disabled={isLoading}
           className="flex w-32 h-10 justify-center"
         >
-          {isHovered ? <IconPlayerPlayFilled className="w-4 h-4" /> : <Play />}
+          {isLoading ? (
+            <IconPlayerPauseFilled className="w-4 h-4" />
+          ) : isHovered ? (
+            <IconPlayerPlayFilled className="w-4 h-4" />
+          ) : (
+            <Play />
+          )}
           Simulate
         </Button>
         {/* <Link

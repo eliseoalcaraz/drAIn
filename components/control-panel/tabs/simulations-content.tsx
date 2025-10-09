@@ -22,9 +22,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Combobox } from "@/components/ui/combobox";
+import { ComboboxForm } from "@/components/combobox-form";
 import { predict } from "@/lib/predictions/predict";
 import { AlertCircle, CheckCircle2, RotateCcw } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { IconInfoCircleFilled } from "@tabler/icons-react";
 import { useInlets } from "@/hooks/useInlets";
 import { useOutlets } from "@/hooks/useOutlets";
 import { usePipes } from "@/hooks/usePipes";
@@ -67,7 +74,7 @@ export default function SimulationsContent({
   isSimulationMode = false,
   selectedPointId: externalSelectedPointId = null,
 }: SimulationsContentProps) {
-  const [endpoint, setEndpoint] = useState<EndpointType>("predict-100yr");
+  const [endpoint, setEndpoint] = useState<EndpointType | "">("");
   const [params, setParams] = useState<PredictionParams>(DEFAULT_PARAMS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -140,6 +147,11 @@ export default function SimulationsContent({
   }, [selectedPointId, inlets, drains, outlets, pipes]);
 
   const handlePredict = async () => {
+    if (!endpoint) {
+      setError("Please select a return period model");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     setResult(null);
@@ -154,7 +166,7 @@ export default function SimulationsContent({
         ] as [number, number, number, number],
       };
 
-      const response = await predict(endpoint, inputData);
+      const response = await predict(endpoint as EndpointType, inputData);
       setResult({
         ...response,
         timestamp: new Date().toISOString(),
@@ -192,10 +204,10 @@ export default function SimulationsContent({
   }
 
   return (
-    <div className="space-y-6">
-      <CardHeader>
+    <div className="flex flex-col flex-1 pt-3 pb-5 px-5 space-y-4">
+      <CardHeader className="py-0 px-1 mb-3">
         <CardTitle>Flood Prediction Simulation</CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs">
           Configure parameters and select a return period model to predict flood
           risk
         </CardDescription>
@@ -203,10 +215,7 @@ export default function SimulationsContent({
 
       {/* Inlet/Drain Selector */}
       <div className="space-y-2">
-        <Label htmlFor="point-selector">
-          Select Inlet or Storm Drain (Optional)
-        </Label>
-        <Combobox
+        <ComboboxForm
           options={[
             ...inlets.map((inlet) => ({
               value: inlet.id,
@@ -218,9 +227,9 @@ export default function SimulationsContent({
             })),
           ]}
           value={selectedPointId}
-          onValueChange={setSelectedPointId}
-          placeholder="Select an inlet or storm drain..."
-          searchPlaceholder="Search inlets or storm drains..."
+          onSelect={setSelectedPointId}
+          placeholder="Component"
+          searchPlaceholder="Search ID"
           emptyText="No inlets or drains found."
           disabled={
             inletsLoading || drainsLoading || outletsLoading || pipesLoading
@@ -233,44 +242,55 @@ export default function SimulationsContent({
           </p>
         )}
         {selectedPointId && !calculatingDistance && (
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs pl-1 text-muted-foreground">
             Distance auto-calculated for {selectedPointId}
           </p>
         )}
       </div>
 
-      <div className="px-5">
+      <div className="flex flex-col gap-4">
         {/* Model Selection */}
-        <div className="space-y-2">
-          <Label htmlFor="endpoint">Return Period Model</Label>
+        <div className="flex flex-row justify-between items-center">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm">Return Model</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <IconInfoCircleFilled className="w-3.5 h-3.5 text-[#8D8D8D]/50 hover:text-[#8D8D8D] cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p className="text-xs max-w-xs">
+                    Return periods indicate the statistical probability of a
+                    rainfall event of a given magnitude occurring in any given
+                    year.
+                  </p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+
           <Select
             value={endpoint}
             onValueChange={(value) => setEndpoint(value as EndpointType)}
           >
             <SelectTrigger id="endpoint">
-              <SelectValue placeholder="Select model" />
+              <SelectValue placeholder="Select Model" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="predict-100yr">
-                100-Year Return Period
-              </SelectItem>
-              <SelectItem value="predict-50yr">
-                50-Year Return Period
-              </SelectItem>
-              <SelectItem value="predict-25yr">
-                25-Year Return Period
-              </SelectItem>
+              <SelectItem value="predict-100yr">100-Year Period</SelectItem>
+              <SelectItem value="predict-50yr">50-Year Period</SelectItem>
+              <SelectItem value="predict-25yr">25-Year Period</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {/* Parameter Controls */}
-        <div className="space-y-6">
+        <div className="space-y-6 px-1">
           {/* Flood Depth */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label>Flood Depth</Label>
-              <span className="text-sm font-medium text-muted-foreground">
+              <Label className="font-normal">Flood Depth</Label>
+              <span className="text-xs text-muted-foreground">
                 {params.floodDepth.toFixed(1)} m
               </span>
             </div>
@@ -292,9 +312,9 @@ export default function SimulationsContent({
 
           {/* Pipe Diameter */}
           <div className="space-y-3">
-            <div className="flex justify-between items-center">
-              <Label>Pipe Diameter</Label>
-              <span className="text-sm font-medium text-muted-foreground">
+            <div className="flex justify-between items-center ">
+              <Label className="font-normal">Pipe Diameter</Label>
+              <span className="text-xs text-muted-foreground">
                 {params.pipeDiameter.toFixed(2)} m
               </span>
             </div>
@@ -317,8 +337,8 @@ export default function SimulationsContent({
           {/* Distance to Outlet */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label>Distance to Outlet</Label>
-              <span className="text-sm font-medium text-muted-foreground">
+              <Label className="font-normal">Distance to Outlet</Label>
+              <span className="text-xs text-muted-foreground">
                 {params.distToOutlet.toFixed(0)} m
               </span>
             </div>
@@ -341,8 +361,8 @@ export default function SimulationsContent({
           {/* Inlet Density */}
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <Label>Inlet Density</Label>
-              <span className="text-sm font-medium text-muted-foreground">
+              <Label className="font-normal">Inlet Density</Label>
+              <span className="text-xs text-muted-foreground">
                 {params.inletDensity.toFixed(0)}
               </span>
             </div>
@@ -364,11 +384,11 @@ export default function SimulationsContent({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 pt-4">
+        <div className="flex gap-3 pt-4 items-center">
           <Button
             onClick={handlePredict}
             disabled={loading}
-            className="flex-1 "
+            className="flex-1 h-full"
           >
             {loading ? (
               <>
@@ -380,8 +400,13 @@ export default function SimulationsContent({
             )}
           </Button>
 
-          <Button onClick={handleReset} variant="outline" disabled={loading}>
-            <RotateCcw className="mr-2 h-4 w-4" />
+          <Button
+            onClick={handleReset}
+            variant="outline"
+            size="icon"
+            disabled={loading}
+          >
+            <RotateCcw className="h-4 w-4" />
           </Button>
         </div>
       </div>
