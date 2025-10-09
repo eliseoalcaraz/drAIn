@@ -152,7 +152,7 @@ export default function ProfileContent({
             onValueChange={(value) => onProfileViewChange(value as ProfileView)}
             className="flex-1 flex flex-col min-h-0 space-y-0 gap-0"
           >
-            <TabsList className="flex-shrink-0 border-x-1 border-b-0 pb-0.5">
+            <TabsList className="flex-shrink-0 border-x-1 border-b-0 pb-0.5 border-[#ced1cd]">
               <TabsTrigger value="edit">
                 <Pencil className="h-4 w-4" />
                 <span className="font-normal text-xs">Edit</span>

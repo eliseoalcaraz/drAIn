@@ -14,7 +14,10 @@ import { Toggle } from "@/components/ui/toggle";
 import { SearchBar } from "../../search-bar";
 import { ComboboxForm } from "../../combobox-form";
 import { OverlayToggle } from "../../overlay-toggle";
-import { ProfileProgress } from "@/components/ui/profile-progress";
+import {
+  ProfileProgress,
+  type ProfileStep,
+} from "@/components/ui/profile-progress";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -65,6 +68,30 @@ export function TopBar({
 }: TopBarProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  // Example profile setup steps - replace with actual data
+  const profileSteps: ProfileStep[] = [
+    {
+      title: "Basic Information",
+      description: "Complete your name",
+      completed: true,
+    },
+    {
+      title: "Profile Picture",
+      description: "Upload a profile picture",
+      completed: true,
+    },
+    {
+      title: "Verification",
+      description: "Verify your email address",
+      completed: false,
+    },
+    {
+      title: "Link",
+      description: "Link your account to an agency for admin features",
+      completed: false,
+    },
+  ];
 
   const showSearchBar =
     (activeTab === "stats" && !hasSelectedItem) ||
@@ -126,7 +153,12 @@ export function TopBar({
 
       {/* Profile Progress */}
       {showProfileProgress && (
-        <ProfileProgress current={3} total={4} percentage={75} />
+        <ProfileProgress
+          current={3}
+          total={4}
+          percentage={75}
+          steps={profileSteps}
+        />
       )}
 
       {/* Dataset Selector */}
@@ -163,6 +195,21 @@ export function TopBar({
         </div>
       )}
 
+      {/* Notification Button */}
+      {showNotification && (
+        <Toggle
+          pressed={notificationsEnabled}
+          onPressedChange={handleNotificationToggle}
+          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] data-[state=on]:bg-[#D0D0D0]"
+        >
+          {notificationsEnabled ? (
+            <BellRing className="w-4 h-4 text-[#8D8D8D]" />
+          ) : (
+            <Bell className="w-4 h-4 text-[#8D8D8D]" />
+          )}
+        </Toggle>
+      )}
+
       {/* Sign Out Button */}
       {showSignOut && (
         <>
@@ -173,12 +220,16 @@ export function TopBar({
             <LogOut className="w-4 h-4 text-[#8D8D8D]" />
           </button>
 
-          <AlertDialog open={showSignOutDialog} onOpenChange={setShowSignOutDialog}>
+          <AlertDialog
+            open={showSignOutDialog}
+            onOpenChange={setShowSignOutDialog}
+          >
             <AlertDialogContent>
               <AlertDialogHeader>
                 <AlertDialogTitle>Sign Out</AlertDialogTitle>
                 <AlertDialogDescription>
-                  Are you sure you want to sign out? You&apos;ll need to log in again to access your account.
+                  Are you sure you want to sign out? You&apos;ll need to log in
+                  again to access your account.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -195,21 +246,6 @@ export function TopBar({
             </AlertDialogContent>
           </AlertDialog>
         </>
-      )}
-
-      {/* Notification Button */}
-      {showNotification && (
-        <Toggle
-          pressed={notificationsEnabled}
-          onPressedChange={handleNotificationToggle}
-          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] data-[state=on]:bg-[#D0D0D0]"
-        >
-          {notificationsEnabled ? (
-            <BellRing className="w-4 h-4 text-[#8D8D8D]" />
-          ) : (
-            <Bell className="w-4 h-4 text-[#8D8D8D]" />
-          )}
-        </Toggle>
       )}
     </div>
   );
