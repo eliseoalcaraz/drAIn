@@ -2,7 +2,7 @@ import type { DatasetType, Pipe, Inlet, Outlet, Drain } from "../types";
 import { FIELD_CONFIGS, MODEL_URLS } from "../constants";
 import { DetailView } from "./detail-view";
 import OverlaysContent from "../tabs/overlays-content";
-import ReportContent from "../tabs/report-content";
+import { ReportsTab } from "./reports-tab";
 import { ChatbotView } from "../tabs/chatbot-content";
 import {
   PipeTable,
@@ -73,6 +73,7 @@ interface ContentRendererProps {
 
   // Reports
   reports: any[];
+  activeReportTab?: "submission" | "reports";
 
   // Profile view
   profileView?: ProfileView;
@@ -111,6 +112,7 @@ export function ContentRenderer({
   isSimulationMode = false,
   selectedPointForSimulation = null,
   reports,
+  activeReportTab = "submission",
   profileView = "main",
   onProfileViewChange = () => {},
 }: ContentRendererProps) {
@@ -151,7 +153,7 @@ export function ContentRenderer({
       );
 
     case "report":
-      return <ReportContent />;
+      return <ReportsTab activeReportTab={activeReportTab} />;
 
     case "chatbot":
       return <ChatbotView />;

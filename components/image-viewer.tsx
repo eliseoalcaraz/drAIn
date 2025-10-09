@@ -77,7 +77,7 @@ export function ImageViewer({
           </button>
 
           <h2 className="text-xl font-bold text-gray-900 mb-4 pr-8">
-            Image Details
+            Report Details
           </h2>
 
           {/* Reporter Info */}

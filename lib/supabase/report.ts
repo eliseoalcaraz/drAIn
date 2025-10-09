@@ -1,5 +1,16 @@
 import client from "@/app/api/client";
 
+export interface Report {
+  id: string;
+  date: string;
+  category: string;
+  description: string;
+  image: string;
+  reporterName: string;
+  status: "pending" | "in-progress" | "resolved";
+  componentId: string;
+  coordinates: [number, number];
+}
 
 export const uploadReport = async (file: File, category: string, description: string, component_id: string, long: number, lat: number)  => {
     try {
@@ -45,7 +56,7 @@ export const uploadReport = async (file: File, category: string, description: st
 
 }
 
-export const fetchReports = async () => {
+export const fetchReports = async (): Promise<Report[]> => {
   try {
     const { data, error } = await client
       .from("reports")
@@ -69,7 +80,7 @@ export const fetchReports = async () => {
   });
 
   // Transform into desired format
-  const formattedReports = data.map((report: any, index: number) => ({
+  const formattedReports: Report[] = data.map((report: any, index: number) => ({
     id: report.id?.toString() ?? String(index + 1),
     date: report.created_at ?? new Date().toISOString(),
     category: report.category,
@@ -78,7 +89,7 @@ export const fetchReports = async () => {
     reporterName: report.reporter_name ?? "Unknown Reporter",
     status: report.status,
     componentId: report.component_id ?? "N/A",
-    coordinates: [report.long, report.lat],
+    coordinates: [report.long as number, report.lat as number] as [number, number],
     }));
     console.log("Formatted Reports:", formattedReports);
     return formattedReports;
@@ -88,21 +99,25 @@ export const fetchReports = async () => {
   }
 };
 
-const formatReport = (report: any) => {
+const formatReport = (report: any): Report => {
+  const {data: img} = client.storage
+    .from('ReportImage')
+    .getPublicUrl(report.image);
+
   return {
     id: report.id?.toString(),
     date: report.created_at,
     category: report.category,
     description: report.description,
-    image: report.image ? `/storage/v1/object/public/ReportImage/${report.image}` : "",
+    image: img.publicUrl ?? "",
     reporterName: report.reporter_name ?? "Unknown Reporter",
     status: report.status,
     componentId: report.component_id ?? "N/A",
-    coordinates: [report.long, report.lat],
+    coordinates: [report.long as number, report.lat as number] as [number, number],
   };
 }
 
-export const subscribeToNewReports = (callback: (newReport: any) => void) => {
+export const subscribeToNewReports = (callback: (newReport: Report) => void) => {
   const channel = client
     .channel('realtime-reports')
     .on(

@@ -43,6 +43,8 @@ export function ControlPanel({
     searchTerm,
     profileView,
     setProfileView,
+    activeReportTab,
+    setActiveReportTab,
     handleSort,
     handleSearch,
   } = useControlPanelState();
@@ -106,6 +108,8 @@ export function ControlPanel({
           isDragEnabled={isDragEnabled}
           onToggleDrag={handleToggleDrag}
           onSignOut={handleSignOut}
+          activeReportTab={activeReportTab}
+          onReportTabChange={setActiveReportTab}
         />
 
         {/* Main Content */}
@@ -148,6 +152,7 @@ export function ControlPanel({
             reports={reports}
             profileView={profileView}
             onProfileViewChange={setProfileView}
+            activeReportTab={activeReportTab}
           />
         </div>
       </div>
