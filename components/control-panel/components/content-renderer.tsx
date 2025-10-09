@@ -2,8 +2,9 @@ import type { DatasetType, Pipe, Inlet, Outlet, Drain } from "../types";
 import { FIELD_CONFIGS, MODEL_URLS } from "../constants";
 import { DetailView } from "./detail-view";
 import OverlaysContent from "../tabs/overlays-content";
-import { ReportsTab } from "./reports-tab";
+import { ReportsTab } from "../tabs/reports-content";
 import { ChatbotView } from "../tabs/chatbot-content";
+import type { DateFilterValue } from "../../date-sort";
 import {
   PipeTable,
   InletTable,
@@ -74,6 +75,7 @@ interface ContentRendererProps {
   // Reports
   reports: any[];
   activeReportTab?: "submission" | "reports";
+  dateFilter?: DateFilterValue;
 
   // Profile view
   profileView?: ProfileView;
@@ -113,6 +115,7 @@ export function ContentRenderer({
   selectedPointForSimulation = null,
   reports,
   activeReportTab = "submission",
+  dateFilter = "all",
   profileView = "main",
   onProfileViewChange = () => {},
 }: ContentRendererProps) {
@@ -153,7 +156,9 @@ export function ContentRenderer({
       );
 
     case "report":
-      return <ReportsTab activeReportTab={activeReportTab} />;
+      return (
+        <ReportsTab activeReportTab={activeReportTab} dateFilter={dateFilter} />
+      );
 
     case "chatbot":
       return <ChatbotView />;

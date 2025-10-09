@@ -12,6 +12,7 @@ import { ContentRenderer } from "./components/content-renderer";
 import type { Inlet, Pipe, Outlet, Drain, DatasetType } from "./types";
 import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
 import client from "@/app/api/client";
+import type { DateFilterValue } from "../date-sort";
 
 export function ControlPanel({
   reports,
@@ -55,6 +56,9 @@ export function ControlPanel({
   const handleToggleDrag = (enabled: boolean) => {
     setIsDragEnabled(enabled);
   };
+
+  // Date filter state
+  const [dateFilter, setDateFilter] = useState<DateFilterValue>("all");
 
   const handleSignOut = async () => {
     // Clear any cached profile data
@@ -110,6 +114,8 @@ export function ControlPanel({
           onSignOut={handleSignOut}
           activeReportTab={activeReportTab}
           onReportTabChange={setActiveReportTab}
+          dateFilter={dateFilter}
+          onDateFilterChange={setDateFilter}
         />
 
         {/* Main Content */}
@@ -153,6 +159,7 @@ export function ControlPanel({
             profileView={profileView}
             onProfileViewChange={setProfileView}
             activeReportTab={activeReportTab}
+            dateFilter={dateFilter}
           />
         </div>
       </div>

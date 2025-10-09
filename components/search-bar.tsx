@@ -18,7 +18,7 @@ export function SearchBar({ onSearch }: SearchBarProps) {
   };
 
   return (
-    <div className="relative flex-1">
+    <div className="relative flex-1 h-8.5">
       <Search className="absolute left-3 gap-2 top-1/2 transform -translate-y-1/2 text-[#8D8D8D] w-4" />
       <Input
         placeholder="Search"

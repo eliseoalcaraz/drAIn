@@ -16,24 +16,24 @@ export function ReportsTabControl({
       <button
         onClick={() => onTabChange("submission")}
         className={cn(
-          "px-5 py-1 text-xs font-medium transition-all rounded-full flex-1 whitespace-nowrap h-full flex items-center justify-center",
+          "px-5 py-1 text-xs transition-all border rounded-full flex-1 whitespace-nowrap h-full flex items-center justify-center",
           activeTab === "submission"
-            ? "bg-white text-gray-900 shadow-sm"
-            : "bg-transparent text-gray-500 hover:text-gray-700"
+            ? "bg-white text-gray-900 border-[#DCDCDC]"
+            : "bg-transparent text-gray-500 hover:text-gray-700 border-transparent"
         )}
       >
-        Submit Report
+        Submit
       </button>
       <button
         onClick={() => onTabChange("reports")}
         className={cn(
-          "px-5 py-1 text-xs font-medium transition-all rounded-full flex-1 whitespace-nowrap h-full flex items-center justify-center",
+          "px-5 py-1 text-xs transition-all border rounded-full flex-1 whitespace-nowrap h-full flex items-center justify-center",
           activeTab === "reports"
-            ? "bg-white text-gray-900 shadow-sm"
-            : "bg-transparent text-gray-500 hover:text-gray-700"
+            ? "bg-white text-gray-900 border-[#DCDCDC]"
+            : "bg-transparent text-gray-500 hover:text-gray-700 border-transparent"
         )}
       >
-        View Reports
+        View
       </button>
     </div>
   );

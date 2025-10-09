@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -11,9 +11,16 @@ import {
 } from "@/lib/supabase/report";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
-import { format } from "date-fns";
+import { format, subDays, subWeeks, subMonths, startOfDay } from "date-fns";
+import type { DateFilterValue } from "./date-sort";
 
-export default function AllReportsList() {
+interface AllReportsListProps {
+  dateFilter?: DateFilterValue;
+}
+
+export default function AllReportsList({
+  dateFilter = "all",
+}: AllReportsListProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -72,6 +79,38 @@ export default function AllReportsList() {
     }
   };
 
+  // Filter reports based on date filter
+  const filteredReports = useMemo(() => {
+    if (dateFilter === "all") {
+      return reports;
+    }
+
+    const now = new Date();
+    let cutoffDate: Date;
+
+    switch (dateFilter) {
+      case "today":
+        cutoffDate = startOfDay(now);
+        break;
+      case "week":
+        cutoffDate = subWeeks(now, 1);
+        break;
+      case "2weeks":
+        cutoffDate = subWeeks(now, 2);
+        break;
+      case "3weeks":
+        cutoffDate = subWeeks(now, 3);
+        break;
+      case "month":
+        cutoffDate = subMonths(now, 1);
+        break;
+      default:
+        return reports;
+    }
+
+    return reports.filter((report) => new Date(report.date) >= cutoffDate);
+  }, [reports, dateFilter]);
+
   if (loading) {
     return (
       <div className="w-full h-full flex items-center justify-center">
@@ -90,13 +129,13 @@ export default function AllReportsList() {
       </CardHeader>
 
       <ScrollArea className="flex-1">
-        {reports.length === 0 ? (
+        {filteredReports.length === 0 ? (
           <div className="text-sm text-muted-foreground text-center py-8">
-            No reports have been submitted yet.
+            No reports found for the selected time period.
           </div>
         ) : (
           <div className="space-y-3 pb-4">
-            {reports.map((report) => (
+            {filteredReports.map((report) => (
               <div
                 key={report.id}
                 className="flex flex-row gap-3 border rounded-lg p-3 hover:bg-accent transition-colors"

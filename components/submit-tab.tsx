@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import ImageUploader from "../../image-uploader";
-import { Button } from "../../ui/button";
+import ImageUploader from "./image-uploader";
+import { Button } from "./ui/button";
 import {
   Dialog,
   DialogContent,
@@ -10,17 +10,17 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "../../ui/dialog";
-import { Checkbox } from "../../ui/checkbox";
+} from "./ui/dialog";
+import { Checkbox } from "./ui/checkbox";
 import { uploadReport } from "@/lib/supabase/report";
 import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
-import { ComboboxForm } from "../../combobox-form";
-import { Field, FieldLabel, FieldContent } from "../../ui/field";
-import { Textarea } from "../../ui/textarea";
-import { CardDescription, CardHeader, CardTitle } from "../../ui/card";
-import { SpinnerEmpty } from "../../spinner-empty";
-import { Alert, AlertTitle, AlertDescription } from "../../ui/alert";
+import { ComboboxForm } from "./combobox-form";
+import { Field, FieldLabel, FieldContent } from "./ui/field";
+import { Textarea } from "./ui/textarea";
+import { CardDescription, CardHeader, CardTitle } from "./ui/card";
+import { SpinnerEmpty } from "./spinner-empty";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { AlertCircle } from "lucide-react";
 
 interface CategoryData {
@@ -30,7 +30,7 @@ interface CategoryData {
   distance: number;
 }
 
-export default function ReportContent() {
+export default function SubmitTab() {
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
