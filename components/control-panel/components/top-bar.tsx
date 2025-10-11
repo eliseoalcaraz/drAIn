@@ -37,7 +37,8 @@ import {
 import { toast } from "sonner";
 import type { DatasetType } from "../types";
 import { LinkBar } from "@/components/link-bar";
-import { ReportsTabControl } from "./reports-tab-control";
+import { ReportsTabControl } from "../../reports-tab-control";
+import { DateSort, type DateFilterValue } from "../../date-sort";
 
 interface TopBarProps {
   activeTab: string;
@@ -54,6 +55,8 @@ interface TopBarProps {
   onSignOut?: () => void;
   activeReportTab?: "submission" | "reports";
   onReportTabChange?: (tab: "submission" | "reports") => void;
+  dateFilter?: DateFilterValue;
+  onDateFilterChange?: (value: DateFilterValue) => void;
 }
 
 export function TopBar({
@@ -71,6 +74,8 @@ export function TopBar({
   onSignOut,
   activeReportTab = "submission",
   onReportTabChange,
+  dateFilter = "all",
+  onDateFilterChange,
 }: TopBarProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -112,6 +117,7 @@ export function TopBar({
   const showProfileProgress = activeTab === "profile";
   const showLinkBar = activeTab === "simulations";
   const showReportTabs = activeTab === "report";
+  const showDateSort = activeTab === "report";
 
   const handleNotificationToggle = (pressed: boolean) => {
     setNotificationsEnabled(pressed);
@@ -170,7 +176,7 @@ export function TopBar({
 
       {/* Dataset Selector */}
       {showCombobox && (
-        <div className="w-24">
+        <div className="w-24 h-8.5">
           <ComboboxForm
             value={dataset}
             onSelect={(value) =>
@@ -257,14 +263,31 @@ export function TopBar({
 
       {/* Reports Tab */}
       {showReportTabs && onReportTabChange && (
-        <ReportsTabControl
-          activeTab={activeReportTab}
-          onTabChange={onReportTabChange}
-        />
+        <div className="flex-1">
+          <ReportsTabControl
+            activeTab={activeReportTab}
+            onTabChange={onReportTabChange}
+          />
+        </div>
       )}
 
       {/* Profile Progress */}
-      {showLinkBar && <LinkBar link="example.com" />}
+      {showLinkBar && (
+        <div className="h-8.5 w-full">
+          <LinkBar link="example.com" />
+        </div>
+      )}
+
+      {/* Date Sort */}
+      {showDateSort && (
+        <div className="h-8.5">
+          <DateSort
+            value={dateFilter}
+            onValueChange={onDateFilterChange}
+            disabled={activeReportTab === "submission"}
+          />
+        </div>
+      )}
     </div>
   );
 }
