@@ -348,7 +348,9 @@ export default function SimulationPage() {
             break;
           }
           case "outlets-layer": {
-            const outlet = outletsRef.current.find((o) => o.id === props.Out_Name);
+            const outlet = outletsRef.current.find(
+              (o) => o.id === props.Out_Name
+            );
             if (outlet) handleSelectOutlet(outlet);
             break;
           }
@@ -410,7 +412,7 @@ export default function SimulationPage() {
   const overlayData = [
     {
       id: "man_pipes-layer",
-      name: "Man Pipes",
+      name: "Pipes",
       color: "#8B008B",
       visible: overlayVisibility["man_pipes-layer"],
     },
@@ -660,6 +662,9 @@ export default function SimulationPage() {
           onToggleOverlay={handleOverlayToggle}
           isSimulationMode={isSimulationActive}
           selectedPointForSimulation={selectedPointForSimulation}
+          reports={[]}
+          onRefreshReports={async () => {}}
+          isRefreshingReports={false}
         />
         <CameraControls
           onZoomIn={handleZoomIn}

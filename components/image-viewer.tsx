@@ -3,6 +3,7 @@
 import { X } from "lucide-react";
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 
 interface ImageViewerProps {
   imageUrl: string;
@@ -59,10 +60,13 @@ export function ImageViewer({
       <div className="relative z-10 flex max-h-[90vh] max-w-[90vw] gap-4 animate-in zoom-in-95 duration-300">
         {/* Image section */}
         <div className="relative flex items-center justify-center bg-black rounded-lg overflow-hidden">
-          <img
+          <Image
             src={imageUrl}
             alt="Report evidence"
-            className="max-h-[90vh] max-w-[60vw] object-contain"
+            fill
+            className="object-contain"
+            sizes="(max-width: 1024px) 80vw, 60vw"
+            priority
           />
         </div>
 

@@ -9,7 +9,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Info, Power } from "lucide-react";
-import Flag from "@/public/icons/flag.svg";
 import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -18,6 +17,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
+import { IconRepeat } from "@tabler/icons-react";
 
 interface ReportsToggleProps {
   isVisible: boolean;
@@ -63,7 +63,7 @@ export function ReportsToggle({
         className="py-2 px-4 flex flex-row items-center justify-between cursor-pointer hover:bg-[#e8e8e8] transition-colors rounded-t-xl"
         onClick={onNavigateToReportForm}
       >
-        <span className="text-xs">User Reports</span>
+        <span className="text-xs">Community Reports</span>
         <Info className="h-3.5 w-3.5 opacity-70" />
       </div>
 
@@ -71,7 +71,7 @@ export function ReportsToggle({
         <CardHeader className="flex-col gap-3 pb-0">
           <CardTitle className="flex flex-row">
             <div className="flex flex-row items-center gap-2">
-              <Flag className="w-4 h-4" />
+              <IconRepeat className="w-4 h-4" />
               <span>{totalReports} reports</span>
             </div>
 

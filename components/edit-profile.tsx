@@ -1,10 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Session } from "@supabase/supabase-js";
+import ImageUploader from "@/components/image-uploader";
+import { Label } from "@/components/ui/label";
+import { IconInfoCircleFilled } from "@tabler/icons-react";
 
 interface EditProfileProps {
   profile: any;
@@ -48,66 +51,60 @@ export default function EditProfile({
     onCancel();
   };
 
+  // Check if there are any changes
+  const hasChanges =
+    fullName !== (profile?.full_name || "") || avatarFile !== null;
+
   return (
-    <Card className="rounded-t-none border-none">
-      <CardHeader>
-        <CardTitle>User Profile</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <label
-              htmlFor="fullName"
-              className="block text-sm font-medium mb-2"
-            >
-              Full Name
-            </label>
-            <Input
-              id="fullName"
-              type="text"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Your name"
-              disabled={isSaving}
-            />
+    <Card className="rounded-none border-none h-full">
+      <CardContent className="space-y-3">
+        <div className="flex flex-col gap-3 mb-4">
+          <div className="px-1 flex flex-row justify-between items-center">
+            <Label htmlFor="fullName" className="block font-normal">
+              Display Name
+            </Label>
+            <span className="text-xs text-muted-foreground">Visible</span>
           </div>
+          <Input
+            id="fullName"
+            type="text"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            placeholder="Your name"
+            disabled={isSaving}
+          />
+        </div>
 
-          <div>
-            <label
-              htmlFor="avatarFile"
-              className="block text-sm font-medium mb-2"
-            >
-              Upload Avatar
-            </label>
-            <Input
-              id="avatarFile"
-              type="file"
-              accept="image/*"
-              onChange={(e) => {
-                if (e.target.files && e.target.files.length > 0) {
-                  setAvatarFile(e.target.files[0]);
-                }
-              }}
-              disabled={isSaving}
-            />
+        <div className="space-y-2">
+          <ImageUploader
+            onImageChange={(file) => setAvatarFile(file)}
+            placeholder="Upload an Avatar"
+          />
+          <div className="flex flex-row items-center gap-1">
+            <span className="text-xs items-center ml-1 text-center text-muted-foreground">
+              Most recent uploads are saved
+            </span>
+            <IconInfoCircleFilled className="w-3.5 h-3.5 text-[#8D8D8D]/50 hover:text-[#8D8D8D] cursor-help" />
           </div>
+        </div>
 
-          {errorMessage && (
-            <p className="text-red-500 text-sm">{errorMessage}</p>
-          )}
-          <div className="flex gap-3 pt-2">
-            <Button className="flex-1" onClick={handleSave} disabled={isSaving}>
-              {isSaving ? "Saving..." : "Save Changes"}
-            </Button>
-            <Button
-              className="flex-1"
-              variant="outline"
-              onClick={handleCancel}
-              disabled={isSaving}
-            >
-              Cancel
-            </Button>
-          </div>
+        {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+        <div className="flex gap-3 pt-2">
+          <Button
+            className="flex-1"
+            onClick={handleSave}
+            disabled={isSaving || !hasChanges}
+          >
+            {isSaving ? "Saving..." : "Save"}
+          </Button>
+          <Button
+            className="flex-1"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isSaving}
+          >
+            Cancel
+          </Button>
         </div>
       </CardContent>
     </Card>

@@ -4,7 +4,7 @@ import { useState, useEffect, useContext } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { User, Pencil, Link2, FileText } from "lucide-react";
+import { Pencil, Link2, FileText } from "lucide-react";
 import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
 import { updateUserProfile } from "@/lib/supabase/profile";
@@ -12,6 +12,7 @@ import EditProfile from "@/components/edit-profile";
 import UserLinks from "@/components/user-links";
 import UserReportsList from "@/components/user-reports-list";
 import type { ProfileView } from "../hooks/use-control-panel-state";
+import Image from "next/image";
 
 interface ProfileContentProps {
   profileView: ProfileView;
@@ -118,14 +119,19 @@ export default function ProfileContent({
               <div className="relative p-1">
                 <Card className="flex flex-row p-1 gap-4">
                   {/* Avatar */}
-                  <Avatar className="w-20 h-20 rounded-lg overflow-hidden bg-amber-100 flex-shrink-0">
+                  <Avatar className="w-20 h-20 rounded-lg overflow-hidden bg-[#f2f2f2] flex-shrink-0">
                     <AvatarImage
                       src={publicAvatarUrl || undefined}
                       alt="User Avatar"
                       className="object-cover"
                     />
-                    <AvatarFallback className="bg-amber-100">
-                      <User className="h-12 w-12 text-zinc-900" />
+                    <AvatarFallback className="bg-[#f2f2f2]">
+                      <Image
+                        src="/images/placeholder.jpg"
+                        alt="Unknown User"
+                        fill
+                        className="object-cover transition-all duration-200"
+                      />
                     </AvatarFallback>
                   </Avatar>
 
@@ -169,7 +175,7 @@ export default function ProfileContent({
 
             <TabsContent
               value="edit"
-              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+              className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
               <EditProfile
                 profile={profile}
@@ -181,14 +187,14 @@ export default function ProfileContent({
 
             <TabsContent
               value="links"
-              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+              className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
               <UserLinks />
             </TabsContent>
 
             <TabsContent
               value="reports"
-              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+              className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
               <UserReportsList userId={session?.user?.id} />
             </TabsContent>

@@ -1,71 +1,31 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  fetchReports,
-  subscribeToNewReports,
-  type Report,
-} from "@/lib/supabase/report";
+import type { Report } from "@/lib/supabase/report";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
-import { format, subDays, subWeeks, subMonths, startOfDay } from "date-fns";
+import { format, subWeeks, subMonths, startOfDay } from "date-fns";
 import type { DateFilterValue } from "./date-sort";
+import { RefreshCw } from "lucide-react";
 
 interface AllReportsListProps {
   dateFilter?: DateFilterValue;
+  reports?: Report[];
+  onRefresh?: () => Promise<void>;
+  isRefreshing?: boolean;
+  isSimulationMode?: boolean;
 }
 
 export default function AllReportsList({
   dateFilter = "all",
+  reports = [],
+  onRefresh,
+  isRefreshing = false,
+  isSimulationMode = false,
 }: AllReportsListProps) {
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        const fetchedReports = await fetchReports();
-        setReports(fetchedReports);
-      } catch (error) {
-        console.error("Error loading reports:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadReports();
-
-    // Subscribe to new reports
-    const unsubscribe = subscribeToNewReports((newReport) => {
-      setReports((prev) => [newReport, ...prev]);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
-
-  const getCategoryVariant = (category: string) => {
-    const lowerCategory = category.toLowerCase();
-    if (lowerCategory.includes("clog") || lowerCategory.includes("block")) {
-      return "default";
-    }
-    if (
-      lowerCategory.includes("damage") ||
-      lowerCategory.includes("collapse") ||
-      lowerCategory.includes("corrosion")
-    ) {
-      return "destructive";
-    }
-    if (lowerCategory.includes("overflow")) {
-      return "secondary";
-    }
-    return "outline";
-  };
-
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "resolved":
@@ -111,27 +71,48 @@ export default function AllReportsList({
     return reports.filter((report) => new Date(report.date) >= cutoffDate);
   }, [reports, dateFilter]);
 
-  if (loading) {
+  if (isRefreshing) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <SpinnerEmpty />
+        <SpinnerEmpty
+          emptyTitle="Refreshing reports"
+          emptyDescription="Please wait while we fetch the latest reports."
+        />
       </div>
     );
   }
 
   return (
     <div className="w-full h-full flex flex-col pb-5 pl-5 pr-3 pt-3 gap-6">
-      <CardHeader className="py-0 px-1">
-        <CardTitle>All Reports</CardTitle>
-        <CardDescription className="text-xs">
-          View all submitted reports from the community
-        </CardDescription>
+      <CardHeader className="py-0 flex px-1 items-center justify-between">
+        <div className="flex flex-col gap-1.5">
+          <CardTitle>All Reports</CardTitle>
+          <CardDescription className="text-xs">
+            Submitted reports from the community
+          </CardDescription>
+        </div>
+        <button
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          className="w-8 h-8 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Refresh reports"
+        >
+          <RefreshCw
+            className={`w-4 h-4 text-[#8D8D8D] ${
+              isRefreshing ? "animate-spin" : ""
+            }`}
+          />
+        </button>
       </CardHeader>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="relative flex-1">
         {filteredReports.length === 0 ? (
-          <div className="text-sm text-muted-foreground text-center py-8">
-            No reports found for the selected time period.
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-sm text-muted-foreground text-center py-8 pb-25 px-4 rounded">
+              {isSimulationMode
+                ? "Reports are not visible in simulation mode"
+                : "No reports found for the selected time period."}
+            </div>
           </div>
         ) : (
           <div className="space-y-3 pb-4">
@@ -189,13 +170,13 @@ export default function AllReportsList({
 
                     <div className="flex flex-row gap-2">
                       <Badge
-                        variant={getCategoryVariant(report.category)}
+                        variant="outline"
                         className="text-[10px] font-normal px-3 py-0 h-5 justify-center"
                       >
                         {report.category}
                       </Badge>
                       <div
-                        className={`text-[10px] font-normal px-3 py-0.5 h-5 rounded-md border font-medium flex items-center justify-center ${getStatusStyle(
+                        className={`text-[10px] px-3 py-0.5 h-5 rounded-md border flex items-center justify-center ${getStatusStyle(
                           report.status
                         )}`}
                       >

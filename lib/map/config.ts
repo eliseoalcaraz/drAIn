@@ -11,7 +11,7 @@ export const MAPBOX_ACCESS_TOKEN =
   "pk.eyJ1Ijoia2lsb3VraWxvdSIsImEiOiJjbWZsMmc5dWMwMGlxMmtwdXgxaHE0ZjVnIn0.TFZP0T-4zrLdI0Be-u0t3Q";
 
 export const OVERLAY_CONFIG = [
-  { id: "man_pipes-layer", name: "Man Pipes", color: "#8B008B" },
+  { id: "man_pipes-layer", name: "Pipes", color: "#8B008B" },
   { id: "storm_drains-layer", name: "Storm Drains", color: "#0088ff" },
   { id: "inlets-layer", name: "Inlets", color: "#00cc44" },
   { id: "outlets-layer", name: "Outlets", color: "#cc0000" },

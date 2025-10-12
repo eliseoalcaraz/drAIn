@@ -5,9 +5,13 @@ import { AddIcon } from "./add-icon";
 
 interface ImageUploaderProps {
   onImageChange?: (file: File | null) => void;
+  placeholder?: string;
 }
 
-export default function ImageUploader({ onImageChange }: ImageUploaderProps) {
+export default function ImageUploader({
+  onImageChange,
+  placeholder = "Drag Your Files Here"
+}: ImageUploaderProps) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -112,7 +116,7 @@ export default function ImageUploader({ onImageChange }: ImageUploaderProps) {
               />
             </label>
             <div className="flex flex-col gap-1">
-              <span className="text-sm font-medium">Drag Your Files Here</span>
+              <span className="text-sm font-medium">{placeholder}</span>
               <span className="text-xs text-muted-foreground ">
                 Upload files with maximum 10 MB
               </span>

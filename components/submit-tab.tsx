@@ -16,7 +16,7 @@ import { uploadReport } from "@/lib/supabase/report";
 import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
 import { ComboboxForm } from "./combobox-form";
-import { Field, FieldLabel, FieldContent } from "./ui/field";
+import { Field, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
 import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SpinnerEmpty } from "./spinner-empty";
@@ -150,7 +150,7 @@ export default function SubmitTab() {
 
         {/* Description Input */}
         <Field>
-          <FieldContent>
+          <FieldContent className="max-h-44">
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}

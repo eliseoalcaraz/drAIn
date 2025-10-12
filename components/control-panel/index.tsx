@@ -2,14 +2,12 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import type { ControlPanelProps } from "./types";
 import { DETAIL_TITLES } from "./constants";
 import { useControlPanelState } from "./hooks/use-control-panel-state";
 import { Sidebar } from "./components/sidebar";
 import { TopBar } from "./components/top-bar";
 import { ContentRenderer } from "./components/content-renderer";
-import type { Inlet, Pipe, Outlet, Drain, DatasetType } from "./types";
 import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
 import client from "@/app/api/client";
 import type { DateFilterValue } from "../date-sort";
@@ -35,6 +33,8 @@ export function ControlPanel({
   onToggleOverlay,
   isSimulationMode = false,
   selectedPointForSimulation = null,
+  onRefreshReports,
+  isRefreshingReports = false,
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
@@ -160,6 +160,8 @@ export function ControlPanel({
             onProfileViewChange={setProfileView}
             activeReportTab={activeReportTab}
             dateFilter={dateFilter}
+            onRefreshReports={onRefreshReports}
+            isRefreshingReports={isRefreshingReports}
           />
         </div>
       </div>
