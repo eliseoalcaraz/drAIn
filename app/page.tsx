@@ -1,10 +1,10 @@
 "use client";
 
-import { Header } from "@/components/main-header";
 import { ContributorsButton } from "@/components/contributors-button";
 import { useAuth } from "@/components/context/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -33,9 +33,15 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center">
-      <Header />
-      <ContributorsButton />
+    <div className="min-h-screen flex flex-col">
+      <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl font-semibold">Home</h1>
+        </div>
+      </header>
+      <div className="flex flex-col items-center flex-1 p-8">
+        <ContributorsButton />
+      </div>
     </div>
   );
 }
