@@ -13,7 +13,7 @@ export default function UserReportsList({ userId }: UserReportsListProps) {
   const userReports = report;
 
   return (
-    <Card className="max-h-[350px] pb-0 rounded-t-none border-none flex flex-col gap-0 overflow-hidden">
+    <Card className="max-h-[350px] pb-0 rounded-none h-full border-none flex flex-col gap-0 overflow-hidden">
       <CardHeader>
         <CardTitle>User Reports</CardTitle>
       </CardHeader>

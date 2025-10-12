@@ -76,6 +76,8 @@ interface ContentRendererProps {
   reports: any[];
   activeReportTab?: "submission" | "reports";
   dateFilter?: DateFilterValue;
+  onRefreshReports?: () => Promise<void>;
+  isRefreshingReports?: boolean;
 
   // Profile view
   profileView?: ProfileView;
@@ -116,6 +118,8 @@ export function ContentRenderer({
   reports,
   activeReportTab = "submission",
   dateFilter = "all",
+  onRefreshReports,
+  isRefreshingReports = false,
   profileView = "main",
   onProfileViewChange = () => {},
 }: ContentRendererProps) {
@@ -157,7 +161,13 @@ export function ContentRenderer({
 
     case "report":
       return (
-        <ReportsTab activeReportTab={activeReportTab} dateFilter={dateFilter} />
+        <ReportsTab
+          activeReportTab={activeReportTab}
+          dateFilter={dateFilter}
+          reports={reports}
+          onRefreshReports={onRefreshReports}
+          isRefreshingReports={isRefreshingReports}
+        />
       );
 
     case "chatbot":

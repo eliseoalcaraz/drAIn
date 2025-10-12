@@ -661,6 +661,8 @@ export default function SimulationPage() {
           isSimulationMode={isSimulationActive}
           selectedPointForSimulation={selectedPointForSimulation}
           reports={[]}
+          onRefreshReports={async () => {}}
+          isRefreshingReports={false}
         />
         <CameraControls
           onZoomIn={handleZoomIn}

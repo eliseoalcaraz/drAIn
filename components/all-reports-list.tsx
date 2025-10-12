@@ -1,14 +1,10 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  fetchReports,
-  subscribeToNewReports,
-  type Report,
-} from "@/lib/supabase/report";
+import type { Report } from "@/lib/supabase/report";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
 import { format, subWeeks, subMonths, startOfDay } from "date-fns";
@@ -16,37 +12,17 @@ import type { DateFilterValue } from "./date-sort";
 
 interface AllReportsListProps {
   dateFilter?: DateFilterValue;
+  reports?: Report[];
+  onRefresh?: () => Promise<void>;
+  isRefreshing?: boolean;
 }
 
 export default function AllReportsList({
   dateFilter = "all",
+  reports = [],
+  onRefresh,
+  isRefreshing = false,
 }: AllReportsListProps) {
-  const [reports, setReports] = useState<Report[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        const fetchedReports = await fetchReports();
-        setReports(fetchedReports);
-      } catch (error) {
-        console.error("Error loading reports:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadReports();
-
-    // Subscribe to new reports
-    const unsubscribe = subscribeToNewReports((newReport) => {
-      setReports((prev) => [newReport, ...prev]);
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, []);
 
   const getCategoryVariant = (category: string) => {
     const lowerCategory = category.toLowerCase();
@@ -111,12 +87,12 @@ export default function AllReportsList({
     return reports.filter((report) => new Date(report.date) >= cutoffDate);
   }, [reports, dateFilter]);
 
-  if (loading) {
+  if (isRefreshing) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <SpinnerEmpty
-          emptyTitle="Processing reports"
-          emptyDescription="Please wait while we gather all the reports. Do not refresh the page."
+          emptyTitle="Refreshing reports"
+          emptyDescription="Please wait while we fetch the latest reports."
         />
       </div>
     );

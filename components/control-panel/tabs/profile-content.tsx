@@ -175,7 +175,7 @@ export default function ProfileContent({
 
             <TabsContent
               value="edit"
-              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+              className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
               <EditProfile
                 profile={profile}
@@ -187,14 +187,14 @@ export default function ProfileContent({
 
             <TabsContent
               value="links"
-              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+              className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
               <UserLinks />
             </TabsContent>
 
             <TabsContent
               value="reports"
-              className="pb-4 border border-[#ced1cd] border-t-0 overflow-y-auto"
+              className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
               <UserReportsList userId={session?.user?.id} />
             </TabsContent>

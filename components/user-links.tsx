@@ -6,7 +6,7 @@ import { Plus } from "lucide-react";
 
 export default function UserLinks() {
   return (
-    <Card className="rounded-t-none border-none">
+    <Card className="rounded-none h-full border-none">
       <CardHeader>
         <CardTitle>Links & Connections</CardTitle>
       </CardHeader>

@@ -35,6 +35,8 @@ export function ControlPanel({
   onToggleOverlay,
   isSimulationMode = false,
   selectedPointForSimulation = null,
+  onRefreshReports,
+  isRefreshingReports = false,
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
@@ -116,6 +118,8 @@ export function ControlPanel({
           onReportTabChange={setActiveReportTab}
           dateFilter={dateFilter}
           onDateFilterChange={setDateFilter}
+          onRefreshReports={onRefreshReports}
+          isRefreshingReports={isRefreshingReports}
         />
 
         {/* Main Content */}
@@ -160,6 +164,8 @@ export function ControlPanel({
             onProfileViewChange={setProfileView}
             activeReportTab={activeReportTab}
             dateFilter={dateFilter}
+            onRefreshReports={onRefreshReports}
+            isRefreshingReports={isRefreshingReports}
           />
         </div>
       </div>

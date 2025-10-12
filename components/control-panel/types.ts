@@ -91,4 +91,7 @@ export interface ControlPanelProps {
   // Simulation mode
   isSimulationMode?: boolean;
   selectedPointForSimulation?: string | null;
+  // Reports refresh
+  onRefreshReports?: () => Promise<void>;
+  isRefreshingReports?: boolean;
 }

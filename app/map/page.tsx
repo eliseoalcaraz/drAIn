@@ -29,6 +29,7 @@ export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [reports, setReports] = useState<any[]>([]);
+  const [isRefreshingReports, setIsRefreshingReports] = useState(false);
 
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
@@ -522,6 +523,20 @@ export default function MapPage() {
     setControlPanelTab("stats");
   };
 
+  // Handler for refreshing reports
+  const handleRefreshReports = async () => {
+    setIsRefreshingReports(true);
+    try {
+      const data = await fetchReports();
+      setReports(data);
+      console.log("Refreshed reports:", data);
+    } catch (err) {
+      console.error("Failed to refresh reports:", err);
+    } finally {
+      setIsRefreshingReports(false);
+    }
+  };
+
   const handleSelectInlet = (inlet: Inlet) => {
     if (!mapRef.current) return;
     const [lng, lat] = inlet.coordinates;
@@ -734,6 +749,8 @@ export default function MapPage() {
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
           reports={reports}
+          onRefreshReports={handleRefreshReports}
+          isRefreshingReports={isRefreshingReports}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
