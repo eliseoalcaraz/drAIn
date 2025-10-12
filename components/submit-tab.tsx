@@ -150,7 +150,7 @@ export default function SubmitTab() {
 
         {/* Description Input */}
         <Field>
-          <FieldContent>
+          <FieldContent className="max-h-44">
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
