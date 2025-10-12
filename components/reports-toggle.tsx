@@ -9,7 +9,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Info, Power } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
   ChartConfig,
@@ -40,6 +40,7 @@ export function ReportsToggle({
   reports = [],
 }: ReportsToggleProps) {
   const totalReports = reports.length;
+  const [visible, setVisible] = useState(isVisible);
 
   const chartData = useMemo(() => {
     const dateCounts = reports.reduce((acc, item) => {
@@ -78,14 +79,16 @@ export function ReportsToggle({
             <Toggle
               id="reports-toggle"
               pressed={isVisible}
-              onPressedChange={() => onToggle()}
+              onPressedChange={() => { onToggle(); setVisible(!visible); }}
               onClick={(e: any) => e.stopPropagation()}
               variant="outline"
               size="sm"
               aria-label="Toggle reports visibility"
-              className="ml-auto"
-            >
-              <Power className="h-4 w-4" />
+              className={`ml-auto border transition-colors duration-300 ${
+                visible ? "border-[#3F83DB]" : "border-gray-300"
+              }`}
+             >
+              <Power className={`h-4 w-4 ${visible ? "text-[#3F83DB]" : "text-gray-400"}`}/>
             </Toggle>
           </CardTitle>
           <CardDescription className="text-xs">
