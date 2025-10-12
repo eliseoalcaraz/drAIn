@@ -16,6 +16,7 @@ interface AllReportsListProps {
   reports?: Report[];
   onRefresh?: () => Promise<void>;
   isRefreshing?: boolean;
+  isSimulationMode?: boolean;
 }
 
 export default function AllReportsList({
@@ -23,25 +24,8 @@ export default function AllReportsList({
   reports = [],
   onRefresh,
   isRefreshing = false,
+  isSimulationMode = false,
 }: AllReportsListProps) {
-  const getCategoryVariant = (category: string) => {
-    const lowerCategory = category.toLowerCase();
-    if (lowerCategory.includes("clog") || lowerCategory.includes("block")) {
-      return "default";
-    }
-    if (
-      lowerCategory.includes("damage") ||
-      lowerCategory.includes("collapse") ||
-      lowerCategory.includes("corrosion")
-    ) {
-      return "destructive";
-    }
-    if (lowerCategory.includes("overflow")) {
-      return "secondary";
-    }
-    return "outline";
-  };
-
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "resolved":
@@ -104,7 +88,7 @@ export default function AllReportsList({
         <div className="flex flex-col gap-1.5">
           <CardTitle>All Reports</CardTitle>
           <CardDescription className="text-xs">
-            All reports from the community
+            Submitted reports from the community
           </CardDescription>
         </div>
         <button
@@ -121,10 +105,14 @@ export default function AllReportsList({
         </button>
       </CardHeader>
 
-      <ScrollArea className="flex-1">
+      <ScrollArea className="relative flex-1">
         {filteredReports.length === 0 ? (
-          <div className="text-sm text-muted-foreground text-center py-8">
-            No reports found for the selected time period.
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-sm text-muted-foreground text-center py-8 pb-25 px-4 rounded">
+              {isSimulationMode
+                ? "Reports are not visible in simulation mode"
+                : "No reports found for the selected time period."}
+            </div>
           </div>
         ) : (
           <div className="space-y-3 pb-4">
@@ -182,7 +170,7 @@ export default function AllReportsList({
 
                     <div className="flex flex-row gap-2">
                       <Badge
-                        variant={getCategoryVariant(report.category)}
+                        variant="outline"
                         className="text-[10px] font-normal px-3 py-0 h-5 justify-center"
                       >
                         {report.category}

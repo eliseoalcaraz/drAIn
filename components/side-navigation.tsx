@@ -1,27 +1,17 @@
 "use client";
 
-import {
-  BarChart3,
-  Bot,
-  Layers,
-  PlayCircle,
-  MessageCircleWarning,
-  Database,
-} from "lucide-react";
+import { Bot } from "lucide-react";
 import Person from "@/public/icons/person.svg";
 import Play from "@/public/icons/play.svg";
 import {
-  IconClipboardTextFilled,
-  IconAlertCircleFilled,
   IconSquaresFilled,
-  IconFileDescriptionFilled,
   IconFolderFilled,
-  IconArchiveFilled,
   IconShieldHalfFilled,
+  IconAnalyzeFilled,
 } from "@tabler/icons-react";
 
 const tabs = [
-  { id: "chatbot", label: "Chatbot", icon: Bot },
+  { id: "chatbot", label: "Chatbot", icon: IconAnalyzeFilled },
   { id: "overlays", label: "Overlay", icon: IconSquaresFilled },
   { id: "stats", label: "Stats", icon: IconFolderFilled },
   { id: "simulations", label: "Simulations", icon: Play },
@@ -59,7 +49,7 @@ export function SideNavigation({
   };
 
   return (
-    <div className="flex w-full h-full flex-col items-center">
+    <div className="flex w-full h-full flex-col items-center pt-1.5">
       {/* Chatbot tab at the top */}
       <div className="flex w-full flex-col">
         {chatbotTab && renderTab(chatbotTab)}

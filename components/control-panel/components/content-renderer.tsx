@@ -167,6 +167,7 @@ export function ContentRenderer({
           reports={reports}
           onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
+          isSimulationMode={isSimulationMode}
         />
       );
 

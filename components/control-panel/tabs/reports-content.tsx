@@ -10,6 +10,7 @@ interface ReportsTabProps {
   reports?: any[];
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
+  isSimulationMode?: boolean;
 }
 
 export function ReportsTab({
@@ -18,6 +19,7 @@ export function ReportsTab({
   reports = [],
   onRefreshReports,
   isRefreshingReports = false,
+  isSimulationMode = false,
 }: ReportsTabProps) {
   return (
     <div className="w-full h-full flex flex-col">
@@ -29,6 +31,7 @@ export function ReportsTab({
           reports={reports}
           onRefresh={onRefreshReports}
           isRefreshing={isRefreshingReports}
+          isSimulationMode={isSimulationMode}
         />
       )}
     </div>
