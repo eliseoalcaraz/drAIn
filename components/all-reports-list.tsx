@@ -9,6 +9,7 @@ import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
 import { format, subWeeks, subMonths, startOfDay } from "date-fns";
 import type { DateFilterValue } from "./date-sort";
+import { RefreshCw } from "lucide-react";
 
 interface AllReportsListProps {
   dateFilter?: DateFilterValue;
@@ -23,7 +24,6 @@ export default function AllReportsList({
   onRefresh,
   isRefreshing = false,
 }: AllReportsListProps) {
-
   const getCategoryVariant = (category: string) => {
     const lowerCategory = category.toLowerCase();
     if (lowerCategory.includes("clog") || lowerCategory.includes("block")) {
@@ -100,11 +100,25 @@ export default function AllReportsList({
 
   return (
     <div className="w-full h-full flex flex-col pb-5 pl-5 pr-3 pt-3 gap-6">
-      <CardHeader className="py-0 px-1">
-        <CardTitle>All Reports</CardTitle>
-        <CardDescription className="text-xs">
-          View all submitted reports from the community
-        </CardDescription>
+      <CardHeader className="py-0 flex px-1 items-center justify-between">
+        <div className="flex flex-col gap-1.5">
+          <CardTitle>All Reports</CardTitle>
+          <CardDescription className="text-xs">
+            All reports from the community
+          </CardDescription>
+        </div>
+        <button
+          onClick={onRefresh}
+          disabled={isRefreshing}
+          className="w-8 h-8 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Refresh reports"
+        >
+          <RefreshCw
+            className={`w-4 h-4 text-[#8D8D8D] ${
+              isRefreshing ? "animate-spin" : ""
+            }`}
+          />
+        </button>
       </CardHeader>
 
       <ScrollArea className="flex-1">

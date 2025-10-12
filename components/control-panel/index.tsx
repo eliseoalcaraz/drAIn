@@ -118,8 +118,6 @@ export function ControlPanel({
           onReportTabChange={setActiveReportTab}
           dateFilter={dateFilter}
           onDateFilterChange={setDateFilter}
-          onRefreshReports={onRefreshReports}
-          isRefreshingReports={isRefreshingReports}
         />
 
         {/* Main Content */}

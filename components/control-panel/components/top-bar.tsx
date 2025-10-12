@@ -9,7 +9,6 @@ import {
   LogOut,
   Bell,
   BellRing,
-  RefreshCw,
 } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { SearchBar } from "../../search-bar";
@@ -58,8 +57,6 @@ interface TopBarProps {
   onReportTabChange?: (tab: "submission" | "reports") => void;
   dateFilter?: DateFilterValue;
   onDateFilterChange?: (value: DateFilterValue) => void;
-  onRefreshReports?: () => Promise<void>;
-  isRefreshingReports?: boolean;
 }
 
 export function TopBar({
@@ -79,8 +76,6 @@ export function TopBar({
   onReportTabChange,
   dateFilter = "all",
   onDateFilterChange,
-  onRefreshReports,
-  isRefreshingReports = false,
 }: TopBarProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -123,7 +118,6 @@ export function TopBar({
   const showLinkBar = activeTab === "simulations";
   const showReportTabs = activeTab === "report";
   const showDateSort = activeTab === "report";
-  const showRefreshButton = activeTab === "report";
 
   const handleNotificationToggle = (pressed: boolean) => {
     setNotificationsEnabled(pressed);
@@ -293,22 +287,6 @@ export function TopBar({
             disabled={activeReportTab === "submission"}
           />
         </div>
-      )}
-
-      {/* Refresh Button */}
-      {showRefreshButton && (
-        <button
-          onClick={onRefreshReports}
-          disabled={isRefreshingReports}
-          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] disabled:opacity-50 disabled:cursor-not-allowed"
-          title="Refresh reports"
-        >
-          <RefreshCw
-            className={`w-4 h-4 text-[#8D8D8D] ${
-              isRefreshingReports ? "animate-spin" : ""
-            }`}
-          />
-        </button>
       )}
     </div>
   );
