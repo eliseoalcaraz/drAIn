@@ -1,6 +1,6 @@
 "use client";
 
-import { contributors } from "@/lib/people";
+import { contributors } from "@/lib/contributors-list";
 import { ChevronDown, ChevronUp, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

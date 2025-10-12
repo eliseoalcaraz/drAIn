@@ -11,7 +11,7 @@ import {
 } from "@/lib/supabase/report";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
-import { format, subDays, subWeeks, subMonths, startOfDay } from "date-fns";
+import { format, subWeeks, subMonths, startOfDay } from "date-fns";
 import type { DateFilterValue } from "./date-sort";
 
 interface AllReportsListProps {
@@ -114,7 +114,10 @@ export default function AllReportsList({
   if (loading) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <SpinnerEmpty />
+        <SpinnerEmpty
+          emptyTitle="Processing reports"
+          emptyDescription="Please wait while we gather all the reports. Do not refresh the page."
+        />
       </div>
     );
   }
@@ -195,7 +198,7 @@ export default function AllReportsList({
                         {report.category}
                       </Badge>
                       <div
-                        className={`text-[10px] font-normal px-3 py-0.5 h-5 rounded-md border font-medium flex items-center justify-center ${getStatusStyle(
+                        className={`text-[10px] px-3 py-0.5 h-5 rounded-md border flex items-center justify-center ${getStatusStyle(
                           report.status
                         )}`}
                       >

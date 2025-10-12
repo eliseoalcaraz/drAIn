@@ -7,7 +7,7 @@ import {
   useImperativeHandle,
   forwardRef,
 } from "react";
-import { getInitials } from "@/lib/initials";
+import { getInitials } from "@/lib/user-initials";
 import { X, Image as ImageIcon, History } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type mapboxgl from "mapbox-gl";

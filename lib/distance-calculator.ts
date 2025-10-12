@@ -1,6 +1,5 @@
 import distance from "@turf/distance";
-import nearestPointOnLine from "@turf/nearest-point-on-line";
-import { point, lineString } from "@turf/helpers";
+import { point } from "@turf/helpers";
 import type { Inlet } from "@/hooks/useInlets";
 import type { Outlet } from "@/hooks/useOutlets";
 import type { Pipe } from "@/hooks/usePipes";

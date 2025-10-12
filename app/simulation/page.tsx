@@ -660,6 +660,7 @@ export default function SimulationPage() {
           onToggleOverlay={handleOverlayToggle}
           isSimulationMode={isSimulationActive}
           selectedPointForSimulation={selectedPointForSimulation}
+          reports={[]}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
