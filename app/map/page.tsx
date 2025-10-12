@@ -419,6 +419,13 @@ export default function MapPage() {
 
     const reportBubbleRefs: Array<ReportBubbleRef | null> = [];
 
+    const coordinateCounts = new Map<string, number>();
+    reports.forEach((report) => {
+      const key = JSON.stringify(report.coordinates);
+      coordinateCounts.set(key, (coordinateCounts.get(key) || 0) + 1);
+    });
+
+
     reports.forEach((report, index) => {
       const container = document.createElement("div");
       const root = ReactDOM.createRoot(container);
@@ -441,6 +448,10 @@ export default function MapPage() {
         });
       };
 
+      const key = JSON.stringify(report.coordinates);
+      const count = coordinateCounts.get(key) ?? 1;
+
+
       root.render(
         <ReportBubble
           ref={(ref) => {
@@ -450,6 +461,7 @@ export default function MapPage() {
           map={map}
           coordinates={report.coordinates}
           onOpen={handleOpenBubble}
+          count={count}
         />
       );
     });
