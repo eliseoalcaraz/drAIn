@@ -19,7 +19,7 @@ export function TeamSwitcher({
   };
 }) {
   return (
-    <SidebarMenu>
+    <SidebarMenu className="bg-[#fafafa] border border-[#dbdbdb] rounded-md p-1">
       <SidebarMenuItem>
         <SidebarMenuButton size="lg" asChild>
           <div className="flex flex-row gap-4">

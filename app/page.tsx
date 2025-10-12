@@ -1,47 +1,81 @@
 "use client";
 
-import { ContributorsButton } from "@/components/contributors-button";
 import { useAuth } from "@/components/context/AuthProvider";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { UserCircle2 } from "lucide-react";
+import { useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
-export default function Home() {
+export default function WelcomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const [showTooltip, setShowTooltip] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.replace("/welcome");
+  const handleIconClick = () => {
+    if (!user) {
+      router.push("/login");
     }
-  }, [user, loading, router]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
-      </div>
-    );
-  }
-
-  if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p>Redirecting...</p>
-      </div>
-    );
-  }
+  };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-10 flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl font-semibold">Home</h1>
-        </div>
-      </header>
-      <div className="flex flex-col items-center flex-1 p-8">
-        <ContributorsButton />
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
+      {/* Greeting Section */}
+      <div className="flex flex-col items-center gap-3 mb-4">
+        {loading ? (
+          <div className="w-10 h-10 rounded-full bg-gray-300 animate-pulse" />
+        ) : user?.avatarUrl ? (
+          <img
+            src={user.avatarUrl}
+            alt={user.name || "Profile"}
+            className="w-10 h-10 rounded-full object-cover border border-gray-300"
+          />
+        ) : (
+          <TooltipProvider>
+            <Tooltip open={showTooltip && !user}>
+              <TooltipTrigger
+                onMouseEnter={() => setShowTooltip(true)}
+                onMouseLeave={() => setShowTooltip(false)}
+                onClick={handleIconClick}
+                className="cursor-pointer"
+              >
+                <UserCircle2 className="w-10 h-10 text-gray-600 hover:text-gray-800 transition" />
+              </TooltipTrigger>
+              {!user && (
+                <TooltipContent
+                  side="top"
+                  className="bg-white border text-sm text-gray-700 shadow-sm rounded-md px-3 py-2"
+                >
+                  Your personalized experience begins once you log in.
+                </TooltipContent>
+              )}
+            </Tooltip>
+          </TooltipProvider>
+        )}
+
+        <h1 className="text-4xl font-bold text-gray-800">
+          Hello{user?.name ? `, ${user.name}` : ""}! Welcome to{" "}
+          <span className="font-bold text-green-600">drAIn</span>
+        </h1>
+
+        <p className="text-lg text-gray-600 max-w-xl text-center mb-6">
+          An intelligent platform designed to make learning and collaboration
+          smarter, faster, and more interactive.
+        </p>
       </div>
-    </div>
+
+      {/* Explore Button */}
+      <button
+        onClick={() => router.push("/map")}
+        disabled={loading}
+        className="px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
+      >
+        Go to Map
+      </button>
+    </main>
   );
 }
