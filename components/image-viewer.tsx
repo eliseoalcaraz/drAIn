@@ -59,7 +59,7 @@ export function ImageViewer({
       {/* Main viewer container */}
       <div className="relative z-10 flex max-h-[90vh] max-w-[90vw] gap-4 animate-in zoom-in-95 duration-300">
         {/* Image section */}
-        <div className="relative flex items-center justify-center bg-black rounded-lg overflow-hidden">
+        <div className="relative flex items-center justify-center bg-black rounded-lg overflow-hidden w-[400px] h-[600px]">
           <Image
             src={imageUrl}
             alt="Report evidence"

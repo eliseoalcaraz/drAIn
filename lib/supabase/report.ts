@@ -115,7 +115,7 @@ const formatReport = (report: any): Report => {
     componentId: report.component_id ?? "N/A",
     coordinates: [report.long as number, report.lat as number] as [number, number],
   };
-}
+};
 
 export const subscribeToNewReports = (callback: (newReport: Report) => void) => {
   const channel = client
