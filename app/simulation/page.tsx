@@ -24,6 +24,7 @@ import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
 
 import "mapbox-gl/dist/mapbox-gl.css";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function SimulationPage() {
   const router = useRouter();

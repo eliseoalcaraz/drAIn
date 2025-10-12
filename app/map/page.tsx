@@ -24,6 +24,7 @@ import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
 
 import "mapbox-gl/dist/mapbox-gl.css";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -382,7 +383,9 @@ export default function MapPage() {
             break;
           }
           case "outlets-layer": {
-            const outlet = outletsRef.current.find((o) => o.id === props.Out_Name);
+            const outlet = outletsRef.current.find(
+              (o) => o.id === props.Out_Name
+            );
             if (outlet) handleSelectOutlet(outlet);
             break;
           }
@@ -406,7 +409,6 @@ export default function MapPage() {
     }
   }, [layerIds]);
 
-
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !reports || reports.length === 0) return;
@@ -420,7 +422,7 @@ export default function MapPage() {
     reports.forEach((report, index) => {
       const container = document.createElement("div");
       const root = ReactDOM.createRoot(container);
-      
+
       const popup = new mapboxgl.Popup({
         maxWidth: "320px",
         closeButton: false,
