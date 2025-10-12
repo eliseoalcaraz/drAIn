@@ -22,9 +22,9 @@ import type { DatasetType } from "@/components/control-panel/types";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
+import { useSearchParams, useRouter } from "next/navigation";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 
 export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
@@ -69,7 +69,16 @@ export default function MapPage() {
   const [selectedDrain, setSelectedDrain] = useState<Drain | null>(null);
 
   // Control panel state
-  const [controlPanelTab, setControlPanelTab] = useState<string>("overlays");
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const initialTab = searchParams.get("activetab") || "overlays";
+
+  const [controlPanelTab, setControlPanelTab] = useState<string>(initialTab);
+  useEffect(() => {
+    const tab = searchParams.get("activetab") || "overlays";
+    setControlPanelTab(tab);
+  }, [searchParams]);
+
   const [controlPanelDataset, setControlPanelDataset] =
     useState<DatasetType>("inlets");
 
@@ -425,7 +434,6 @@ export default function MapPage() {
       coordinateCounts.set(key, (coordinateCounts.get(key) || 0) + 1);
     });
 
-
     reports.forEach((report, index) => {
       const container = document.createElement("div");
       const root = ReactDOM.createRoot(container);
@@ -450,7 +458,6 @@ export default function MapPage() {
 
       const key = JSON.stringify(report.coordinates);
       const count = coordinateCounts.get(key) ?? 1;
-
 
       root.render(
         <ReportBubble
@@ -751,7 +758,12 @@ export default function MapPage() {
           selectedOutlet={selectedOutlet}
           selectedPipe={selectedPipe}
           selectedDrain={selectedDrain}
-          onTabChange={setControlPanelTab}
+          onTabChange={(tab) => {
+            setControlPanelTab(tab);
+            const newParams = new URLSearchParams(searchParams.toString());
+            newParams.set("activetab", tab);
+            router.replace(`?${newParams.toString()}`);
+          }}
           onDatasetChange={setControlPanelDataset}
           onSelectInlet={handleSelectInlet}
           onSelectOutlet={handleSelectOutlet}

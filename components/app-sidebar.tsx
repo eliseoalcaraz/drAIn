@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Home, Map, BookOpen, Info } from "lucide-react";
+import { Map } from "lucide-react";
+import { IconArticleFilled } from "@tabler/icons-react";
+import { HomeIcon, MapIcon, BookOpenIcon } from "@heroicons/react/24/solid";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -12,7 +14,6 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarHeader,
-  SidebarRail,
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
@@ -28,26 +29,28 @@ const data = {
     {
       title: "Home",
       url: "/",
-      icon: Home,
+      icon: HomeIcon,
       items: [
-        { title: "Overlays", url: "/map" },
-        { title: "Inventory", url: "/map" },
-        { title: "Report", url: "/map" },
+        { title: "Welcome", url: "/" },
+        { title: "Overlays", url: "/map?activetab=overlays" },
+        { title: "Inventory", url: "/map?activetab=stats" },
+        { title: "Report", url: "/map?activetab=report" },
+        { title: "Profile", url: "/map?activetab=profile" },
       ],
     },
     {
       title: "Map",
       url: "/map",
-      icon: Map,
+      icon: MapIcon,
       items: [
-        { title: "Simulation", url: "/simulation" },
+        { title: "Simulation", url: "/simulation?active=true" },
         { title: "View", url: "/map" },
       ],
     },
     {
       title: "Documentation",
       url: "/docs",
-      icon: BookOpen,
+      icon: BookOpenIcon,
       items: [
         { title: "Introduction", url: "/docs/introduction" },
         { title: "Tutorials", url: "/docs/tutorials" },
@@ -57,7 +60,7 @@ const data = {
     {
       title: "About",
       url: "/about",
-      icon: Info,
+      icon: IconArticleFilled,
       items: [
         { title: "Project", url: "/about/project" },
         { title: "Creators", url: "/about/creators" },
@@ -88,14 +91,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar className="border" collapsible="icon" {...props}>
       <SidebarHeader className="border-b">
         <TeamSwitcher team={data.team} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <SidebarFooter>
+      <SidebarFooter className="border-t">
         <NavUser user={userData} onLogout={handleLogout} />
       </SidebarFooter>
     </Sidebar>

@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronRight, type LucideIcon } from "lucide-react";
+import { IconChevronRight } from "@tabler/icons-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -20,18 +20,19 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
+type HeroIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 export function NavMain({
   items,
 }: {
   items: {
     title: string;
     url?: string;
-    icon?: LucideIcon;
+    icon?: HeroIcon;
     isActive?: boolean;
     items?: {
       title: string;
       url: string;
-      icon?: LucideIcon;
+      icon?: HeroIcon;
     }[];
   }[];
 }) {
@@ -51,9 +52,9 @@ export function NavMain({
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
                   <SidebarMenuButton tooltip={item.title}>
-                    {item.icon && <item.icon />}
+                    {item.icon && <item.icon className="text-[#b2adab]" />}
                     <span>{item.title}</span>
-                    <ChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                    <IconChevronRight className="ml-auto transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
                   </SidebarMenuButton>
                 </CollapsibleTrigger>
                 <CollapsibleContent>

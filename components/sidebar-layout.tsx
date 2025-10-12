@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 
-const AUTH_ROUTES = ["/login", "/signup", "/welcome"];
+const AUTH_ROUTES = ["/login", "/signup"];
 
 export function SidebarLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
