@@ -23,10 +23,12 @@ import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useSidebar } from "@/components/ui/sidebar";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function MapPage() {
+  const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [reports, setReports] = useState<any[]>([]);
@@ -78,6 +80,16 @@ export default function MapPage() {
     const tab = searchParams.get("activetab") || "overlays";
     setControlPanelTab(tab);
   }, [searchParams]);
+
+  // Auto-close sidebar when map page loads (only once on mount)
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [controlPanelDataset, setControlPanelDataset] =
     useState<DatasetType>("inlets");
@@ -180,7 +192,15 @@ export default function MapPage() {
         maxBounds: MAP_BOUNDS,
         pitch: 60,
         bearing: -17.6,
+        attributionControl: false, // Disable default attribution
       });
+
+      // Disable all default navigation controls since we have custom CameraControls
+      // map.addControl(
+      //   new mapboxgl.AttributionControl({ compact: true }),
+      //   "bottom-left"
+      // );
+
       mapRef.current = map;
 
       const addCustomLayers = () => {

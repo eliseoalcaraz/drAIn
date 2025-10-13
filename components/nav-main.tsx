@@ -20,19 +20,18 @@ import {
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
 
-type HeroIcon = React.ComponentType<React.SVGProps<SVGSVGElement>>;
 export function NavMain({
   items,
 }: {
   items: {
     title: string;
     url?: string;
-    icon?: HeroIcon;
+    icon?: React.ComponentType<any>;
     isActive?: boolean;
     items?: {
       title: string;
       url: string;
-      icon?: HeroIcon;
+      icon?: React.ComponentType<any>;
     }[];
   }[];
 }) {
@@ -41,7 +40,7 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="pl-1">
           {items.map((item) => (
             <Collapsible
               key={item.title}
