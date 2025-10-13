@@ -40,7 +40,7 @@ export function NavMain({
   return (
     <SidebarGroup>
       <SidebarGroupContent>
-        <SidebarMenu>
+        <SidebarMenu className="pl-1">
           {items.map((item) => (
             <Collapsible
               key={item.title}

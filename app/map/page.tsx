@@ -28,12 +28,7 @@ import { useSidebar } from "@/components/ui/sidebar";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function MapPage() {
-  const {
-    setOpen,
-    isMobile,
-    setOpenMobile,
-    state: sidebarState,
-  } = useSidebar();
+  const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [reports, setReports] = useState<any[]>([]);
@@ -95,18 +90,6 @@ export default function MapPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Resize map when sidebar state changes
-  useEffect(() => {
-    if (mapRef.current) {
-      // Small delay to let the sidebar animation complete before resizing
-      const timeoutId = setTimeout(() => {
-        mapRef.current?.resize();
-      }, 180); // Match the sidebar transition duration
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [sidebarState]);
 
   const [controlPanelDataset, setControlPanelDataset] =
     useState<DatasetType>("inlets");
@@ -211,6 +194,12 @@ export default function MapPage() {
         bearing: -17.6,
         attributionControl: false, // Disable default attribution
       });
+
+      // Disable all default navigation controls since we have custom CameraControls
+      // map.addControl(
+      //   new mapboxgl.AttributionControl({ compact: true }),
+      //   "bottom-left"
+      // );
 
       mapRef.current = map;
 

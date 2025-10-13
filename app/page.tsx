@@ -2,8 +2,7 @@
 
 import { useAuth } from "@/components/context/AuthProvider";
 import { useRouter } from "next/navigation";
-import { UserCircle2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
 import {
   Tooltip,
@@ -11,12 +10,58 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Image from "next/image";
+import client from "@/app/api/client";
 
 export default function WelcomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const [showTooltip, setShowTooltip] = useState(false);
+  const supabase = client;
+  const [profile, setProfile] = useState<any>(null);
+  const [profileLoading, setProfileLoading] = useState(true);
+  const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const cacheKey = `profile-${user.id}`;
+      const cachedProfile = localStorage.getItem(cacheKey);
+
+      if (cachedProfile) {
+        const { profile: cachedData, publicAvatarUrl: cachedAvatarUrl } =
+          JSON.parse(cachedProfile);
+        setProfile(cachedData);
+        setPublicAvatarUrl(cachedAvatarUrl);
+        setProfileLoading(false);
+      } else {
+        const fetchProfile = async () => {
+          setProfileLoading(true);
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+          if (error && error.code !== "PGRST116") {
+            console.error("Error fetching profile:", error);
+          } else if (data) {
+            const avatarUrl = data.avatar_url;
+            setProfile(data);
+            setPublicAvatarUrl(avatarUrl);
+            localStorage.setItem(
+              cacheKey,
+              JSON.stringify({ profile: data, publicAvatarUrl: avatarUrl })
+            );
+          }
+          setProfileLoading(false);
+        };
+        fetchProfile();
+      }
+    } else {
+      setProfileLoading(false);
+    }
+  }, [user, supabase]);
 
   const handleIconClick = () => {
     if (!user) {
@@ -28,14 +73,17 @@ export default function WelcomePage() {
     <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4">
       {/* Greeting Section */}
       <div className="flex flex-col items-center gap-3 mb-4">
-        {loading ? (
+        {loading || profileLoading ? (
           <div className="w-10 h-10 rounded-full bg-gray-300 animate-pulse" />
-        ) : user?.avatarUrl ? (
-          <img
-            src={user.avatarUrl}
-            alt={user.name || "Profile"}
-            className="w-10 h-10 rounded-full object-cover border border-gray-300"
-          />
+        ) : publicAvatarUrl ? (
+          <div className="relative w-10 h-10 rounded-full overflow-hidden border border-gray-300">
+            <Image
+              src={publicAvatarUrl}
+              alt={profile?.full_name || "Profile"}
+              fill
+              className="object-cover"
+            />
+          </div>
         ) : (
           <TooltipProvider>
             <Tooltip open={showTooltip && !user}>
@@ -45,7 +93,14 @@ export default function WelcomePage() {
                 onClick={handleIconClick}
                 className="cursor-pointer"
               >
-                <UserCircle2 className="w-10 h-10 text-gray-600 hover:text-gray-800 transition" />
+                <div className="relative w-10 h-10 rounded-full overflow-hidden bg-gray-200">
+                  <Image
+                    src="/images/placeholder.jpg"
+                    alt="Unknown User"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
               </TooltipTrigger>
               {!user && (
                 <TooltipContent
@@ -60,7 +115,7 @@ export default function WelcomePage() {
         )}
 
         <h1 className="text-4xl font-bold text-gray-800">
-          Hello{user?.name ? `, ${user.name}` : ""}! Welcome to{" "}
+          Hello{profile?.full_name ? `, ${profile.full_name}` : ""}! Welcome to{" "}
           <span className="font-bold text-green-600">drAIn</span>
         </h1>
 
