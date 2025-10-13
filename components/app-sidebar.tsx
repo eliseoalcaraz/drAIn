@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuth } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
+import { useState, useEffect } from "react";
 
 // This is the data structure for the sidebar
 const data = {
@@ -69,6 +70,44 @@ const data = {
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const { user } = useAuth();
+  const supabase = client;
+  const [profile, setProfile] = useState<any>(null);
+  const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      const cacheKey = `profile-${user.id}`;
+      const cachedProfile = localStorage.getItem(cacheKey);
+
+      if (cachedProfile) {
+        const { profile: cachedData, publicAvatarUrl: cachedAvatarUrl } =
+          JSON.parse(cachedProfile);
+        setProfile(cachedData);
+        setPublicAvatarUrl(cachedAvatarUrl);
+      } else {
+        const fetchProfile = async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .single();
+
+          if (error && error.code !== "PGRST116") {
+            console.error("Error fetching profile:", error);
+          } else if (data) {
+            const avatarUrl = data.avatar_url;
+            setProfile(data);
+            setPublicAvatarUrl(avatarUrl);
+            localStorage.setItem(
+              cacheKey,
+              JSON.stringify({ profile: data, publicAvatarUrl: avatarUrl })
+            );
+          }
+        };
+        fetchProfile();
+      }
+    }
+  }, [user, supabase]);
 
   const handleLogout = async () => {
     await client.auth.signOut();
@@ -77,9 +116,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const userData = user
     ? {
-        name: user.email?.split("@")[0] || "User",
+        name: profile?.full_name || user.email?.split("@")[0] || "User",
         email: user.email || "No email",
-        avatar: undefined,
+        avatar: publicAvatarUrl || undefined,
       }
     : {
         name: "Guest",
