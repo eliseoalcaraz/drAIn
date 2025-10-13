@@ -8,11 +8,13 @@ import { format } from "date-fns";
 interface UserReportsListProps {
   userId?: string;
   reports?: Report[];
+  isGuest?: boolean;
 }
 
 export default function UserReportsList({
   userId,
   reports = [],
+  isGuest = false,
 }: UserReportsListProps) {
   // Filter reports by userId if available, otherwise show all
   const userReports = userId
@@ -56,7 +58,9 @@ export default function UserReportsList({
         {userReports.length === 0 ? (
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-sm text-muted-foreground text-center pt-8 px-15 pb-12">
-              You haven&apos;t submitted any reports yet.
+              {isGuest
+                ? "Reports are not recorded when not signed in"
+                : "You haven't submitted any reports yet."}
             </div>
           </div>
         ) : (

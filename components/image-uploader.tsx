@@ -6,11 +6,13 @@ import { AddIcon } from "./add-icon";
 interface ImageUploaderProps {
   onImageChange?: (file: File | null) => void;
   placeholder?: string;
+  disabled?: boolean;
 }
 
 export default function ImageUploader({
   onImageChange,
-  placeholder = "Drag Your Files Here"
+  placeholder = "Drag Your Files Here",
+  disabled = false
 }: ImageUploaderProps) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export default function ImageUploader({
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
   const handleFile = (file: File | undefined) => {
-    if (!file) return;
+    if (!file || disabled) return;
 
     if (!file.type.startsWith("image/")) {
       setError("Only image files are allowed.");
@@ -46,6 +48,7 @@ export default function ImageUploader({
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+    if (disabled) return;
     setIsDragging(false);
     handleFile(e.dataTransfer.files[0]);
   };
@@ -55,6 +58,7 @@ export default function ImageUploader({
   };
 
   const handleReset = () => {
+    if (disabled) return;
     setFileName(null);
     setError(null);
     if (fileUrl) {
@@ -90,12 +94,14 @@ export default function ImageUploader({
         onDrop={handleDrop}
         onDragOver={(e) => {
           e.preventDefault();
-          setIsDragging(true);
+          if (!disabled) setIsDragging(true);
         }}
         onDragLeave={() => setIsDragging(false)}
         className={`w-full h-40 flex flex-col items-center justify-center border-2 rounded-lg transition-all duration-300 ease-in-out
           ${
-            isDragging
+            disabled
+              ? "border-gray-200 bg-gray-100 opacity-60 cursor-not-allowed"
+              : isDragging
               ? "border-blue-500 bg-blue-50"
               : fileName
               ? "border-gray-200 "
@@ -105,7 +111,9 @@ export default function ImageUploader({
       >
         {!fileName ? (
           <div className="flex flex-col gap-3 items-center text-center p-6">
-            <label className="w-12 h-12 flex items-center justify-center bg-[#4b72f3] border border-[#2b3ea7] text-white rounded-full hover:bg-blue-600 transition-colors cursor-pointer">
+            <label className={`w-12 h-12 flex items-center justify-center bg-[#4b72f3] border border-[#2b3ea7] text-white rounded-full transition-colors ${
+              disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600 cursor-pointer"
+            }`}>
               <AddIcon className="w-5 h-5" />
               <input
                 type="file"
@@ -113,6 +121,7 @@ export default function ImageUploader({
                 onChange={handleUpload}
                 className="hidden"
                 ref={fileInputRef}
+                disabled={disabled}
               />
             </label>
             <div className="flex flex-col gap-1">
@@ -141,7 +150,10 @@ export default function ImageUploader({
               </span>
               <button
                 onClick={handleReset}
-                className="p-1 text-white bg-red-500 rounded-full shadow-lg hover:bg-red-600 transition-colors duration-200"
+                disabled={disabled}
+                className={`p-1 text-white bg-red-500 rounded-full shadow-lg transition-colors duration-200 ${
+                  disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-red-600"
+                }`}
               >
                 <XCircleIcon />
               </button>

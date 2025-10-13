@@ -61,8 +61,15 @@ export function OverlayLegend({
           variant="outline"
           size="sm"
           aria-label="Toggle all layers"
+          className={`ml-auto border transition-colors duration-300 ${
+            allDrainageVisible ? "border-[#3F83DB]" : "border-gray-300"
+          }`}
         >
-          <Layers className="h-4 w-4" />
+          <Layers
+            className={`h-4 w-4 ${
+              allDrainageVisible ? "text-[#3F83DB]" : "text-gray-400"
+            }`}
+          />
         </Toggle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">

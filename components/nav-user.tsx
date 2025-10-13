@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import {
   ChevronsUpDown,
   LogOut,
@@ -7,6 +8,9 @@ import {
   User,
   CreditCard,
   Bell,
+  Github,
+  LogIn,
+  UserPlus,
 } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -37,7 +41,9 @@ export function NavUser({
   };
   onLogout?: () => void;
 }) {
+  const router = useRouter();
   const { isMobile, state } = useSidebar();
+  const isGuest = user.name === "Guest" || user.email === "Not logged in";
 
   return (
     <SidebarMenu className="bg-[#fafafa] border border-[#dbdbdb] rounded-md p-1">
@@ -83,32 +89,66 @@ export function NavUser({
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <User />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={onLogout}>
-              <LogOut />
-              Log out
-            </DropdownMenuItem>
+
+            {isGuest ? (
+              // Guest user menu items
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={() => router.push("/login")}>
+                    <LogIn />
+                    Log in
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push("/signup")}>
+                    <UserPlus />
+                    Sign up
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() =>
+                      window.open(
+                        "https://github.com/eliseoalcaraz/pjdsc",
+                        "_blank"
+                      )
+                    }
+                  >
+                    <Github className="mr-2 h-4 w-4" />
+                    Contribute
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              </>
+            ) : (
+              // Logged-in user menu items
+              <>
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <Sparkles />
+                    Upgrade to Pro
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <User />
+                    Account
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <CreditCard />
+                    Billing
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Bell />
+                    Notifications
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onLogout}>
+                  <LogOut />
+                  Log out
+                </DropdownMenuItem>
+              </>
+            )}
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>
