@@ -4,6 +4,7 @@ import { useAuth } from "@/components/context/AuthProvider";
 import { useRouter } from "next/navigation";
 import { UserCircle2 } from "lucide-react";
 import { useState } from "react";
+import { useSidebar } from "@/components/ui/sidebar";
 import {
   Tooltip,
   TooltipContent,
@@ -14,6 +15,7 @@ import {
 export default function WelcomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const [showTooltip, setShowTooltip] = useState(false);
 
   const handleIconClick = () => {
@@ -70,7 +72,16 @@ export default function WelcomePage() {
 
       {/* Explore Button */}
       <button
-        onClick={() => router.push("/map")}
+        onClick={() => {
+          // Close sidebar for smooth transition
+          if (isMobile) {
+            setOpenMobile(false);
+          } else {
+            setOpen(false);
+          }
+          // Navigate to map
+          router.push("/map");
+        }}
         disabled={loading}
         className="px-6 py-3 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition"
       >
