@@ -61,10 +61,7 @@ const data = {
       title: "About",
       url: "/about",
       icon: IconArticleFilled,
-      items: [
-        { title: "Project", url: "/about/project" },
-        { title: "Creators", url: "/about/creators" },
-      ],
+      items: [{ title: "Project", url: "/about/project" }],
     },
   ],
 };
@@ -75,7 +72,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const handleLogout = async () => {
     await client.auth.signOut();
-    router.push("/login");
+    router.push("/");
   };
 
   const userData = user

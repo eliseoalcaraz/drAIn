@@ -3,7 +3,11 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
-export default function UserLinks() {
+interface UserLinksProps {
+  isGuest?: boolean;
+}
+
+export default function UserLinks({ isGuest = false }: UserLinksProps) {
   return (
     <Card className="rounded-none h-full pt-0 pb-14 border-none">
       <CardContent className="flex-1 flex items-center">
@@ -13,7 +17,9 @@ export default function UserLinks() {
             controls and respond to user reports.
           </div>
 
-          <Button className="w-5/6 self-center">Add Link</Button>
+          <Button className="w-5/6 self-center" disabled={isGuest}>
+            Add Link
+          </Button>
         </div>
       </CardContent>
     </Card>

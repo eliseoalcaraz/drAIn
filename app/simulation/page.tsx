@@ -24,12 +24,13 @@ import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import { SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 
 export default function SimulationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isSimulationActive = searchParams.get("active") === "true";
+  const { setOpen, isMobile, setOpenMobile } = useSidebar();
 
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -122,6 +123,16 @@ export default function SimulationPage() {
   useEffect(() => {
     selectedFeatureRef.current = selectedFeature;
   }, [selectedFeature]);
+
+  // Auto-close sidebar when simulation page loads (only once on mount)
+  useEffect(() => {
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
