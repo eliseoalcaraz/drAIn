@@ -17,64 +17,25 @@ import Image from "next/image";
 interface ProfileContentProps {
   profileView: ProfileView;
   onProfileViewChange: (view: ProfileView) => void;
+  profile: any;
+  publicAvatarUrl: string | null;
+  setProfile: (profile: any) => void;
+  setPublicAvatarUrl: (url: string | null) => void;
 }
 
 export default function ProfileContent({
   profileView,
   onProfileViewChange,
+  profile,
+  publicAvatarUrl,
+  setProfile,
+  setPublicAvatarUrl,
 }: ProfileContentProps) {
   const authContext = useContext(AuthContext);
   const session = authContext?.session;
   const isGuest = !session;
   const supabase = client;
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (session) {
-      const cacheKey = `profile-${session.user.id}`;
-      const cachedProfile = localStorage.getItem(cacheKey);
-
-      if (cachedProfile) {
-        const { profile: cachedData, publicAvatarUrl: cachedAvatarUrl } =
-          JSON.parse(cachedProfile);
-        setProfile(cachedData);
-        setPublicAvatarUrl(cachedAvatarUrl);
-        setLoading(false);
-      } else {
-        const fetchProfile = async () => {
-          setLoading(true);
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
-
-          if (error && error.code !== "PGRST116") {
-            console.error("Error fetching profile:", error);
-          } else if (data) {
-            const avatarUrl = data.avatar_url;
-            console.log(avatarUrl);
-            setProfile(data);
-            setPublicAvatarUrl(avatarUrl);
-            localStorage.setItem(
-              cacheKey,
-              JSON.stringify({ profile: data, publicAvatarUrl: avatarUrl })
-            );
-          }
-          setLoading(false);
-        };
-        fetchProfile();
-      }
-    } else {
-      setLoading(false);
-    }
-  }, [session, supabase]);
-
-  useEffect(() => {
-    console.log(publicAvatarUrl);
-  }, [publicAvatarUrl]);
+  const loading = !profile && !isGuest;
 
   const handleSave = async (fullName: string, avatarFile: File | null) => {
     if (!session) return;
@@ -101,6 +62,37 @@ export default function ProfileContent({
       JSON.stringify({
         profile: updatedProfile,
         publicAvatarUrl: newPublicAvatarUrl,
+      })
+    );
+  };
+
+  const handleLinkAgency = (agencyId: string, agencyName: string) => {
+    if (!profile || !session) return;
+    const updatedProfile = { ...profile, agency_id: agencyId, agency_name: agencyName };
+    setProfile(updatedProfile);
+    // Also update the cache
+    const cacheKey = `profile-${session.user.id}`;
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        profile: updatedProfile,
+        publicAvatarUrl: publicAvatarUrl,
+      })
+    );
+  };
+
+  const handleUnlinkAgency = () => {
+    if (!profile || !session) return;
+    const { agency_id, agency_name, ...rest } = profile;
+    const updatedProfile = { ...rest };
+    setProfile(updatedProfile);
+    // Also update the cache
+    const cacheKey = `profile-${session.user.id}`;
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        profile: updatedProfile,
+        publicAvatarUrl: publicAvatarUrl,
       })
     );
   };
@@ -190,7 +182,12 @@ export default function ProfileContent({
               value="links"
               className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
-              <UserLinks isGuest={isGuest} />
+              <UserLinks
+                isGuest={isGuest}
+                profile={profile}
+                onLink={handleLinkAgency}
+                onUnlink={handleUnlinkAgency}
+              />
             </TabsContent>
 
             <TabsContent

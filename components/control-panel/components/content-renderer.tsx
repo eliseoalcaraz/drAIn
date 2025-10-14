@@ -17,6 +17,7 @@ import {
 } from "@/components/control-panel/tabs/tables-content";
 import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
 import ProfileContent from "@/components/control-panel/tabs/profile-content";
+import AdminContent from "@/components/control-panel/tabs/admin-content";
 import type { ProfileView } from "../hooks/use-control-panel-state";
 
 interface ContentRendererProps {
@@ -82,6 +83,12 @@ interface ContentRendererProps {
   // Profile view
   profileView?: ProfileView;
   onProfileViewChange?: (view: ProfileView) => void;
+
+  // Profile data
+  profile: any;
+  publicAvatarUrl: string | null;
+  setProfile: (profile: any) => void;
+  setPublicAvatarUrl: (url: string | null) => void;
 }
 
 export function ContentRenderer({
@@ -122,6 +129,10 @@ export function ContentRenderer({
   isRefreshingReports = false,
   profileView = "main",
   onProfileViewChange = () => {},
+  profile,
+  publicAvatarUrl,
+  setProfile,
+  setPublicAvatarUrl,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -179,8 +190,15 @@ export function ContentRenderer({
         <ProfileContent
           profileView={profileView}
           onProfileViewChange={onProfileViewChange}
+          profile={profile}
+          publicAvatarUrl={publicAvatarUrl}
+          setProfile={setProfile}
+          setPublicAvatarUrl={setPublicAvatarUrl}
         />
       );
+
+    case "admin":
+      return <AdminContent />;
 
     default:
       return null;

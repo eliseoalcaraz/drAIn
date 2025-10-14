@@ -85,3 +85,47 @@ export const updateUserProfile = async (
     throw new Error(errorMessage);
   }
 };
+
+export const linkAgencyToProfile = async (userId: string, agencyId: string) => {
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .update({ agency_id: agencyId })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error linking agency:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    const errorMessage = error.message || "An unknown error occurred.";
+    console.error("Error in linkAgencyToProfile:", errorMessage, error);
+    throw new Error(errorMessage);
+  }
+};
+
+export const unlinkAgencyFromProfile = async (userId: string) => {
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .update({ agency_id: null })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error unlinking agency:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    const errorMessage = error.message || "An unknown error occurred.";
+    console.error("Error in unlinkAgencyFromProfile:", errorMessage, error);
+    throw new Error(errorMessage);
+  }
+};

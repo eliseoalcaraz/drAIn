@@ -8,29 +8,42 @@ import {
   IconFolderFilled,
   IconShieldHalfFilled,
   IconAnalyzeFilled,
+  IconUserShield,
 } from "@tabler/icons-react";
 
-const tabs = [
-  { id: "chatbot", label: "Chatbot", icon: IconAnalyzeFilled },
-  { id: "overlays", label: "Overlay", icon: IconSquaresFilled },
-  { id: "stats", label: "Stats", icon: IconFolderFilled },
-  { id: "simulations", label: "Simulations", icon: Play },
-  { id: "report", label: "Report", icon: IconShieldHalfFilled },
-  { id: "profile", label: "Profile", icon: Person },
-];
 interface SideNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  profile: any;
 }
 
 export function SideNavigation({
   activeTab,
   onTabChange,
+  profile,
 }: SideNavigationProps) {
-  const chatbotTab = tabs.find((tab) => tab.id === "chatbot");
-  const otherTabs = tabs.filter((tab) => tab.id !== "chatbot");
+  const baseTabs = [
+    { id: "chatbot", label: "Chatbot", icon: IconAnalyzeFilled },
+    { id: "overlays", label: "Overlay", icon: IconSquaresFilled },
+    { id: "stats", label: "Stats", icon: IconFolderFilled },
+    { id: "simulations", label: "Simulations", icon: Play },
+    { id: "report", label: "Report", icon: IconShieldHalfFilled },
+    { id: "profile", label: "Profile", icon: Person },
+  ];
 
-  const renderTab = (tab: (typeof tabs)[0]) => {
+  if (profile?.agency_id) {
+    const adminTabIndex = baseTabs.findIndex((tab) => tab.id === "profile");
+    baseTabs.splice(adminTabIndex, 0, {
+      id: "admin",
+      label: "Admin",
+      icon: IconUserShield,
+    });
+  }
+
+  const chatbotTab = baseTabs.find((tab) => tab.id === "chatbot");
+  const otherTabs = baseTabs.filter((tab) => tab.id !== "chatbot");
+
+  const renderTab = (tab: (typeof baseTabs)[0]) => {
     const Icon = tab.icon;
     const isActive = activeTab === tab.id;
     return (
