@@ -11,6 +11,7 @@ import {
   recordStormDrainMaintenance,
   getStormDrainMaintenanceHistory,
 } from "@/app/actions/clientMaintenanceActions";
+import { fetchReports, Report } from "@/lib/supabase/report";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
   Card,
@@ -38,6 +39,8 @@ type HistoryItem = {
   last_cleaned_at: string;
   agencies: { name: string }[] | null;
   profiles: { full_name: string }[] | null;
+  status: string | null;
+  addressed_report_id: string | null;
 };
 
 export type AdminContentProps = {
@@ -60,6 +63,8 @@ export default function AdminContent({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
   const [history, setHistory] = useState<HistoryItem[] | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [maintenanceStatus, setMaintenanceStatus] = useState<'in-progress' | 'resolved'>('in-progress');
 
   useEffect(() => {
     let assetType = "";
@@ -82,12 +87,20 @@ export default function AdminContent({
     if (assetType && assetId) {
       setSelectedAsset({ type: assetType, id: assetId });
       handleViewHistory(assetType, assetId);
+      loadReports(assetId);
     } else {
       setSelectedAsset(null);
       setHistory(null);
+      setReports([]);
       setMessage("");
     }
   }, [selectedInlet, selectedOutlet, selectedPipe, selectedDrain]);
+
+  const loadReports = async (componentId: string) => {
+    const allReports = await fetchReports();
+    const assetReports = allReports.filter(report => report.componentId === componentId);
+    setReports(assetReports);
+  };
 
   const handleViewHistory = async (assetType: string, assetId: string) => {
     setIsLoading(true);
@@ -132,19 +145,22 @@ export default function AdminContent({
     setMessage("");
 
     const { type, id } = selectedAsset;
+    const sortedReports = [...reports].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    const mostRecentReport = sortedReports.length > 0 ? sortedReports[0] : undefined;
+
     let result;
     switch (type) {
       case "inlets":
-        result = await recordInletMaintenance(id);
+        result = await recordInletMaintenance(id, mostRecentReport?.id, maintenanceStatus);
         break;
       case "man_pipes":
-        result = await recordManPipeMaintenance(id);
+        result = await recordManPipeMaintenance(id, mostRecentReport?.id, maintenanceStatus);
         break;
       case "outlets":
-        result = await recordOutletMaintenance(id);
+        result = await recordOutletMaintenance(id, mostRecentReport?.id, maintenanceStatus);
         break;
       case "storm_drains":
-        result = await recordStormDrainMaintenance(id);
+        result = await recordStormDrainMaintenance(id, mostRecentReport?.id, maintenanceStatus);
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -156,10 +172,14 @@ export default function AdminContent({
       setMessage(`Error: ${result.error}`);
     } else {
       setMessage(`Maintenance recorded successfully for ${type} with ID ${id}.`);
-      // Re-fetch history to show the new record
       handleViewHistory(type, id);
+      if (mostRecentReport) {
+        loadReports(id);
+      }
     }
   };
+  
+  const mostRecentReport = reports.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0];
 
   return (
     <div className="p-4">
@@ -173,6 +193,18 @@ export default function AdminContent({
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {selectedAsset && mostRecentReport && (
+            <div>
+              <h3 className="font-semibold">Most Recent Report</h3>
+              <p className="text-sm text-muted-foreground">
+                {mostRecentReport.description}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Status: {mostRecentReport.status}
+              </p>
+            </div>
+          )}
+            <Separator />
           <h3 className="font-semibold">Maintenance History</h3>
 
           <div className="relative" style={{ minHeight: "240px" }}>
@@ -201,6 +233,10 @@ export default function AdminContent({
                     Agency: {record.agencies?.[0]?.name || "N/A"}
                     <br />
                     Recorded by: {record.profiles?.[0]?.full_name || "N/A"}
+                    <br />
+                    Status: {record.status || "N/A"}
+                    <br />
+                    Addressed Report: {record.addressed_report_id || "N/A"}
                   </li>
                 ))}
               </ul>
@@ -209,15 +245,30 @@ export default function AdminContent({
                 <p>No history found.</p>
               </div>
             )}
-          </div>
+            </div>
+            {selectedAsset && (
+            <div>
+
+            <Label htmlFor="status">Maintenance Status</Label>
+          <Select onValueChange={(value: 'in-progress' | 'resolved') => setMaintenanceStatus(value)} value={maintenanceStatus}>
+            <SelectTrigger id="status">
+              <SelectValue placeholder="Select status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="in-progress">In Progress</SelectItem>
+              <SelectItem value="resolved">Resolved</SelectItem>
+            </SelectContent>
+          </Select>
           <Button
             onClick={handleRecordMaintenance}
             disabled={isLoading || !selectedAsset}
             size="sm"
-            className="w-full"
+            className="w-full mt-4"
           >
             {isLoading ? "Recording..." : "Record New Maintenance"}
           </Button>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>

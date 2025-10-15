@@ -1,6 +1,7 @@
 "use client";
 
 import client from "@/app/api/client";
+import { updateReportStatus } from "@/lib/supabase/report";
 
 // Helper function to normalize Supabase joined data to arrays for TypeScript
 // Supabase's select syntax for related tables (e.g., `agencies ( name )`) often
@@ -23,7 +24,7 @@ const normalizeJoinedData = (data: any) => {
 };
 
 // Inlet Maintenance Functions
-export async function recordInletMaintenance(inletId: string) {
+export async function recordInletMaintenance(inletId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -49,6 +50,8 @@ export async function recordInletMaintenance(inletId: string) {
         in_name: inletId, // Using 'in_name' as the column for string identifier
         agency_id: profile.agency_id,
         represented_by: user.id,
+        addressed_report_id: reportId,
+        status: status,
       },
     ])
     .select();
@@ -58,18 +61,23 @@ export async function recordInletMaintenance(inletId: string) {
     return { error: `Failed to record maintenance for inlet ${inletId}.` };
   }
 
+  if (reportId && status) {
+    await updateReportStatus(reportId, status);
+  }
+
   return { success: true, data: data[0] };
 }
 
 export async function getInletMaintenanceHistory(inletId: string) {
-  console.log(`Fetching inlet maintenance history for inletId: ${inletId}`);
   const { data, error } = await client
     .from("inlets_maintenance")
     .select(
       `
       last_cleaned_at,
       agencies ( name ),
-      profiles ( full_name )
+      profiles ( full_name ),
+      status,
+      addressed_report_id
     `
     )
     .eq("in_name", inletId) // Using 'in_name' as the column for string identifier
@@ -77,17 +85,14 @@ export async function getInletMaintenanceHistory(inletId: string) {
 
   if (error) {
     console.error("Error fetching inlet history:", error.message);
-    console.error(`Inlet history error data: ${JSON.stringify(error)}`);
     return { error: "Failed to fetch inlet maintenance history." };
   }
-  console.log(`Inlet history raw data for ${inletId}: ${JSON.stringify(data)}`);
   const normalizedData = normalizeJoinedData(data);
-  console.log(`Inlet history raw data for ${inletId}: ${JSON.stringify(normalizedData)}`);
   return { data: normalizedData };
 }
 
 // Man Pipe Maintenance Functions
-export async function recordManPipeMaintenance(manPipeId: string) {
+export async function recordManPipeMaintenance(manPipeId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -113,6 +118,8 @@ export async function recordManPipeMaintenance(manPipeId: string) {
         name: manPipeId, // Using 'name' as the column for string identifier
         agency_id: profile.agency_id,
         represented_by: user.id,
+        addressed_report_id: reportId,
+        status: status,
       },
     ])
     .select();
@@ -122,18 +129,23 @@ export async function recordManPipeMaintenance(manPipeId: string) {
     return { error: `Failed to record maintenance for man pipe ${manPipeId}.` };
   }
 
+    if (reportId && status) {
+        await updateReportStatus(reportId, status);
+    }
+
   return { success: true, data: data[0] };
 }
 
 export async function getManPipeMaintenanceHistory(manPipeId: string) {
-  console.log(`Fetching man pipe maintenance history for manPipeId: ${manPipeId}`);
   const { data, error } = await client
     .from("man_pipes_maintenance")
     .select(
       `
       last_cleaned_at,
       agencies ( name ),
-      profiles ( full_name )
+      profiles ( full_name ),
+      status,
+      addressed_report_id
     `
     )
     .eq("name", manPipeId) // Using 'name' as the column for string identifier
@@ -141,17 +153,14 @@ export async function getManPipeMaintenanceHistory(manPipeId: string) {
 
   if (error) {
     console.error("Error fetching man pipe history:", error.message);
-    console.error(`Man pipe history error data: ${JSON.stringify(error)}`);
     return { error: "Failed to fetch man pipe maintenance history." };
   }
-  console.log(`Man pipe history raw data for ${manPipeId}: ${JSON.stringify(data)}`);
   const normalizedData = normalizeJoinedData(data);
-  console.log(`Man pipe history raw data for ${manPipeId}: ${JSON.stringify(normalizedData)}`);
   return { data: normalizedData };
 }
 
 // Outlet Maintenance Functions
-export async function recordOutletMaintenance(outletId: string) {
+export async function recordOutletMaintenance(outletId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -177,6 +186,8 @@ export async function recordOutletMaintenance(outletId: string) {
         out_name: outletId, // Using 'out_name' as the column for string identifier
         agency_id: profile.agency_id,
         represented_by: user.id,
+        addressed_report_id: reportId,
+        status: status,
       },
     ])
     .select();
@@ -186,18 +197,23 @@ export async function recordOutletMaintenance(outletId: string) {
     return { error: `Failed to record maintenance for outlet ${outletId}.` };
   }
 
+    if (reportId && status) {
+        await updateReportStatus(reportId, status);
+    }
+
   return { success: true, data: data[0] };
 }
 
 export async function getOutletMaintenanceHistory(outletId: string) {
-  console.log(`Fetching outlet maintenance history for outletId: ${outletId}`);
   const { data, error } = await client
     .from("outlets_maintenance")
     .select(
       `
       last_cleaned_at,
       agencies ( name ),
-      profiles ( full_name )
+      profiles ( full_name ),
+      status,
+      addressed_report_id
     `
     )
     .eq("out_name", outletId) // Using 'out_name' as the column for string identifier
@@ -205,17 +221,14 @@ export async function getOutletMaintenanceHistory(outletId: string) {
 
   if (error) {
     console.error("Error fetching outlet history:", error.message);
-    console.error(`Outlet history error data: ${JSON.stringify(error)}`);
     return { error: "Failed to fetch outlet maintenance history." };
   }
-  console.log(`Outlet history raw data for ${outletId}: ${JSON.stringify(data)}`);
   const normalizedData = normalizeJoinedData(data);
-  console.log(`Outlet history raw data for ${outletId}: ${JSON.stringify(normalizedData)}`);
   return { data: normalizedData };
 }
 
 // Storm Drain Maintenance Functions
-export async function recordStormDrainMaintenance(stormDrainId: string) {
+export async function recordStormDrainMaintenance(stormDrainId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -241,6 +254,8 @@ export async function recordStormDrainMaintenance(stormDrainId: string) {
         in_name: stormDrainId, // Using 'in_name' as the column for string identifier for storm drains
         agency_id: profile.agency_id,
         represented_by: user.id,
+        addressed_report_id: reportId,
+        status: status,
       },
     ])
     .select();
@@ -250,18 +265,23 @@ export async function recordStormDrainMaintenance(stormDrainId: string) {
     return { error: `Failed to record maintenance for storm drain ${stormDrainId}.` };
   }
 
+    if (reportId && status) {
+        await updateReportStatus(reportId, status);
+    }
+
   return { success: true, data: data[0] };
 }
 
 export async function getStormDrainMaintenanceHistory(stormDrainId: string) {
-  console.log(`Fetching storm drain maintenance history for stormDrainId: ${stormDrainId}`);
   const { data, error } = await client
     .from("storm_drains_maintenance") // Assuming a new table for storm drains
     .select(
       `
       last_cleaned_at,
       agencies ( name ),
-      profiles ( full_name )
+      profiles ( full_name ),
+      status,
+      addressed_report_id
     `
     )
     .eq("in_name", stormDrainId) // Using 'in_name' as the column for string identifier for storm drains
@@ -269,11 +289,8 @@ export async function getStormDrainMaintenanceHistory(stormDrainId: string) {
 
   if (error) {
     console.error("Error fetching storm drain history:", error.message);
-    console.error(`Storm drain history error data: ${JSON.stringify(error)}`);
     return { error: "Failed to fetch storm drain maintenance history." };
   }
-  console.log(`Storm drain history raw data for ${stormDrainId}: ${JSON.stringify(data)}`);
   const normalizedData = normalizeJoinedData(data);
-  console.log(`Storm drain history raw data for ${stormDrainId}: ${JSON.stringify(normalizedData)}`);
   return { data: normalizedData };
 }

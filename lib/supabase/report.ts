@@ -26,7 +26,7 @@ export const uploadReport = async (file: File, category: string, description: st
             throw error;
         }
 
-        const { data,error: insertError } = await client
+        const { error: insertError } = await client
             .from('reports')
             .insert([
                 {
@@ -40,9 +40,6 @@ export const uploadReport = async (file: File, category: string, description: st
                     lat: lat,
                 },
             ]);
-
-        console.log("insert data:", data);
-        console.log("insert error:", error);
 
         if (insertError) {
             console.error("Error inserting report:", insertError);
@@ -91,13 +88,29 @@ export const fetchReports = async (): Promise<Report[]> => {
     componentId: report.component_id ?? "N/A",
     coordinates: [report.long as number, report.lat as number] as [number, number],
     }));
-    console.log("Formatted Reports:", formattedReports);
     return formattedReports;
   } catch (error) {
     console.error("Error fetching reports:", error);
     throw error;
   }
 };
+
+export const updateReportStatus = async (reportId: string, status: 'in-progress' | 'resolved') => {
+    try {
+        const { error } = await client
+            .from('reports')
+            .update({ status })
+            .eq('id', reportId);
+
+        if (error) {
+            console.error("Error updating report status:", error);
+            throw error;
+        }
+    } catch (error) {
+        console.error("Error updating report status:", error);
+        throw error;
+    }
+}
 
 const formatReport = (report: any): Report => {
   const {data: img} = client.storage
