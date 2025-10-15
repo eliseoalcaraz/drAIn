@@ -10,6 +10,12 @@ import { SpinnerEmpty } from "@/components/spinner-empty";
 import { format, subWeeks, subMonths, startOfDay } from "date-fns";
 import type { DateFilterValue } from "./date-sort";
 import { RefreshCw } from "lucide-react";
+import type {
+  Inlet,
+  Outlet,
+  Pipe,
+  Drain,
+} from "@/components/control-panel/types";
 
 interface AllReportsListProps {
   dateFilter?: DateFilterValue;
@@ -17,6 +23,10 @@ interface AllReportsListProps {
   onRefresh?: () => Promise<void>;
   isRefreshing?: boolean;
   isSimulationMode?: boolean;
+  selectedInlet?: Inlet | null;
+  selectedOutlet?: Outlet | null;
+  selectedPipe?: Pipe | null;
+  selectedDrain?: Drain | null;
 }
 
 export default function AllReportsList({
@@ -25,6 +35,10 @@ export default function AllReportsList({
   onRefresh,
   isRefreshing = false,
   isSimulationMode = false,
+  selectedInlet = null,
+  selectedOutlet = null,
+  selectedPipe = null,
+  selectedDrain = null,
 }: AllReportsListProps) {
   const getStatusStyle = (status: string) => {
     switch (status) {
@@ -41,8 +55,22 @@ export default function AllReportsList({
 
   // Filter reports based on date filter
   const filteredReports = useMemo(() => {
+    let filtered = reports;
+
+    const selectedId =
+      selectedInlet?.id ||
+      selectedOutlet?.id ||
+      selectedPipe?.id ||
+      selectedDrain?.id;
+
+    if (selectedId) {
+      filtered = filtered.filter(
+        (report) => report.componentId === selectedId
+      );
+    }
+
     if (dateFilter === "all") {
-      return reports;
+      return filtered;
     }
 
     const now = new Date();
@@ -68,8 +96,15 @@ export default function AllReportsList({
         return reports;
     }
 
-    return reports.filter((report) => new Date(report.date) >= cutoffDate);
-  }, [reports, dateFilter]);
+    return filtered.filter((report) => new Date(report.date) >= cutoffDate);
+  }, [
+    reports,
+    dateFilter,
+    selectedInlet,
+    selectedOutlet,
+    selectedPipe,
+    selectedDrain,
+  ]);
 
   if (isRefreshing) {
     return (

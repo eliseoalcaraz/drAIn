@@ -1,10 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
-  recordMaintenance,
-  getMaintenanceHistory,
-} from "@/app/actions/maintenanceActions";
+  recordInletMaintenance,
+  getInletMaintenanceHistory,
+  recordManPipeMaintenance,
+  getManPipeMaintenanceHistory,
+  recordOutletMaintenance,
+  getOutletMaintenanceHistory,
+  recordStormDrainMaintenance,
+  getStormDrainMaintenanceHistory,
+} from "@/app/actions/clientMaintenanceActions";
+import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
   Card,
   CardContent,
@@ -33,62 +40,124 @@ type HistoryItem = {
   profiles: { full_name: string }[] | null;
 };
 
-export default function AdminContent() {
-  // State for recording maintenance
-  const [assetType, setAssetType] = useState<string>("");
-  const [assetId, setAssetId] = useState<string>("");
+export type AdminContentProps = {
+  selectedInlet?: Inlet | null;
+  selectedOutlet?: Outlet | null;
+  selectedPipe?: Pipe | null;
+  selectedDrain?: Drain | null;
+};
+
+export default function AdminContent({
+  selectedInlet,
+  selectedOutlet,
+  selectedPipe,
+  selectedDrain,
+}: AdminContentProps) {
+  const [selectedAsset, setSelectedAsset] = useState<{
+    type: string;
+    id: string;
+  } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [message, setMessage] = useState<string>("");
-
-  // State for viewing history
-  const [historyAssetType, setHistoryAssetType] = useState<string>("");
-  const [historyAssetId, setHistoryAssetId] = useState<string>("");
-  const [isHistoryLoading, setIsHistoryLoading] = useState<boolean>(false);
   const [history, setHistory] = useState<HistoryItem[] | null>(null);
-  const [historyMessage, setHistoryMessage] = useState<string>("");
+
+  useEffect(() => {
+    let assetType = "";
+    let assetId = "";
+
+    if (selectedInlet) {
+      assetType = "inlets";
+      assetId = selectedInlet.id;
+    } else if (selectedOutlet) {
+      assetType = "outlets";
+      assetId = selectedOutlet.id;
+    } else if (selectedPipe) {
+      assetType = "man_pipes";
+      assetId = selectedPipe.id;
+    } else if (selectedDrain) {
+      assetType = "storm_drains";
+      assetId = selectedDrain.id;
+    }
+
+    if (assetType && assetId) {
+      setSelectedAsset({ type: assetType, id: assetId });
+      handleViewHistory(assetType, assetId);
+    } else {
+      setSelectedAsset(null);
+      setHistory(null);
+      setMessage("");
+    }
+  }, [selectedInlet, selectedOutlet, selectedPipe, selectedDrain]);
+
+  const handleViewHistory = async (assetType: string, assetId: string) => {
+    setIsLoading(true);
+    setMessage("");
+    setHistory(null);
+
+    let result;
+    switch (assetType) {
+      case "inlets":
+        result = await getInletMaintenanceHistory(assetId);
+        break;
+      case "man_pipes":
+        result = await getManPipeMaintenanceHistory(assetId);
+        break;
+      case "outlets":
+        result = await getOutletMaintenanceHistory(assetId);
+        break;
+      case "storm_drains":
+        result = await getStormDrainMaintenanceHistory(assetId);
+        break;
+      default:
+        result = { error: "Unknown asset type." };
+    }
+
+    setIsLoading(false);
+
+    if (result.error) {
+      setMessage(`Error fetching history: ${result.error}`);
+    } else if (result.data && result.data.length > 0) {
+      setHistory(result.data as HistoryItem[]);
+    } else {
+      setMessage("No maintenance history found for this asset.");
+    }
+  };
 
   const handleRecordMaintenance = async () => {
-    if (!assetType || !assetId) {
-      setMessage("Please select an asset type and provide an asset ID.");
+    if (!selectedAsset) {
+      setMessage("No asset selected.");
       return;
     }
     setIsLoading(true);
     setMessage("");
 
-    const result = await recordMaintenance(assetType, assetId);
+    const { type, id } = selectedAsset;
+    let result;
+    switch (type) {
+      case "inlets":
+        result = await recordInletMaintenance(id);
+        break;
+      case "man_pipes":
+        result = await recordManPipeMaintenance(id);
+        break;
+      case "outlets":
+        result = await recordOutletMaintenance(id);
+        break;
+      case "storm_drains":
+        result = await recordStormDrainMaintenance(id);
+        break;
+      default:
+        result = { error: "Unknown asset type." };
+    }
 
     setIsLoading(false);
 
     if (result.error) {
       setMessage(`Error: ${result.error}`);
     } else {
-      setMessage(
-        `Maintenance recorded successfully for ${assetType} with ID ${assetId}.`
-      );
-      setAssetId("");
-      setAssetType("");
-    }
-  };
-
-  const handleViewHistory = async () => {
-    if (!historyAssetType || !historyAssetId) {
-      setHistoryMessage("Please select an asset type and provide an asset ID.");
-      return;
-    }
-    setIsHistoryLoading(true);
-    setHistoryMessage("");
-    setHistory(null);
-
-    const result = await getMaintenanceHistory(historyAssetType, historyAssetId);
-
-    setIsHistoryLoading(false);
-
-    if (result.error) {
-      setHistoryMessage(`Error: ${result.error}`);
-    } else if (result.data && result.data.length > 0) {
-      setHistory(result.data as HistoryItem[]);
-    } else {
-      setHistoryMessage("No maintenance history found for this asset.");
+      setMessage(`Maintenance recorded successfully for ${type} with ID ${id}.`);
+      // Re-fetch history to show the new record
+      handleViewHistory(type, id);
     }
   };
 
@@ -96,111 +165,59 @@ export default function AdminContent() {
     <div className="p-4">
       <Card>
         <CardHeader>
-          <CardTitle>Administrator Controls</CardTitle>
+          <CardTitle>Asset Maintenance</CardTitle>
           <CardDescription>
-            Use this panel to manage drainage assets and their maintenance
-            records.
+            {selectedAsset
+              ? `Viewing asset ${selectedAsset.id} of type ${selectedAsset.type}`
+              : "Select an asset on the map to view its maintenance history."}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Record Maintenance Section */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">Record New Maintenance</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="asset-type">Asset Type</Label>
-                <Select value={assetType} onValueChange={setAssetType}>
-                  <SelectTrigger id="asset-type">
-                    <SelectValue placeholder="Select type..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ASSET_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="asset-id">Asset GID</Label>
-                <Input
-                  id="asset-id"
-                  placeholder="Enter asset GID"
-                  value={assetId}
-                  onChange={(e) => setAssetId(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button onClick={handleRecordMaintenance} disabled={isLoading}>
-                {isLoading ? "Recording..." : "Record Maintenance"}
-              </Button>
-            </div>
-            {message && <p className="text-sm text-muted-foreground">{message}</p>}
-          </div>
+          <h3 className="font-semibold">Maintenance History</h3>
 
-          <Separator />
-
-          {/* View History Section */}
-          <div className="space-y-4">
-            <h3 className="font-semibold">View Maintenance History</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <Label htmlFor="history-asset-type">Asset Type</Label>
-                <Select
-                  value={historyAssetType}
-                  onValueChange={setHistoryAssetType}
-                >
-                  <SelectTrigger id="history-asset-type">
-                    <SelectValue placeholder="Select type..." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {ASSET_TYPES.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor="history-asset-id">Asset GID</Label>
-                <Input
-                  id="history-asset-id"
-                  placeholder="Enter asset GID"
-                  value={historyAssetId}
-                  onChange={(e) => setHistoryAssetId(e.target.value)}
-                />
-              </div>
-            </div>
-            <div className="flex justify-end">
-              <Button onClick={handleViewHistory} disabled={isHistoryLoading}>
-                {isHistoryLoading ? "Fetching..." : "View History"}
-              </Button>
-            </div>
-            {historyMessage && (
-              <p className="text-sm text-muted-foreground">{historyMessage}</p>
+          <div className="relative" style={{ minHeight: "240px" }}>
+            {message && (
+              <p className="text-sm text-muted-foreground mb-4">{message}</p>
             )}
-            {history && (
-              <div className="space-y-2">
-                <h4 className="font-medium">History Results</h4>
-                <ul className="list-disc space-y-1 pl-5 text-sm">
-                  {history.map((record, index) => (
-                    <li key={index}>
-                      <span className="font-semibold">
-                        {new Date(record.last_cleaned_at).toLocaleString()}
-                      </span>
-                      <br />
-                      Agency: {record.agencies?.[0]?.name || "N/A"}
-                      <br />
-                      Recorded by: {record.profiles?.[0]?.full_name || "N/A"}
-                    </li>
-                  ))}
-                </ul>
+
+            {!selectedAsset ? (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-muted-foreground">
+                <p>
+                  Click on an inlet, outlet, pipe, or storm drain on the map.
+                </p>
+              </div>
+            ) : isLoading ? (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-muted-foreground">
+                <p>Fetching history...</p>
+              </div>
+            ) : history && history.length > 0 ? (
+              <ul className="list-disc space-y-2 pl-5 text-sm">
+                {history.map((record, index) => (
+                  <li key={index}>
+                    <span className="font-semibold">
+                      {new Date(record.last_cleaned_at).toLocaleString()}
+                    </span>
+                    <br />
+                    Agency: {record.agencies?.[0]?.name || "N/A"}
+                    <br />
+                    Recorded by: {record.profiles?.[0]?.full_name || "N/A"}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center text-muted-foreground">
+                <p>No history found.</p>
               </div>
             )}
           </div>
+          <Button
+            onClick={handleRecordMaintenance}
+            disabled={isLoading || !selectedAsset}
+            size="sm"
+            className="w-full"
+          >
+            {isLoading ? "Recording..." : "Record New Maintenance"}
+          </Button>
         </CardContent>
       </Card>
     </div>

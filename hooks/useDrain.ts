@@ -6,21 +6,7 @@ import type {
   Point,
 } from "geojson";
 
-export interface Drain {
-  id: string;
-  In_Name: string;
-  InvElev: number;
-  clog_per: number;
-  clogtime: number;
-  Weir_coeff: number;
-  Length: number;
-  Height: number;
-  Max_Depth: number;
-  ClogFac: number;
-  NameNum: number;
-  FPLAIN_080: number;
-  coordinates: [number, number]; // [lng, lat]
-}
+import type { Drain } from "@/components/control-panel/types";
 
 export function transformGeoJSON(geojson: FeatureCollection): Drain[] {
   return geojson.features.map((f: Feature) => {

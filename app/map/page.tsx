@@ -81,6 +81,8 @@ export default function MapPage() {
     setControlPanelTab(tab);
   }, [searchParams]);
 
+  const dataConsumerTabs = ["report", "simulations", "admin"];
+
   // Auto-close sidebar when map page loads (only once on mount)
   useEffect(() => {
     if (isMobile) {
@@ -587,7 +589,9 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedInlet(inlet);
-    setControlPanelTab("stats");
+    if (!dataConsumerTabs.includes(controlPanelTab)) {
+      setControlPanelTab("stats");
+    }
     setControlPanelDataset("inlets");
 
     // Set new map feature state
@@ -633,7 +637,9 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedOutlet(outlet);
-    setControlPanelTab("stats");
+    if (!dataConsumerTabs.includes(controlPanelTab)) {
+      setControlPanelTab("stats");
+    }
     setControlPanelDataset("outlets");
 
     // Set new map feature state
@@ -678,7 +684,9 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedDrain(drain);
-    setControlPanelTab("stats");
+    if (!dataConsumerTabs.includes(controlPanelTab)) {
+      setControlPanelTab("stats");
+    }
     setControlPanelDataset("storm_drains");
 
     // Set new map feature state
@@ -725,7 +733,9 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedPipe(pipe);
-    setControlPanelTab("stats");
+    if (!dataConsumerTabs.includes(controlPanelTab)) {
+      setControlPanelTab("stats");
+    }
     setControlPanelDataset("man_pipes");
 
     // Set new map feature state

@@ -17,7 +17,9 @@ import {
 } from "@/components/control-panel/tabs/tables-content";
 import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
 import ProfileContent from "@/components/control-panel/tabs/profile-content";
-import AdminContent from "@/components/control-panel/tabs/admin-content";
+import AdminContent, {
+  AdminContentProps,
+} from "@/components/control-panel/tabs/admin-content";
 import type { ProfileView } from "../hooks/use-control-panel-state";
 
 interface ContentRendererProps {
@@ -167,6 +169,10 @@ export function ContentRenderer({
         <SimulationsContent
           isSimulationMode={isSimulationMode}
           selectedPointId={selectedPointForSimulation}
+          selectedInlet={selectedInlet}
+          selectedOutlet={selectedOutlet}
+          selectedPipe={selectedPipe}
+          selectedDrain={selectedDrain}
         />
       );
 
@@ -179,6 +185,10 @@ export function ContentRenderer({
           onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
           isSimulationMode={isSimulationMode}
+          selectedInlet={selectedInlet}
+          selectedOutlet={selectedOutlet}
+          selectedPipe={selectedPipe}
+          selectedDrain={selectedDrain}
         />
       );
 
@@ -198,7 +208,14 @@ export function ContentRenderer({
       );
 
     case "admin":
-      return <AdminContent />;
+      return (
+        <AdminContent
+          selectedInlet={selectedInlet}
+          selectedOutlet={selectedOutlet}
+          selectedPipe={selectedPipe}
+          selectedDrain={selectedDrain}
+        />
+      );
 
     default:
       return null;
