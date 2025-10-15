@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FeatureCollection, Feature, GeoJsonProperties } from "geojson";
 
-export interface Outlet {
-  id: string;
-  Inv_Elev: number;
-  AllowQ: number;
-  FlapGate: number;
-  coordinates: [number, number];
-}
+import type { Outlet } from "@/components/control-panel/types";
 
 export function transformOutletGeoJSON(geojson: FeatureCollection): Outlet[] {
   return geojson.features.map((f: Feature) => {
