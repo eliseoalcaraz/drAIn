@@ -749,14 +749,17 @@ export default function MapPage() {
       layer: "man_pipes-layer",
     });
 
-    // Fit map to line
-    const bounds = new mapboxgl.LngLatBounds();
-    pipe.coordinates.forEach((coord) => bounds.extend(coord));
-    mapRef.current.fitBounds(bounds, { padding: 100, duration: 1200 });
-
     // Popup at midpoint
     const midIndex = Math.floor(pipe.coordinates.length / 2);
     const midpoint = pipe.coordinates[midIndex];
+
+    // Fly to the location on the map
+    mapRef.current.flyTo({
+      center: midpoint,
+      zoom: 18,
+      speed: 1.2,
+      curve: 1,
+    });
 
     new mapboxgl.Popup()
       .setLngLat(midpoint)
