@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { getAgencies } from "@/lib/supabase/profile";
 import {
   Card,
   CardContent,
@@ -26,6 +27,25 @@ interface AgencyLinkProps {
 export default function AgencyLink({ onLink }: AgencyLinkProps) {
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedAgencyName, setSelectedAgencyName] = useState("");
+  const [agencies, setAgencies] = useState<{ id: string; name: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAgencies = async () => {
+      try {
+        const fetchedAgencies = await getAgencies();
+        if (fetchedAgencies) {
+          setAgencies(fetchedAgencies);
+        }
+      } catch (error) {
+        console.error("Failed to fetch agencies:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAgencies();
+  }, []);
 
   const handleLinkAgency = () => {
     onLink(selectedAgency, selectedAgencyName);
@@ -33,13 +53,8 @@ export default function AgencyLink({ onLink }: AgencyLinkProps) {
 
   const handleValueChange = (value: string) => {
     setSelectedAgency(value);
-    // This is a simplified mapping. In a real app, you'd get this from the data source.
-    const agencyMap: { [key: string]: string } = {
-      agency1: "Agency 1",
-      agency2: "Agency 2",
-      agency3: "Agency 3",
-    };
-    setSelectedAgencyName(agencyMap[value]);
+    const agency = agencies.find((a) => a.id === value);
+    setSelectedAgencyName(agency ? agency.name : "");
   };
 
   return (
@@ -55,14 +70,25 @@ export default function AgencyLink({ onLink }: AgencyLinkProps) {
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="agency">Agency</Label>
             <Select onValueChange={handleValueChange}>
-              <SelectTrigger id="agency">
+              <SelectTrigger id="agency" disabled={loading}>
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent position="popper">
-                {/* TODO: Fetch and populate agencies from Supabase */}
-                <SelectItem value="agency1">Agency 1</SelectItem>
-                <SelectItem value="agency2">Agency 2</SelectItem>
-                <SelectItem value="agency3">Agency 3</SelectItem>
+                {loading ? (
+                  <SelectItem value="loading" disabled>
+                    Loading agencies...
+                  </SelectItem>
+                ) : agencies.length === 0 ? (
+                  <SelectItem value="no-agencies" disabled>
+                    No agencies available
+                  </SelectItem>
+                ) : (
+                  agencies.map((agency) => (
+                    <SelectItem key={agency.id} value={agency.id}>
+                      {agency.name}
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>

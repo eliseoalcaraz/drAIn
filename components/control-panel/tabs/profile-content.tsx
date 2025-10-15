@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Pencil, Link2, FileText } from "lucide-react";
 import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
-import { updateUserProfile } from "@/lib/supabase/profile";
+import { updateUserProfile, linkAgencyToProfile, unlinkAgencyFromProfile } from "@/lib/supabase/profile";
 import EditProfile from "@/components/edit-profile";
 import UserLinks from "@/components/user-links";
 import UserReportsList from "@/components/user-reports-list";
@@ -66,8 +66,9 @@ export default function ProfileContent({
     );
   };
 
-  const handleLinkAgency = (agencyId: string, agencyName: string) => {
+  const handleLinkAgency = async (agencyId: string, agencyName: string) => {
     if (!profile || !session) return;
+    await linkAgencyToProfile(session.user.id, agencyId); // Persist to Supabase
     const updatedProfile = { ...profile, agency_id: agencyId, agency_name: agencyName };
     setProfile(updatedProfile);
     // Also update the cache
@@ -81,8 +82,9 @@ export default function ProfileContent({
     );
   };
 
-  const handleUnlinkAgency = () => {
+  const handleUnlinkAgency = async () => {
     if (!profile || !session) return;
+    await unlinkAgencyFromProfile(session.user.id); // Persist to Supabase
     const { agency_id, agency_name, ...rest } = profile;
     const updatedProfile = { ...rest };
     setProfile(updatedProfile);

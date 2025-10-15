@@ -86,6 +86,25 @@ export const updateUserProfile = async (
   }
 };
 
+export const getAgencies = async () => {
+  try {
+    const { data, error } = await client
+      .from("agencies") // Assuming a table named 'agencies'
+      .select("id, name");
+
+    if (error) {
+      console.error("Error fetching agencies:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    const errorMessage = error.message || "An unknown error occurred.";
+    console.error("Error in getAgencies:", errorMessage, error);
+    throw new Error(errorMessage);
+  }
+};
+
 export const linkAgencyToProfile = async (userId: string, agencyId: string) => {
   try {
     const { data, error } = await client
