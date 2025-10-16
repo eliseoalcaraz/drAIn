@@ -104,10 +104,53 @@ export default function WelcomePage() {
         hoverColor="#3b82f6"
         fillOnHover={true} // Makes entire shape area hoverable, not just thin border
         fillOpacity={0.2} // 20% opacity on hover fill
-        onPathClick={(pathId) => console.log('✅ Clicked:', pathId)}
-        onPathHover={(pathId) => pathId && console.log('🖱️ Hovering:', pathId)}
+        hoverTrailDelay={300} // 300ms delay creates a trailing effect following the cursor
+        onPathClick={(pathId) => console.log("✅ Clicked:", pathId)}
+        onPathHover={(pathId) => pathId && console.log("🖱️ Hovering:", pathId)}
         debug={false}
       />
+
+      {/* Foreground Content 
+      <div className="relative z-10 flex flex-1 h-full flex-col items-center justify-center text-center px-4">
+
+        <div className="flex flex-col items-center gap-3 mb-6">
+          {loading || profileLoading ? (
+            <div className="w-10 h-10 rounded-full animate-pulse" />
+          ) : publicAvatarUrl ? (
+            <StoryRingAvatar
+              src={publicAvatarUrl}
+              alt={profile?.full_name || "Profile"}
+              size="lg"
+            />
+          ) : (
+            <StoryRingAvatar
+              src="/images/placeholder.jpg"
+              alt={profile?.full_name || "Profile"}
+              size="lg"
+            />
+          )}
+
+          <h1 className="text-4xl font-bold text-gray-800 mb-1">
+            Welcome to <span className="font-bold text-[#3B82F6]">drAIn</span>
+          </h1>
+
+          <p className="text-lg text-gray-600 max-w-xl text-center mb-3">
+            An intelligent platform designed to make learning and collaboration
+            smarter, faster, and more interactive.
+          </p>
+        </div>
+
+  
+        <Button
+          onClick={handleNavigateToMap}
+          disabled={loading}
+          size="lg"
+          className="text-md bg-[#3B82F6] hover:bg-[#2563EB]"
+        >
+          Explore Map
+        </Button>
+      </div>
+      */}
     </main>
   );
 }
