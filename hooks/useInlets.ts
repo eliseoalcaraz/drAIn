@@ -1,19 +1,7 @@
 import { useEffect, useState } from "react";
 import type { FeatureCollection, Feature, GeoJsonProperties } from "geojson";
 
-export interface Inlet {
-  id: string;
-  Inv_Elev: number;
-  MaxDepth: number;
-  Length: number;
-  Height: number;
-  Weir_Coeff: number;
-  In_Type: number;
-  ClogFac: number;
-  ClogTime: number;
-  FPLAIN_080: number;
-  coordinates: [number, number];
-}
+import { Inlet } from "@/components/control-panel/types";
 
 export function transformInlets(geojson: FeatureCollection): Inlet[] {
   return geojson.features.map((f: Feature) => {

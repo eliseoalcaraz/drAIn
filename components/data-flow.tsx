@@ -205,7 +205,7 @@ export default function DataFlowPipeline({
       // Fill makes entire shape area hoverable
       // KEY: Always use a fill when fillOnHover is true, with very low opacity
       fill: fillOnHover ? hoverColor : "none",
-      fillOpacity: fillOnHover ? (isHighlighted ? trailOpacity : 0.01) : 0,
+      fillOpacity: fillOnHover ? (isHighlighted ? trailOpacity : 0) : 0,
 
       // Smooth transitions for trail effect
       className: "transition-all duration-200 cursor-pointer",

@@ -12,13 +12,22 @@ import {
   OVERLAY_CONFIG,
   LAYER_IDS,
   MAP_STYLES,
+  getLinePaintConfig,
+  getCirclePaintConfig,
+  CAMERA_ANIMATION,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
-import { Inlet, useInlets } from "@/hooks/useInlets";
-import { Outlet, useOutlets } from "@/hooks/useOutlets";
-import { Drain, useDrain } from "@/hooks/useDrain";
-import { Pipe, usePipes } from "@/hooks/usePipes";
-import type { DatasetType } from "@/components/control-panel/types";
+import { useInlets } from "@/hooks/useInlets";
+import { useOutlets } from "@/hooks/useOutlets";
+import { useDrain } from "@/hooks/useDrain";
+import { usePipes } from "@/hooks/usePipes";
+import type {
+  Inlet,
+  Outlet,
+  Drain,
+  Pipe,
+  DatasetType,
+} from "@/components/control-panel/types";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
@@ -254,20 +263,7 @@ export default function MapPage() {
             id: "man_pipes-layer",
             type: "line",
             source: "man_pipes",
-            paint: {
-              "line-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#8B008B",
-              ],
-              "line-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                6,
-                2.5,
-              ],
-            },
+            paint: getLinePaintConfig("man_pipes"),
           });
         }
 
@@ -281,27 +277,7 @@ export default function MapPage() {
             id: "storm_drains-layer",
             type: "circle",
             source: "storm_drains",
-            paint: {
-              "circle-radius": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                10,
-                4,
-              ],
-              "circle-color": "#0088ff",
-              "circle-stroke-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#000000",
-              ],
-              "circle-stroke-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                3,
-                0.5,
-              ],
-            },
+            paint: getCirclePaintConfig("storm_drains"),
           });
         }
 
@@ -315,27 +291,7 @@ export default function MapPage() {
             id: "inlets-layer",
             type: "circle",
             source: "inlets",
-            paint: {
-              "circle-radius": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                12,
-                6,
-              ],
-              "circle-color": "#00cc44",
-              "circle-stroke-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#000000",
-              ],
-              "circle-stroke-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                3,
-                0.5,
-              ],
-            },
+            paint: getCirclePaintConfig("inlets"),
           });
         }
 
@@ -349,27 +305,7 @@ export default function MapPage() {
             id: "outlets-layer",
             type: "circle",
             source: "outlets",
-            paint: {
-              "circle-radius": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                12,
-                6,
-              ],
-              "circle-color": "#cc0000",
-              "circle-stroke-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#000000",
-              ],
-              "circle-stroke-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                3,
-                0.5,
-              ],
-            },
+            paint: getCirclePaintConfig("outlets"),
           });
         }
       };
@@ -605,12 +541,14 @@ export default function MapPage() {
       layer: "inlets-layer",
     });
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
 
     // Add popup
@@ -653,12 +591,14 @@ export default function MapPage() {
       layer: "outlets-layer",
     });
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
 
     // Add popup
@@ -700,12 +640,14 @@ export default function MapPage() {
       layer: "storm_drains-layer",
     });
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
 
     // Add popup
@@ -753,12 +695,14 @@ export default function MapPage() {
     const midIndex = Math.floor(pipe.coordinates.length / 2);
     const midpoint = pipe.coordinates[midIndex];
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: midpoint,
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
 
     new mapboxgl.Popup()
