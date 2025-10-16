@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
-import { Pipe } from "@/hooks/usePipes";
+import { Pipe } from "../../types";
 
 interface PipeTableProps {
   data: Pipe[];
@@ -91,7 +91,7 @@ export function PipeTable({
   };
 
   return (
-    <div className="flex flex-col flex-1 pl-5 pr-3 pt-3 pb-5 gap-6">
+    <div className="flex flex-col flex-1 pl-5 pr-2 pt-3 pb-5 gap-6">
       <CardHeader className="py-0 px-1">
         <CardTitle>Pipe Inventory</CardTitle>
         <CardDescription className="text-xs">

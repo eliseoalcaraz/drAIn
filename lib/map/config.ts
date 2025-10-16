@@ -1,7 +1,7 @@
 export const DEFAULT_CENTER: [number, number] = [123.926, 10.337];
 export const DEFAULT_ZOOM = 12;
 export const DEFAULT_STYLE =
-  "mapbox://styles/kiloukilou/cmgtsa66q001101staanz0253";
+  "mapbox://styles/kiloukilou/cmgtuzno5001301st19kt3ab2";
 
 export const MAP_BOUNDS: [[number, number], [number, number]] = [
   [123.86601, 10.30209],

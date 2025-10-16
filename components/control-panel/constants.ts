@@ -3,10 +3,14 @@ import type { FieldConfig, DatasetType } from "./types";
 export const FIELD_CONFIGS: Record<DatasetType, FieldConfig[]> = {
   inlets: [
     { label: "ID", key: "id" },
-    { label: "Elevation", key: "Inv_Elev" },
+    { label: "Inverted Elevation", key: "Inv_Elev" },
     { label: "Max Depth", key: "MaxDepth" },
     { label: "Length", key: "Length" },
+    { label: "Height", key: "Height" },
+    { label: "Weir Coefficient", key: "Weir_Coeff" },
+    { label: "Inlet Type", key: "In_Type" },
     { label: "Clog Factor", key: "ClogFac" },
+    { label: "Clog Time", key: "ClogTime" },
   ],
   man_pipes: [
     { label: "ID", key: "id" },

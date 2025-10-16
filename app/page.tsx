@@ -122,7 +122,7 @@ export default function WelcomePage() {
           </div>
 
           <h1 className="text-4xl font-bold text-gray-800 mb-1">
-            welcome to <span className="font-bold text-[#3B82F6]">drAIn</span>
+            project drain
           </h1>
 
           <p className="text-lg text-gray-600 max-w-xl text-center mb-3">

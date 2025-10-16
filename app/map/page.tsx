@@ -550,20 +550,6 @@ export default function MapPage() {
       essential: CAMERA_ANIMATION.essential,
       easing: CAMERA_ANIMATION.easing,
     });
-
-    // Add popup
-    new mapboxgl.Popup()
-      .setLngLat([lng, lat])
-      .setHTML(
-        `
-      <strong>Inlet (${inlet.id})</strong><br/>
-      Inv Elev: ${inlet.Inv_Elev}<br/>
-      Max Depth: ${inlet.MaxDepth}<br/>
-      Length: ${inlet.Length}<br/>
-      Height: ${inlet.Height}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   const handleSelectOutlet = (outlet: Outlet) => {
@@ -600,19 +586,6 @@ export default function MapPage() {
       essential: CAMERA_ANIMATION.essential,
       easing: CAMERA_ANIMATION.easing,
     });
-
-    // Add popup
-    new mapboxgl.Popup()
-      .setLngLat([lng, lat])
-      .setHTML(
-        `
-      <strong>Outlet (${outlet.id})</strong><br/>
-      Inv Elev: ${outlet.Inv_Elev ?? "N/A"}<br/>
-      AllowQ: ${outlet.AllowQ ?? "N/A"}<br/>
-      FlapGate: ${outlet.FlapGate ?? "N/A"}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   const handleSelectDrain = (drain: Drain) => {
@@ -649,21 +622,6 @@ export default function MapPage() {
       essential: CAMERA_ANIMATION.essential,
       easing: CAMERA_ANIMATION.easing,
     });
-
-    // Add popup
-    new mapboxgl.Popup()
-      .setLngLat([lng, lat])
-      .setHTML(
-        `
-      <strong>Storm Drain (${drain.id})</strong><br/>
-      Inv Elev: ${drain.InvElev ?? "N/A"}<br/>
-      Max Depth: ${drain.Max_Depth ?? "N/A"}<br/>
-      Length: ${drain.Length ?? "N/A"}<br/>
-      Height: ${drain.Height ?? "N/A"}<br/>
-      Clog %: ${drain.clog_per ?? "N/A"}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   const handleSelectPipe = (pipe: Pipe) => {
@@ -691,7 +649,7 @@ export default function MapPage() {
       layer: "man_pipes-layer",
     });
 
-    // Popup at midpoint
+    // Calculate midpoint for camera animation
     const midIndex = Math.floor(pipe.coordinates.length / 2);
     const midpoint = pipe.coordinates[midIndex];
 
@@ -704,24 +662,6 @@ export default function MapPage() {
       essential: CAMERA_ANIMATION.essential,
       easing: CAMERA_ANIMATION.easing,
     });
-
-    new mapboxgl.Popup()
-      .setLngLat(midpoint)
-      .setHTML(
-        `
-      <strong>Pipe (${pipe.id})</strong><br/>
-      Type: ${pipe.TYPE}<br/>
-      Shape: ${pipe.Pipe_Shape}<br/>
-      Length: ${pipe.Pipe_Lngth}<br/>
-      Height: ${pipe.Height}<br/>
-      Width: ${pipe.Width}<br/>
-      Barrels: ${pipe.Barrels}<br/>
-      Manning's: ${pipe.Mannings}<br/>
-      Clog %: ${pipe.ClogPer}<br/>
-      Clog Time: ${pipe.ClogTime}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   return (

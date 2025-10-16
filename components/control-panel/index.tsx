@@ -133,11 +133,15 @@ export function ControlPanel({
   };
 
   return (
-    <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
+    <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl overflow-hidden">
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={onTabChange} profile={profile} />
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        profile={profile}
+      />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Bar */}
         <TopBar
           activeTab={activeTab}
@@ -160,7 +164,7 @@ export function ControlPanel({
 
         {/* Main Content */}
         <div
-          className={`relative flex-1 overflow-auto ${
+          className={`control-panel-scroll relative flex-1 overflow-auto ${
             activeTab === "stats" ? "overflow-y-scroll" : ""
           }`}
         >
