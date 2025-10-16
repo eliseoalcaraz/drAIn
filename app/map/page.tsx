@@ -15,9 +15,12 @@ import {
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
 import { Inlet, useInlets } from "@/hooks/useInlets";
-import { Outlet, useOutlets } from "@/hooks/useOutlets";
-import { Drain, useDrain } from "@/hooks/useDrain";
-import { Pipe, usePipes } from "@/hooks/usePipes";
+import { useOutlets } from "@/hooks/useOutlets";
+import type { Outlet } from "@/components/control-panel/types";
+import { useDrain } from "@/hooks/useDrain";
+import type { Drain } from "@/components/control-panel/types";
+import { usePipes } from "@/hooks/usePipes";
+import type { Pipe } from "@/components/control-panel/types";
 import type { DatasetType } from "@/components/control-panel/types";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";

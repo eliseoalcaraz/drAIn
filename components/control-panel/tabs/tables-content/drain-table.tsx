@@ -17,7 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
-import { Drain } from "@/hooks/useDrain";
+import type { Drain } from "@/components/control-panel/types";
+
 
 interface DrainTableProps {
   data: Drain[];
