@@ -12,16 +12,22 @@ import {
   OVERLAY_CONFIG,
   LAYER_IDS,
   MAP_STYLES,
+  getLinePaintConfig,
+  getCirclePaintConfig,
+  CAMERA_ANIMATION,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
-import { Inlet, useInlets } from "@/hooks/useInlets";
+import { useInlets } from "@/hooks/useInlets";
 import { useOutlets } from "@/hooks/useOutlets";
-import type { Outlet } from "@/components/control-panel/types";
 import { useDrain } from "@/hooks/useDrain";
-import type { Drain } from "@/components/control-panel/types";
 import { usePipes } from "@/hooks/usePipes";
-import type { Pipe } from "@/components/control-panel/types";
-import type { DatasetType } from "@/components/control-panel/types";
+import type {
+  Inlet,
+  Outlet,
+  Drain,
+  Pipe,
+  DatasetType,
+} from "@/components/control-panel/types";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
@@ -257,20 +263,7 @@ export default function MapPage() {
             id: "man_pipes-layer",
             type: "line",
             source: "man_pipes",
-            paint: {
-              "line-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#8B008B",
-              ],
-              "line-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                6,
-                2.5,
-              ],
-            },
+            paint: getLinePaintConfig("man_pipes"),
           });
         }
 
@@ -284,27 +277,7 @@ export default function MapPage() {
             id: "storm_drains-layer",
             type: "circle",
             source: "storm_drains",
-            paint: {
-              "circle-radius": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                10,
-                4,
-              ],
-              "circle-color": "#0088ff",
-              "circle-stroke-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#000000",
-              ],
-              "circle-stroke-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                3,
-                0.5,
-              ],
-            },
+            paint: getCirclePaintConfig("storm_drains"),
           });
         }
 
@@ -318,27 +291,7 @@ export default function MapPage() {
             id: "inlets-layer",
             type: "circle",
             source: "inlets",
-            paint: {
-              "circle-radius": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                12,
-                6,
-              ],
-              "circle-color": "#00cc44",
-              "circle-stroke-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#000000",
-              ],
-              "circle-stroke-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                3,
-                0.5,
-              ],
-            },
+            paint: getCirclePaintConfig("inlets"),
           });
         }
 
@@ -352,27 +305,7 @@ export default function MapPage() {
             id: "outlets-layer",
             type: "circle",
             source: "outlets",
-            paint: {
-              "circle-radius": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                12,
-                6,
-              ],
-              "circle-color": "#cc0000",
-              "circle-stroke-color": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                "#00ffff",
-                "#000000",
-              ],
-              "circle-stroke-width": [
-                "case",
-                ["boolean", ["feature-state", "selected"], false],
-                3,
-                0.5,
-              ],
-            },
+            paint: getCirclePaintConfig("outlets"),
           });
         }
       };
@@ -608,27 +541,15 @@ export default function MapPage() {
       layer: "inlets-layer",
     });
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
-
-    // Add popup
-    new mapboxgl.Popup()
-      .setLngLat([lng, lat])
-      .setHTML(
-        `
-      <strong>Inlet (${inlet.id})</strong><br/>
-      Inv Elev: ${inlet.Inv_Elev}<br/>
-      Max Depth: ${inlet.MaxDepth}<br/>
-      Length: ${inlet.Length}<br/>
-      Height: ${inlet.Height}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   const handleSelectOutlet = (outlet: Outlet) => {
@@ -656,26 +577,15 @@ export default function MapPage() {
       layer: "outlets-layer",
     });
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
-
-    // Add popup
-    new mapboxgl.Popup()
-      .setLngLat([lng, lat])
-      .setHTML(
-        `
-      <strong>Outlet (${outlet.id})</strong><br/>
-      Inv Elev: ${outlet.Inv_Elev ?? "N/A"}<br/>
-      AllowQ: ${outlet.AllowQ ?? "N/A"}<br/>
-      FlapGate: ${outlet.FlapGate ?? "N/A"}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   const handleSelectDrain = (drain: Drain) => {
@@ -703,28 +613,15 @@ export default function MapPage() {
       layer: "storm_drains-layer",
     });
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: [lng, lat],
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
-
-    // Add popup
-    new mapboxgl.Popup()
-      .setLngLat([lng, lat])
-      .setHTML(
-        `
-      <strong>Storm Drain (${drain.id})</strong><br/>
-      Inv Elev: ${drain.InvElev ?? "N/A"}<br/>
-      Max Depth: ${drain.Max_Depth ?? "N/A"}<br/>
-      Length: ${drain.Length ?? "N/A"}<br/>
-      Height: ${drain.Height ?? "N/A"}<br/>
-      Clog %: ${drain.clog_per ?? "N/A"}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   const handleSelectPipe = (pipe: Pipe) => {
@@ -752,35 +649,19 @@ export default function MapPage() {
       layer: "man_pipes-layer",
     });
 
-    // Popup at midpoint
+    // Calculate midpoint for camera animation
     const midIndex = Math.floor(pipe.coordinates.length / 2);
     const midpoint = pipe.coordinates[midIndex];
 
-    // Fly to the location on the map
+    // Fly to the location on the map with silky smooth animation
     mapRef.current.flyTo({
       center: midpoint,
-      zoom: 18,
-      speed: 1.2,
-      curve: 1,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
     });
-
-    new mapboxgl.Popup()
-      .setLngLat(midpoint)
-      .setHTML(
-        `
-      <strong>Pipe (${pipe.id})</strong><br/>
-      Type: ${pipe.TYPE}<br/>
-      Shape: ${pipe.Pipe_Shape}<br/>
-      Length: ${pipe.Pipe_Lngth}<br/>
-      Height: ${pipe.Height}<br/>
-      Width: ${pipe.Width}<br/>
-      Barrels: ${pipe.Barrels}<br/>
-      Manning's: ${pipe.Mannings}<br/>
-      Clog %: ${pipe.ClogPer}<br/>
-      Clog Time: ${pipe.ClogTime}
-    `
-      )
-      .addTo(mapRef.current);
   };
 
   return (

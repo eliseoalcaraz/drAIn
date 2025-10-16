@@ -9,14 +9,13 @@ import client from "@/app/api/client";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "@/components/ui/button";
 import DataFlowPipeline from "@/components/data-flow";
-import { StoryRingAvatar } from "@/components/story-ring";
 
 export default function WelcomePage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const supabase = client;
-  const [profile, setProfile] = useState<any>(null);
+  const [_profile, setProfile] = useState<any>(null);
   const [profileLoading, setProfileLoading] = useState(true);
   const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
   const [isNavigatingToMap, setIsNavigatingToMap] = useState(false);
@@ -91,47 +90,51 @@ export default function WelcomePage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-gray-50">
-      {/* Background pipeline — absolute and full-size of main */}
-      {/* Use debug={true} if you want to visually confirm the div exists */}
-      <DataFlowPipeline background cover debug={false} />
+    <main className="relative min-h-screen overflow-hidden bg-white">
+      {/* Background pipeline with map SVG — absolute and full-size of main */}
+      {/* Adjust mapOpacity (0-1) to control background visibility */}
+      {/* enableHover makes map paths interactive - entire shape area is hoverable, fills with color on hover */}
+      <DataFlowPipeline
+        background
+        cover
+        showMap
+        mapOpacity={1}
+        enableHover={true}
+        hoverColor="#3b82f6"
+        fillOnHover={true} // Makes entire shape area hoverable, not just thin border
+        fillOpacity={0.2} // 20% opacity on hover fill
+        hoverTrailDelay={300} // 300ms delay creates a trailing effect following the cursor
+        onPathClick={(pathId) => console.log("✅ Clicked:", pathId)}
+        onPathHover={(pathId) => pathId && console.log("🖱️ Hovering:", pathId)}
+        debug={false}
+      />
 
-      {/* Foreground Content */}
-      <div className="relative z-10 flex flex-1 h-full flex-col items-center justify-center text-center px-4">
-        {/* Greeting Section */}
+      {/* Foreground Content  */}
+      <div className="relative z-10 flex flex-1 h-full flex-col items-center justify-center text-center px-4 pointer-events-none">
         <div className="flex flex-col items-center gap-3 mb-6">
-          {loading || profileLoading ? (
-            <div className="w-10 h-10 rounded-full animate-pulse" />
-          ) : publicAvatarUrl ? (
-            <StoryRingAvatar
-              src={publicAvatarUrl}
-              alt={profile?.full_name || "Profile"}
-              size="lg"
+          <div className="relative w-32 h-32 pointer-events-auto rounded-2xl border border-[#7b7d7c]/50 p-4 overflow-hidden">
+            <Image
+              src="/images/logo1.png"
+              alt="drAIn Logo"
+              fill
+              className="object-contain"
             />
-          ) : (
-            <StoryRingAvatar
-              src="/images/placeholder.jpg"
-              alt={profile?.full_name || "Profile"}
-              size="lg"
-            />
-          )}
+          </div>
 
           <h1 className="text-4xl font-bold text-gray-800 mb-1">
-            Welcome to <span className="font-bold text-[#3B82F6]">drAIn</span>
+            project drain
           </h1>
 
           <p className="text-lg text-gray-600 max-w-xl text-center mb-3">
-            An intelligent platform designed to make learning and collaboration
-            smarter, faster, and more interactive.
+            The blueprint for efficient drainage system management
           </p>
         </div>
 
-        {/* Explore Button */}
         <Button
           onClick={handleNavigateToMap}
           disabled={loading}
           size="lg"
-          className="text-md bg-[#3B82F6] hover:bg-[#2563EB]"
+          className="text-md bg-[#3B82F6] hover:bg-[#2563EB] pointer-events-auto"
         >
           Explore Map
         </Button>

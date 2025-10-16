@@ -242,7 +242,7 @@ export default function OverlaysContent({
   };
 
   return (
-    <div className="flex flex-col gap-4 pl-3.5 pb-5 pr-5 overflow-hidden">
+    <div className="flex flex-col gap-4 pl-3.5 pb-5 pr-3 overflow-hidden">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
