@@ -15,7 +15,8 @@ import {
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
 import { Inlet, useInlets } from "@/hooks/useInlets";
-import { Outlet, useOutlets } from "@/hooks/useOutlets";
+import { useOutlets } from "@/hooks/useOutlets";
+import type { Outlet } from "@/components/control-panel/types";
 import { Drain, useDrain } from "@/hooks/useDrain";
 import { Pipe, usePipes } from "@/hooks/usePipes";
 import type { DatasetType } from "@/components/control-panel/types";
