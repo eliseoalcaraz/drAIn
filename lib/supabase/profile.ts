@@ -63,7 +63,7 @@ export const updateUserProfile = async (
           id: user.id,
           full_name: fullName,
           avatar_url: avatar_url,
-          role: "user", // Explicitly set role for new users
+          role: "user",
         })
         .select()
         .single());
