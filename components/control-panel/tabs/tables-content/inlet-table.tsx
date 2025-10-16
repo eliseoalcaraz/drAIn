@@ -17,7 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
-import { Inlet } from "@/hooks/useInlets";
+import type { Inlet } from "@/components/control-panel/types";
+
 
 interface InletTableProps {
   data: Inlet[];
