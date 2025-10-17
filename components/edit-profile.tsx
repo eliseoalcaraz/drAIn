@@ -27,6 +27,8 @@ export default function EditProfile({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  const isGuest = !session;
+
   const handleSave = async () => {
     if (!session) return;
     setErrorMessage(null);
@@ -71,7 +73,7 @@ export default function EditProfile({
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             placeholder="Your name"
-            disabled={isSaving}
+            disabled={isSaving || isGuest}
           />
         </div>
 
@@ -79,6 +81,7 @@ export default function EditProfile({
           <ImageUploader
             onImageChange={(file) => setAvatarFile(file)}
             placeholder="Upload an Avatar"
+            disabled={isGuest}
           />
           <div className="flex flex-row items-center gap-1">
             <span className="text-xs items-center ml-1 text-center text-muted-foreground">

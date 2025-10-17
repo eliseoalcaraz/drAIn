@@ -124,7 +124,7 @@ export function TopBar({
     if (pressed) {
       toast.success("Notifications turned on");
     } else {
-      toast("Notifications turned off");
+      toast.info("Notifications turned off");
     }
   };
 

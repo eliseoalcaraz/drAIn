@@ -38,6 +38,7 @@ interface OverlayContentProps {
   isDragEnabled?: boolean;
   onToggleDrag?: (enabled: boolean) => void;
   reports: any[];
+  isSimulationMode?: boolean;
 }
 
 type ComponentId = "chart" | "layers" | "reports";
@@ -106,6 +107,7 @@ export default function OverlaysContent({
   isDragEnabled = true,
   onToggleDrag,
   reports,
+  isSimulationMode = false,
 }: OverlayContentProps) {
   const [componentOrder, setComponentOrder] = useState<ComponentId[]>([
     "chart",
@@ -190,6 +192,7 @@ export default function OverlaysContent({
             onToggle={() => onToggleOverlay("reports-layer")}
             onNavigateToReportForm={onNavigateToReportForm}
             reports={reports}
+            isSimulationMode={isSimulationMode}
           />
         ),
       },
@@ -200,6 +203,7 @@ export default function OverlaysContent({
       onNavigateToTable,
       onNavigateToReportForm,
       reports,
+      isSimulationMode,
     ]
   );
 
@@ -242,7 +246,7 @@ export default function OverlaysContent({
   };
 
   return (
-    <div className="flex flex-col gap-4 pl-3.5 pb-5 pr-5 overflow-hidden">
+    <div className="flex flex-col gap-4 pl-5 pb-5 pr-3 overflow-hidden">
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

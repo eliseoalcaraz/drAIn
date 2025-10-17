@@ -7,7 +7,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Pencil, Link2, FileText } from "lucide-react";
 import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
-import { updateUserProfile } from "@/lib/supabase/profile";
+import {
+  updateUserProfile,
+  linkAgencyToProfile,
+  unlinkAgencyFromProfile,
+} from "@/lib/supabase/profile";
 import EditProfile from "@/components/edit-profile";
 import UserLinks from "@/components/user-links";
 import UserReportsList from "@/components/user-reports-list";
@@ -17,63 +21,25 @@ import Image from "next/image";
 interface ProfileContentProps {
   profileView: ProfileView;
   onProfileViewChange: (view: ProfileView) => void;
+  profile: any;
+  publicAvatarUrl: string | null;
+  setProfile: (profile: any) => void;
+  setPublicAvatarUrl: (url: string | null) => void;
 }
 
 export default function ProfileContent({
   profileView,
   onProfileViewChange,
+  profile,
+  publicAvatarUrl,
+  setProfile,
+  setPublicAvatarUrl,
 }: ProfileContentProps) {
   const authContext = useContext(AuthContext);
   const session = authContext?.session;
+  const isGuest = !session;
   const supabase = client;
-  const [profile, setProfile] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (session) {
-      const cacheKey = `profile-${session.user.id}`;
-      const cachedProfile = localStorage.getItem(cacheKey);
-
-      if (cachedProfile) {
-        const { profile: cachedData, publicAvatarUrl: cachedAvatarUrl } =
-          JSON.parse(cachedProfile);
-        setProfile(cachedData);
-        setPublicAvatarUrl(cachedAvatarUrl);
-        setLoading(false);
-      } else {
-        const fetchProfile = async () => {
-          setLoading(true);
-          const { data, error } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
-
-          if (error && error.code !== "PGRST116") {
-            console.error("Error fetching profile:", error);
-          } else if (data) {
-            const avatarUrl = data.avatar_url;
-            console.log(avatarUrl);
-            setProfile(data);
-            setPublicAvatarUrl(avatarUrl);
-            localStorage.setItem(
-              cacheKey,
-              JSON.stringify({ profile: data, publicAvatarUrl: avatarUrl })
-            );
-          }
-          setLoading(false);
-        };
-        fetchProfile();
-      }
-    } else {
-      setLoading(false);
-    }
-  }, [session, supabase]);
-
-  useEffect(() => {
-    console.log(publicAvatarUrl);
-  }, [publicAvatarUrl]);
+  const loading = !profile && !isGuest;
 
   const handleSave = async (fullName: string, avatarFile: File | null) => {
     if (!session) return;
@@ -104,8 +70,45 @@ export default function ProfileContent({
     );
   };
 
+  const handleLinkAgency = async (agencyId: string, agencyName: string) => {
+    if (!profile || !session) return;
+    await linkAgencyToProfile(session.user.id, agencyId); // Persist to Supabase
+    const updatedProfile = {
+      ...profile,
+      agency_id: agencyId,
+      agency_name: agencyName,
+    };
+    setProfile(updatedProfile);
+    // Also update the cache
+    const cacheKey = `profile-${session.user.id}`;
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        profile: updatedProfile,
+        publicAvatarUrl: publicAvatarUrl,
+      })
+    );
+  };
+
+  const handleUnlinkAgency = async () => {
+    if (!profile || !session) return;
+    await unlinkAgencyFromProfile(session.user.id); // Persist to Supabase
+    const { agency_id, agency_name, ...rest } = profile;
+    const updatedProfile = { ...rest };
+    setProfile(updatedProfile);
+    // Also update the cache
+    const cacheKey = `profile-${session.user.id}`;
+    localStorage.setItem(
+      cacheKey,
+      JSON.stringify({
+        profile: updatedProfile,
+        publicAvatarUrl: publicAvatarUrl,
+      })
+    );
+  };
+
   return (
-    <div className="flex flex-col px-4 h-full overflow-y-auto">
+    <div className="flex flex-col pl-5 pr-2.5 h-full overflow-y-auto">
       {loading ? (
         <div className="flex items-center justify-center h-full">
           <p className="text-muted-foreground">Loading profile...</p>
@@ -189,14 +192,19 @@ export default function ProfileContent({
               value="links"
               className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
-              <UserLinks />
+              <UserLinks
+                isGuest={isGuest}
+                profile={profile}
+                onLink={handleLinkAgency}
+                onUnlink={handleUnlinkAgency}
+              />
             </TabsContent>
 
             <TabsContent
               value="reports"
               className="flex-1 mb-5 rounded-b-xl border border-[#ced1cd] border-t-0 overflow-y-auto"
             >
-              <UserReportsList userId={session?.user?.id} />
+              <UserReportsList userId={session?.user?.id} isGuest={isGuest} />
             </TabsContent>
           </Tabs>
         </>

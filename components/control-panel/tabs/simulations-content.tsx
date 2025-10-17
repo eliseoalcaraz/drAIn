@@ -41,6 +41,7 @@ import {
   calculateDistanceToOutletForDrain,
 } from "@/lib/distance-calculator";
 import { SimulationGateway } from "@/components/simulation-gateway";
+import type { Inlet, Outlet, Pipe, Drain } from "../types";
 
 type EndpointType = "predict-100yr" | "predict-50yr" | "predict-25yr";
 
@@ -68,11 +69,19 @@ const DEFAULT_PARAMS: PredictionParams = {
 interface SimulationsContentProps {
   isSimulationMode?: boolean;
   selectedPointId?: string | null;
+  selectedInlet?: Inlet | null;
+  selectedOutlet?: Outlet | null;
+  selectedPipe?: Pipe | null;
+  selectedDrain?: Drain | null;
 }
 
 export default function SimulationsContent({
   isSimulationMode = false,
   selectedPointId: externalSelectedPointId = null,
+  selectedInlet = null,
+  selectedOutlet = null,
+  selectedPipe = null,
+  selectedDrain = null,
 }: SimulationsContentProps) {
   const [endpoint, setEndpoint] = useState<EndpointType | "">("");
   const [params, setParams] = useState<PredictionParams>(DEFAULT_PARAMS);
@@ -204,7 +213,7 @@ export default function SimulationsContent({
   }
 
   return (
-    <div className="flex flex-col flex-1 pt-3 pb-5 px-5 space-y-4">
+    <div className="flex flex-col flex-1 pt-3 pb-5 pl-5 pr-4  space-y-4">
       <CardHeader className="py-0 px-1 mb-3">
         <CardTitle>Flood Prediction Simulation</CardTitle>
         <CardDescription className="text-xs">

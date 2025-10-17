@@ -3,6 +3,7 @@
 import SubmitTab from "../../submit-tab";
 import AllReportsList from "../../all-reports-list";
 import type { DateFilterValue } from "../../date-sort";
+import type { Inlet, Outlet, Pipe, Drain } from "../types";
 
 interface ReportsTabProps {
   activeReportTab?: "submission" | "reports";
@@ -11,6 +12,10 @@ interface ReportsTabProps {
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
   isSimulationMode?: boolean;
+  selectedInlet?: Inlet | null;
+  selectedOutlet?: Outlet | null;
+  selectedPipe?: Pipe | null;
+  selectedDrain?: Drain | null;
 }
 
 export function ReportsTab({
@@ -20,6 +25,10 @@ export function ReportsTab({
   onRefreshReports,
   isRefreshingReports = false,
   isSimulationMode = false,
+  selectedInlet = null,
+  selectedOutlet = null,
+  selectedPipe = null,
+  selectedDrain = null,
 }: ReportsTabProps) {
   return (
     <div className="w-full h-full flex flex-col">
@@ -32,6 +41,10 @@ export function ReportsTab({
           onRefresh={onRefreshReports}
           isRefreshing={isRefreshingReports}
           isSimulationMode={isSimulationMode}
+          selectedInlet={selectedInlet}
+          selectedOutlet={selectedOutlet}
+          selectedPipe={selectedPipe}
+          selectedDrain={selectedDrain}
         />
       )}
     </div>

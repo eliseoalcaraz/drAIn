@@ -17,7 +17,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
-import type { Outlet } from "@/hooks/useOutlets";
+import type { Outlet } from "@/components/control-panel/types";
+
 
 export type OutletSortField = "id" | "Inv_Elev" | "AllowQ" | "FlapGate";
 export type SortDirection = "asc" | "desc";

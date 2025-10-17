@@ -63,7 +63,7 @@ export const updateUserProfile = async (
           id: user.id,
           full_name: fullName,
           avatar_url: avatar_url,
-          role: "user", // Explicitly set role for new users
+          role: "user",
         })
         .select()
         .single());
@@ -82,6 +82,69 @@ export const updateUserProfile = async (
   } catch (error: any) {
     const errorMessage = error.message || "An unknown error occurred.";
     console.error("Error in updateUserProfile:", errorMessage, error);
+    throw new Error(errorMessage);
+  }
+};
+
+export const getAgencies = async () => {
+  try {
+    const { data, error } = await client
+      .from("agencies") // Assuming a table named 'agencies'
+      .select("id, name");
+
+    if (error) {
+      console.error("Error fetching agencies:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    const errorMessage = error.message || "An unknown error occurred.";
+    console.error("Error in getAgencies:", errorMessage, error);
+    throw new Error(errorMessage);
+  }
+};
+
+export const linkAgencyToProfile = async (userId: string, agencyId: string) => {
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .update({ agency_id: agencyId })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error linking agency:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    const errorMessage = error.message || "An unknown error occurred.";
+    console.error("Error in linkAgencyToProfile:", errorMessage, error);
+    throw new Error(errorMessage);
+  }
+};
+
+export const unlinkAgencyFromProfile = async (userId: string) => {
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .update({ agency_id: null })
+      .eq("id", userId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error unlinking agency:", error);
+      throw error;
+    }
+
+    return data;
+  } catch (error: any) {
+    const errorMessage = error.message || "An unknown error occurred.";
+    console.error("Error in unlinkAgencyFromProfile:", errorMessage, error);
     throw new Error(errorMessage);
   }
 };

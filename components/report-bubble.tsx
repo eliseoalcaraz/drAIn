@@ -29,6 +29,7 @@ interface Props {
   map: mapboxgl.Map | null;
   coordinates: [number, number];
   onOpen?: () => void;
+  count: number;
 }
 
 export interface ReportBubbleRef {
@@ -227,7 +228,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                 <span className="font-bold text-[#7e7e7e]">
                   {report.componentId}
                 </span>
-                <span className="text-[#7e7e7e]">has {reportSize} reports </span>
+                <span className="text-[#7e7e7e]">has {reportSize} {reportSize > 1 ? "reports": "report"}</span>
               </div>
               <div className="rounded-full bg-[#b3b3b3] p-1">
                 <History className="w-4 h-4 text-white" />

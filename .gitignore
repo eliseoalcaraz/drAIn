@@ -47,10 +47,5 @@ next-env.d.ts
 CLAUDE.md
 *.claude.md
 
-
-test-results/
-playwright.config
-tests
-manual-test-guide
-component-location-diagram
-playwright-report
+# copilot-instructions.md
+.github/copilot-instructions.md

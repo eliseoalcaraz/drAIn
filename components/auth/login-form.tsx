@@ -24,8 +24,7 @@ export default function LoginForm() {
     if (error) {
       setError(error.message);
     } else {
-      // ✅ redirect after login (e.g., dashboard)
-      router.push("/map");
+      router.push("/");
     }
 
     setLoading(false);

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/navigation";
+import { AuthContext } from "@/components/context/AuthProvider";
 import type { ControlPanelProps } from "./types";
 import { DETAIL_TITLES } from "./constants";
 import { useControlPanelState } from "./hooks/use-control-panel-state";
@@ -38,6 +39,45 @@ export function ControlPanel({
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
+  const authContext = useContext(AuthContext);
+  const session = authContext?.session;
+  const [profile, setProfile] = useState<any>(null);
+  const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session) {
+      const cacheKey = `profile-${session.user.id}`;
+      const cachedProfile = localStorage.getItem(cacheKey);
+
+      if (cachedProfile) {
+        const { profile: cachedData, publicAvatarUrl: cachedAvatarUrl } =
+          JSON.parse(cachedProfile);
+        setProfile(cachedData);
+        setPublicAvatarUrl(cachedAvatarUrl);
+      } else {
+        const fetchProfile = async () => {
+          const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", session.user.id)
+            .single();
+
+          if (error && error.code !== "PGRST116") {
+            console.error("Error fetching profile:", error);
+          } else if (data) {
+            const avatarUrl = data.avatar_url;
+            setProfile(data);
+            setPublicAvatarUrl(avatarUrl);
+            localStorage.setItem(
+              cacheKey,
+              JSON.stringify({ profile: data, publicAvatarUrl: avatarUrl })
+            );
+          }
+        };
+        fetchProfile();
+      }
+    }
+  }, [session, supabase]);
   const {
     sortField,
     sortDirection,
@@ -93,11 +133,15 @@ export function ControlPanel({
   };
 
   return (
-    <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl">
+    <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl overflow-hidden">
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={onTabChange}
+        profile={profile}
+      />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col overflow-hidden">
         {/* Top Bar */}
         <TopBar
           activeTab={activeTab}
@@ -120,7 +164,7 @@ export function ControlPanel({
 
         {/* Main Content */}
         <div
-          className={`relative flex-1 overflow-auto ${
+          className={`control-panel-scroll relative flex-1 overflow-auto ${
             activeTab === "stats" ? "overflow-y-scroll" : ""
           }`}
         >
@@ -162,6 +206,10 @@ export function ControlPanel({
             dateFilter={dateFilter}
             onRefreshReports={onRefreshReports}
             isRefreshingReports={isRefreshingReports}
+            profile={profile}
+            publicAvatarUrl={publicAvatarUrl}
+            setProfile={setProfile}
+            setPublicAvatarUrl={setPublicAvatarUrl}
           />
         </div>
       </div>

@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
-import { Pipe } from "@/hooks/usePipes";
+import type { Pipe } from "@/components/control-panel/types";
 
 interface PipeTableProps {
   data: Pipe[];

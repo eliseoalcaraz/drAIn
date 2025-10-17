@@ -6,19 +6,7 @@ import type {
   LineString,
 } from "geojson";
 
-export interface Pipe {
-  id: string;
-  TYPE: string;
-  Pipe_Shape: string;
-  Pipe_Lngth: number;
-  Height: number;
-  Width: number;
-  Barrels: number;
-  ClogPer: number;
-  ClogTime: number;
-  Mannings: number;
-  coordinates: [number, number][];
-}
+import type { Pipe } from "@/components/control-panel/types";
 
 export function transformGeoJSON(geojson: FeatureCollection): Pipe[] {
   return geojson.features.map((f: Feature) => {
@@ -79,3 +67,5 @@ export function usePipes() {
 
   return { pipes, loading };
 }
+
+export type { Pipe } from "@/components/control-panel/types";
