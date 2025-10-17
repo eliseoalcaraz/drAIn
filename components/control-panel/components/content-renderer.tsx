@@ -158,6 +158,7 @@ export function ContentRenderer({
           isDragEnabled={isDragEnabled}
           onToggleDrag={onToggleDrag}
           reports={reports}
+          isSimulationMode={isSimulationMode}
         />
       );
 

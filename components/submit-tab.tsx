@@ -128,7 +128,7 @@ export default function SubmitTab() {
     <>
       <form
         onSubmit={handlePreSubmit}
-        className="w-full h-full pb-5 px-5 pt-3 rounded-xl flex flex-col space-y-4"
+        className="w-full h-full pb-5 pl-5 pr-2 pt-3 rounded-xl flex flex-col space-y-4"
       >
         <CardHeader className="py-0 px-1 mb-3">
           <CardTitle>Report an issue</CardTitle>

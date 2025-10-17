@@ -213,7 +213,7 @@ export default function SimulationsContent({
   }
 
   return (
-    <div className="flex flex-col flex-1 pt-3 pb-5 px-5 space-y-4">
+    <div className="flex flex-col flex-1 pt-3 pb-5 pl-5 pr-4  space-y-4">
       <CardHeader className="py-0 px-1 mb-3">
         <CardTitle>Flood Prediction Simulation</CardTitle>
         <CardDescription className="text-xs">
