@@ -195,10 +195,9 @@ export default function AllReportsList({
                             {format(new Date(report.date), "MMM dd, yyyy")}
                           </span>
                           {/*Apply Geocoding Here */}
-                          {/* <span>
-                            ({report.coordinates[1].toFixed(4)},{" "}
-                            {report.coordinates[0].toFixed(4)})
-                          </span> */}
+                          <span>
+                            {report.address}
+                          </span>
                         </div>
                       </div>
                     </div>

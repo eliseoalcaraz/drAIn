@@ -7,9 +7,11 @@ export interface Report {
   description: string;
   image: string;
   reporterName: string;
-  status: "pending" | "in-progress" | "resolved";
+  status: string;
   componentId: string;
   coordinates: [number, number];
+  geocoded_status: string;
+  address: string;
 }
 
 export const uploadReport = async (file: File, category: string, description: string, component_id: string, long: number, lat: number)  => {
@@ -38,6 +40,8 @@ export const uploadReport = async (file: File, category: string, description: st
                     component_id: component_id,
                     long: long,
                     lat: lat,
+                    address: null,
+                    geocoded_status: 'pending'
                 },
             ]);
 
@@ -87,6 +91,8 @@ export const fetchReports = async (): Promise<Report[]> => {
     status: report.status,
     componentId: report.component_id ?? "N/A",
     coordinates: [report.long as number, report.lat as number] as [number, number],
+    geocoded_status: report.geocoded_status ?? "pending",
+    address: report.address ?? "Loading address...",
     }));
     return formattedReports;
   } catch (error) {
@@ -127,8 +133,10 @@ const formatReport = (report: any): Report => {
     status: report.status,
     componentId: report.component_id ?? "N/A",
     coordinates: [report.long as number, report.lat as number] as [number, number],
+    geocoded_status: report.geocoded_status ?? "pending",
+    address: report.address ?? "Loading address...",
   };
-}
+};
 
 export const subscribeToNewReports = (callback: (newReport: Report) => void) => {
   const channel = client
@@ -141,6 +149,15 @@ export const subscribeToNewReports = (callback: (newReport: Report) => void) => 
         callback(formattedReport);
       }
     )
+    .on(
+      'postgres_changes',
+      { event: 'UPDATE', schema: 'public', table: 'reports' },
+      (payload) => {
+        const formattedReport = formatReport(payload.new);
+        callback(formattedReport);
+      }
+    )
+    
     .subscribe();
 
   return () => {
