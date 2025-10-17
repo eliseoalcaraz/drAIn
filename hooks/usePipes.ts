@@ -67,3 +67,5 @@ export function usePipes() {
 
   return { pipes, loading };
 }
+
+export type { Pipe } from "@/components/control-panel/types";

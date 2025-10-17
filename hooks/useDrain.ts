@@ -70,3 +70,6 @@ export function useDrain() {
 
   return { drains, loading };
 }
+
+
+export type { Drain } from "@/components/control-panel/types";
