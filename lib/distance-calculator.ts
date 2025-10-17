@@ -1,9 +1,9 @@
 import distance from "@turf/distance";
 import { point } from "@turf/helpers";
-import type { Inlet } from "@/hooks/useInlets";
-import type { Outlet } from "@/hooks/useOutlets";
-import type { Pipe } from "@/hooks/usePipes";
-import type { Drain } from "@/hooks/useDrain";
+import type { Inlet } from "@/components/control-panel/types";
+import type { Outlet } from "@/components/control-panel/types";
+import type { Pipe } from "@/components/control-panel/types";
+import type { Drain } from "@/components/control-panel/types";
 
 interface DistanceResult {
   inletId: string;
@@ -152,10 +152,7 @@ function buildPipeGraph(pipes: Pipe[]): Graph {
 }
 
 // Find nearest node in graph to a given point
-function findNearestNode(
-  coord: [number, number],
-  graph: Graph
-): string | null {
+function findNearestNode(coord: [number, number], graph: Graph): string | null {
   const targetPoint = point(coord);
   let minDist = Infinity;
   let nearestNodeId: string | null = null;

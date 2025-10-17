@@ -29,10 +29,10 @@ import {
 } from "@/components/ui/popover";
 
 const defaultLanguages: ComboboxOption[] = [
-  { label: "Inlet", value: "inlet" },
-  { label: "Outlet", value: "outlet" },
-  { label: "Pipe", value: "man_pipe" },
-  { label: "Drain", value: "storm_drain" },
+  { label: "Inlet", value: "inlets" },
+  { label: "Outlet", value: "outlets" },
+  { label: "Pipe", value: "man_pipes" },
+  { label: "Drain", value: "storm_drains" },
 ];
 
 const FormSchema = z.object({

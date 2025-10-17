@@ -21,6 +21,7 @@ import { useInlets } from "@/hooks/useInlets";
 import { useOutlets } from "@/hooks/useOutlets";
 import { useDrain } from "@/hooks/useDrain";
 import { usePipes } from "@/hooks/usePipes";
+import { useSidebar } from "@/components/ui/sidebar";
 import type {
   Inlet,
   Outlet,
@@ -30,12 +31,17 @@ import type {
 } from "@/components/control-panel/types";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
-import { fetchReports, getreportCategoryCount, subscribeToReportChanges } from "@/lib/supabase/report";
+import { useSearchParams, useRouter } from "next/navigation";
+import {
+  fetchReports,
+  getreportCategoryCount,
+  subscribeToReportChanges,
+} from "@/lib/supabase/report";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function MapPage() {
-  const { setOpen, isMobile, setOpenMobile } = useSidebar();
+  const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [reports, setReports] = useState<any[]>([]);
@@ -100,6 +106,7 @@ export default function MapPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+
   const [controlPanelDataset, setControlPanelDataset] =
     useState<DatasetType>("inlets");
 
@@ -148,8 +155,8 @@ export default function MapPage() {
       },
       // On UPDATE: Replace existing report
       (updatedReport) => {
-        setReports((prev) => 
-          prev.map((report) => 
+        setReports((prev) =>
+          prev.map((report) =>
             report.id === updatedReport.id ? updatedReport : report
           )
         );
@@ -204,7 +211,8 @@ export default function MapPage() {
   useEffect(() => {
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    if (mapContainerRef.current && !mapRef.current) {
+    // Only initialize map after sidebar is closed to ensure proper sizing
+    if (mapContainerRef.current && !mapRef.current && !open) {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: DEFAULT_STYLE,
@@ -384,7 +392,8 @@ export default function MapPage() {
         });
       });
     }
-  }, [layerIds]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layerIds, open]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -423,18 +432,20 @@ export default function MapPage() {
           if (i !== index && ref) ref.close();
         });
       };
-    
+
       root.render(
         <ReportBubble
           ref={(ref) => {
             reportBubbleRefs[index] = ref;
           }}
-          reportSize={getreportCategoryCount(report.category, report.componentId)}
+          reportSize={getreportCategoryCount(
+            report.category,
+            report.componentId
+          )}
           report={report}
           map={map}
           coordinates={report.coordinates}
           onOpen={handleOpenBubble}
-          count={count}
         />
       );
     });

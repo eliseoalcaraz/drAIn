@@ -8,7 +8,7 @@ import {
   forwardRef,
 } from "react";
 import { getInitials } from "@/lib/user-initials";
-import { X, Image as ImageIcon, History } from "lucide-react";
+import { X, Image as ImageIcon, History, Link } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type mapboxgl from "mapbox-gl";
 import { ImageViewer } from "@/components/image-viewer";
@@ -29,19 +29,18 @@ interface Props {
   map: mapboxgl.Map | null;
   coordinates: [number, number];
   onOpen?: () => void;
-  count: number;
 }
 
 export interface ReportBubbleRef {
   close: () => void;
 }
 
-
 export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
-  function ReportBubble({reportSize, report, map, coordinates, onOpen }, ref) {
+  function ReportBubble({ reportSize, report, map, coordinates, onOpen }, ref) {
     const [isOpen, setIsOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [showImageViewer, setShowImageViewer] = useState(false);
+    const [resolvedReportSize, setResolvedReportSize] = useState<number>(0);
 
     const containerRef = useRef<HTMLDivElement>(null);
     const previousZoomRef = useRef<number | null>(null);
@@ -49,6 +48,10 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
 
     const CLOSING_DURATION = 300; // Consistent fade-out duration
     const initials = getInitials(report.reporterName);
+
+    useEffect(() => {
+      reportSize.then((size) => setResolvedReportSize(size));
+    }, [reportSize]);
 
     const handleOpen = () => {
       onOpen?.();
@@ -116,16 +119,16 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
       };
     }, [map, isOpen]);
 
-    const getStatusColor = (status: string) => {
+    const getStatusStyle = (status: string) => {
       switch (status) {
-        case "pending":
-          return "border-yellow-500 text-yellow-600";
-        case "in-progress":
-          return "border-blue-500 text-blue-600";
         case "resolved":
-          return "border-green-500 text-green-600";
+          return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
+        case "unresolved":
+          return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20";
+        case "pending":
+          return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
         default:
-          return "border-gray-300 text-gray-600";
+          return "bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20";
       }
     };
 
@@ -177,7 +180,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             </button>
 
             {/* Header */}
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-2">
               <div
                 className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm ${getComponentColor(
                   report.category
@@ -189,34 +192,36 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                 <h3 className="font-semibold text-gray-900">
                   {report.reporterName}
                 </h3>
-                <div className="flex flex-row gap-3">
-                  <p className="text-2xs text-gray-500">
+                <div className="flex flex-row gap-2 pt-1 items-end">
+                  <p className="text-2xs  pb-1 text-gray-500">
                     {formatDistanceToNow(new Date(report.date), {
                       addSuffix: true,
                     })}
                   </p>
-                  <span
-                    className={`justify-center h-5 inline-block px-3 rounded-full text-[7px] font-medium border ${getStatusColor(
+                  <div
+                    className={`text-[10px] px-3 py-0.5 mb-1 h-5 rounded-md border flex items-center justify-center ${getStatusStyle(
                       report.status
                     )}`}
                   >
-                    {report.status.replace("-", " ").toUpperCase()}
-                  </span>
+                    {report.status}
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Description */}
             <div className="ml-[52px] mb-4">
-              <p className="text-xs text-gray-800">
+              <p className="text-xs text-gray-800 flex flex-col gap-2">
                 {report.description}{" "}
                 {report.image && (
                   <button
                     onClick={() => setShowImageViewer(true)}
                     className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
                   >
-                    <ImageIcon className="w-3 h-3" />
-                    Image Attached
+                    <span className="flex flex-row gap-1 items-center">
+                      Image Attached
+                      <Link className="w-3 h-3 mb-0.5" />
+                    </span>
                   </button>
                 )}
               </p>
@@ -228,7 +233,10 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                 <span className="font-bold text-[#7e7e7e]">
                   {report.componentId}
                 </span>
-                <span className="text-[#7e7e7e]">has {reportSize} {reportSize > 1 ? "reports": "report"}</span>
+                <span className="text-[#7e7e7e]">
+                  has {resolvedReportSize}{" "}
+                  {resolvedReportSize > 1 ? "reports" : "report"}
+                </span>
               </div>
               <div className="rounded-full bg-[#b3b3b3] p-1">
                 <History className="w-4 h-4 text-white" />
