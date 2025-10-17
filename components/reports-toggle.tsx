@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Info, Power } from "lucide-react";
+import { Info, Power, AlertCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 import {
@@ -24,6 +24,7 @@ interface ReportsToggleProps {
   onToggle: () => void;
   onNavigateToReportForm?: () => void;
   reports: any[];
+  isSimulationMode?: boolean;
 }
 
 const chartConfig = {
@@ -38,6 +39,7 @@ export function ReportsToggle({
   onToggle,
   onNavigateToReportForm,
   reports = [],
+  isSimulationMode = false,
 }: ReportsToggleProps) {
   const totalReports = reports.length;
   const [visible, setVisible] = useState(isVisible);
@@ -79,7 +81,10 @@ export function ReportsToggle({
             <Toggle
               id="reports-toggle"
               pressed={isVisible}
-              onPressedChange={() => { onToggle(); setVisible(!visible); }}
+              onPressedChange={() => {
+                onToggle();
+                setVisible(!visible);
+              }}
               onClick={(e: any) => e.stopPropagation()}
               variant="outline"
               size="sm"
@@ -87,8 +92,12 @@ export function ReportsToggle({
               className={`ml-auto border transition-colors duration-300 ${
                 visible ? "border-[#3F83DB]" : "border-gray-300"
               }`}
-             >
-              <Power className={`h-4 w-4 ${visible ? "text-[#3F83DB]" : "text-gray-400"}`}/>
+            >
+              <Power
+                className={`h-4 w-4 ${
+                  visible ? "text-[#3F83DB]" : "text-gray-400"
+                }`}
+              />
             </Toggle>
           </CardTitle>
           <CardDescription className="text-xs">
@@ -96,54 +105,64 @@ export function ReportsToggle({
           </CardDescription>
         </CardHeader>
         <CardContent className="pt-0 space-y-4">
-          {/* Bar Chart */}
-
-          <ChartContainer
-            config={chartConfig}
-            className="flex h-[100px] w-full max-w-[240px]"
-          >
-            <BarChart
-              accessibilityLayer
-              data={chartData}
-              margin={{
-                left: 0,
-                right: 0,
-                top: 5,
-                bottom: 5,
-              }}
-            >
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={8}
-                minTickGap={32}
-                tickFormatter={(value) => {
-                  const date = new Date(value);
-                  return date.toLocaleDateString("en-US", {
-                    month: "short",
-                    day: "numeric",
-                  });
-                }}
-              />
-              <ChartTooltip
-                content={
-                  <ChartTooltipContent
-                    className="w-[150px]"
-                    labelFormatter={(value) => {
-                      return new Date(value).toLocaleDateString("en-US", {
+          {isSimulationMode ? (
+            <div className="flex items-center my-4 gap-2 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+              <AlertCircle className="h-4 w-4 text-amber-600 flex-shrink-0" />
+              <p className="text-xs text-amber-800">
+                Unavailable in simulation mode
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* Bar Chart */}
+              <ChartContainer
+                config={chartConfig}
+                className="flex h-[100px] w-full max-w-[240px]"
+              >
+                <BarChart
+                  accessibilityLayer
+                  data={chartData}
+                  margin={{
+                    left: 0,
+                    right: 0,
+                    top: 5,
+                    bottom: 5,
+                  }}
+                >
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="date"
+                    tickLine={false}
+                    axisLine={false}
+                    tickMargin={8}
+                    minTickGap={32}
+                    tickFormatter={(value) => {
+                      const date = new Date(value);
+                      return date.toLocaleDateString("en-US", {
                         month: "short",
                         day: "numeric",
-                        year: "numeric",
                       });
                     }}
                   />
-                }
-              />
-              <Bar dataKey="count" fill="var(--color-count)" radius={4} />
-            </BarChart>
-          </ChartContainer>
+                  <ChartTooltip
+                    content={
+                      <ChartTooltipContent
+                        className="w-[150px]"
+                        labelFormatter={(value) => {
+                          return new Date(value).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          });
+                        }}
+                      />
+                    }
+                  />
+                  <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            </>
+          )}
         </CardContent>
       </Card>
       <div className="flex justify-end py-2 px-4 items-center gap-2">

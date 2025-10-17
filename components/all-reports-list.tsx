@@ -64,9 +64,7 @@ export default function AllReportsList({
       selectedDrain?.id;
 
     if (selectedId) {
-      filtered = filtered.filter(
-        (report) => report.componentId === selectedId
-      );
+      filtered = filtered.filter((report) => report.componentId === selectedId);
     }
 
     if (dateFilter === "all") {

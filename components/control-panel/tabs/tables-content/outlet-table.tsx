@@ -79,7 +79,7 @@ export function OutletTable({
   };
 
   return (
-    <div className="flex flex-col flex-1 pl-5 pr-2 pt-3 pb-5 gap-6">
+    <div className="flex flex-col flex-1 pl-5 pr-3 pt-3 pb-5 gap-6">
       <CardHeader className="py-0 px-1">
         <CardTitle>Outlet Inventory</CardTitle>
         <CardDescription className="text-xs">

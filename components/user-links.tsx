@@ -1,41 +1,35 @@
 "use client";
 
-import AgencyLink from "./agency-link";
-import AgencyInfo from "./agency-info";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 interface UserLinksProps {
   isGuest?: boolean;
-  profile: any; // TODO: Replace with a proper profile type
-  onLink: (agencyId: string, agencyName: string) => void;
-  onUnlink: () => void;
+  profile?: any;
+  onLink?: (agencyId: string, agencyName: string) => Promise<void>;
+  onUnlink?: () => Promise<void>;
 }
 
 export default function UserLinks({
   isGuest = false,
-  profile,
-  onLink,
-  onUnlink,
+  profile: _profile,
+  onLink: _onLink,
+  onUnlink: _onUnlink,
 }: UserLinksProps) {
-  if (isGuest) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-muted-foreground">
-          You must be logged in to link an agency.
-        </p>
-      </div>
-    );
-  }
-
   return (
-    <div className="p-4">
-      {profile?.agency_id ? (
-        <AgencyInfo
-          agencyName={profile.agency_name || "Linked Agency"}
-          onUnlink={onUnlink}
-        />
-      ) : (
-        <AgencyLink onLink={onLink} />
-      )}
-    </div>
+    <Card className="rounded-none h-full pt-0 pb-14 border-none">
+      <CardContent className="flex-1 flex items-center">
+        <div className="space-y-2 flex flex-col justify-center">
+          <div className="text-sm text-muted-foreground text-center py-8">
+            No agency linked yet. Connect your agency account to gain admin
+            controls and respond to user reports.
+          </div>
+
+          <Button className="w-5/6 self-center" disabled={isGuest}>
+            Add Link
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 }

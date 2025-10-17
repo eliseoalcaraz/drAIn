@@ -7,7 +7,11 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Pencil, Link2, FileText } from "lucide-react";
 import { AuthContext } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
-import { updateUserProfile, linkAgencyToProfile, unlinkAgencyFromProfile } from "@/lib/supabase/profile";
+import {
+  updateUserProfile,
+  linkAgencyToProfile,
+  unlinkAgencyFromProfile,
+} from "@/lib/supabase/profile";
 import EditProfile from "@/components/edit-profile";
 import UserLinks from "@/components/user-links";
 import UserReportsList from "@/components/user-reports-list";
@@ -69,7 +73,11 @@ export default function ProfileContent({
   const handleLinkAgency = async (agencyId: string, agencyName: string) => {
     if (!profile || !session) return;
     await linkAgencyToProfile(session.user.id, agencyId); // Persist to Supabase
-    const updatedProfile = { ...profile, agency_id: agencyId, agency_name: agencyName };
+    const updatedProfile = {
+      ...profile,
+      agency_id: agencyId,
+      agency_name: agencyName,
+    };
     setProfile(updatedProfile);
     // Also update the cache
     const cacheKey = `profile-${session.user.id}`;
@@ -100,7 +108,7 @@ export default function ProfileContent({
   };
 
   return (
-    <div className="flex flex-col px-4 h-full overflow-y-auto">
+    <div className="flex flex-col pl-5 pr-2.5 h-full overflow-y-auto">
       {loading ? (
         <div className="flex items-center justify-center h-full">
           <p className="text-muted-foreground">Loading profile...</p>
