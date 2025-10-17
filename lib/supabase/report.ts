@@ -138,7 +138,10 @@ const formatReport = (report: any): Report => {
   };
 };
 
-export const subscribeToNewReports = (callback: (newReport: Report) => void) => {
+export const subscribeToReportChanges = (
+  onInsert: (newReport: Report) => void,
+  onUpdate: (updatedReport: Report) => void
+  ) => {
   const channel = client
     .channel('realtime-reports')
     .on(
@@ -146,7 +149,7 @@ export const subscribeToNewReports = (callback: (newReport: Report) => void) => 
       { event: 'INSERT', schema: 'public', table: 'reports' },
       (payload) => {
         const formattedReport = formatReport(payload.new);
-        callback(formattedReport);
+        onInsert(formattedReport);
       }
     )
     .on(
@@ -154,13 +157,29 @@ export const subscribeToNewReports = (callback: (newReport: Report) => void) => 
       { event: 'UPDATE', schema: 'public', table: 'reports' },
       (payload) => {
         const formattedReport = formatReport(payload.new);
-        callback(formattedReport);
+        onUpdate(formattedReport);
       }
     )
-    
     .subscribe();
 
   return () => {
     client.removeChannel(channel);
   };
+};
+
+export const getreportCategoryCount = async (targetCategory: string, categoryId: string): Promise<number> => {
+  try {
+    const { count: categoryCount, error } = await client
+      .from("reports")
+      .select("category", { count: "exact", head: true })
+      .eq("category", targetCategory)
+      .eq("component_id", categoryId);
+
+    console.log(targetCategory, categoryId, categoryCount);
+    return categoryCount?? 0;
+  }
+  catch (error) {
+    console.error("Error fetching reports:", error); 
+    return 0;
+  }
 };

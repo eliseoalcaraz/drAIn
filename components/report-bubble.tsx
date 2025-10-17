@@ -24,6 +24,7 @@ interface Report {
 }
 
 interface Props {
+  reportSize: Promise<number>;
   report: Report;
   map: mapboxgl.Map | null;
   coordinates: [number, number];
@@ -35,8 +36,9 @@ export interface ReportBubbleRef {
   close: () => void;
 }
 
+
 export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
-  function ReportBubble({ report, map, coordinates, onOpen, count }, ref) {
+  function ReportBubble({reportSize, report, map, coordinates, onOpen }, ref) {
     const [isOpen, setIsOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [showImageViewer, setShowImageViewer] = useState(false);
@@ -226,7 +228,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                 <span className="font-bold text-[#7e7e7e]">
                   {report.componentId}
                 </span>
-                <span className="text-[#7e7e7e]">has {count} {count > 1 ? "reports": "report"}</span>
+                <span className="text-[#7e7e7e]">has {reportSize} {reportSize > 1 ? "reports": "report"}</span>
               </div>
               <div className="rounded-full bg-[#b3b3b3] p-1">
                 <History className="w-4 h-4 text-white" />

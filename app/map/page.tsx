@@ -30,9 +30,7 @@ import type {
 } from "@/components/control-panel/types";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
-import { fetchReports, subscribeToNewReports } from "@/lib/supabase/report";
-import { useSearchParams, useRouter } from "next/navigation";
-import { useSidebar } from "@/components/ui/sidebar";
+import { fetchReports, getreportCategoryCount, subscribeToReportChanges } from "@/lib/supabase/report";
 
 import "mapbox-gl/dist/mapbox-gl.css";
 
@@ -142,9 +140,21 @@ export default function MapPage() {
       }
     };
     loadReports();
-    const unsubscribe = subscribeToNewReports((newReport) => {
-      setReports((currentReports) => [...currentReports, newReport]);
-    });
+    const unsubscribe = subscribeToReportChanges(
+      // On INSERT: Add to array
+      (newReport) => {
+        setReports((prev) => [...prev, newReport]);
+        console.log("New report added:", newReport);
+      },
+      // On UPDATE: Replace existing report
+      (updatedReport) => {
+        setReports((prev) => 
+          prev.map((report) => 
+            report.id === updatedReport.id ? updatedReport : report
+          )
+        );
+      }
+    );
     return () => {
       unsubscribe();
     };
@@ -413,15 +423,13 @@ export default function MapPage() {
           if (i !== index && ref) ref.close();
         });
       };
-
-      const key = JSON.stringify(report.coordinates);
-      const count = coordinateCounts.get(key) ?? 1;
-
+    
       root.render(
         <ReportBubble
           ref={(ref) => {
             reportBubbleRefs[index] = ref;
           }}
+          reportSize={getreportCategoryCount(report.category, report.componentId)}
           report={report}
           map={map}
           coordinates={report.coordinates}
