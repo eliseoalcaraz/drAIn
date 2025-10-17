@@ -48,5 +48,3 @@ export function useOutlets() {
 
   return { outlets, loading };
 }
-export type { Outlet } from "@/components/control-panel/types";
-
