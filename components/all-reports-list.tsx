@@ -193,9 +193,7 @@ export default function AllReportsList({
                             {format(new Date(report.date), "MMM dd, yyyy")}
                           </span>
                           {/*Apply Geocoding Here */}
-                          <span>
-                            {report.address}
-                          </span>
+                          <span>{report.address}</span>
                         </div>
                       </div>
                     </div>

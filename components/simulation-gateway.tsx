@@ -18,15 +18,28 @@ import {
 import { Play } from "lucide-react";
 import { IconCloud } from "@tabler/icons-react";
 import { Spinner } from "@/components/ui/spinner";
+import { useSidebar } from "@/components/ui/sidebar";
 
 export function SimulationGateway() {
   const router = useRouter();
+  const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const [isHovered, setIsHovered] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleEnterSimulation = () => {
     setIsLoading(true);
-    router.push("/simulation?active=true");
+
+    // Close sidebar first
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+
+    // Navigate after a delay to ensure sidebar closes
+    setTimeout(() => {
+      router.push("/simulation?active=true");
+    }, 200);
   };
 
   return (

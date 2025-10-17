@@ -41,7 +41,7 @@ export default function SimulationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isSimulationActive = searchParams.get("active") === "true";
-  const { setOpen, isMobile, setOpenMobile } = useSidebar();
+  const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
 
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
@@ -148,7 +148,8 @@ export default function SimulationPage() {
   useEffect(() => {
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    if (mapContainerRef.current && !mapRef.current) {
+    // Only initialize map after sidebar is closed to ensure proper sizing
+    if (mapContainerRef.current && !mapRef.current && !open) {
       const map = new mapboxgl.Map({
         container: mapContainerRef.current,
         style: SIMULATION_MAP_STYLE,
@@ -324,7 +325,8 @@ export default function SimulationPage() {
         });
       });
     }
-  }, [layerIds, isSimulationActive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layerIds, isSimulationActive, open]);
 
   useEffect(() => {
     if (mapRef.current) {
@@ -614,7 +616,17 @@ export default function SimulationPage() {
   };
 
   const handleExitSimulation = () => {
-    router.push("/map");
+    // Close sidebar first
+    if (isMobile) {
+      setOpenMobile(false);
+    } else {
+      setOpen(false);
+    }
+
+    // Navigate after a delay to ensure sidebar closes
+    setTimeout(() => {
+      router.push("/map");
+    }, 200);
   };
 
   return (

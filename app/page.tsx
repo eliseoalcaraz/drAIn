@@ -74,7 +74,7 @@ export default function WelcomePage() {
     // Small delay to ensure loading UI renders before heavy navigation
     setTimeout(() => {
       router.push("/map");
-    }, 100);
+    }, 200);
   };
 
   // If navigating to map, show loading screen
