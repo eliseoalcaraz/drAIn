@@ -152,6 +152,9 @@ export default function AdminContent({
     switch (type) {
       case "inlets":
         result = await recordInletMaintenance(id, mostRecentReport?.id, maintenanceStatus);
+        if (maintenanceStatus === 'resolved') {
+          await deleteReportsByComponentId(id);
+        }
         break;
       case "man_pipes":
         result = await recordManPipeMaintenance(id, mostRecentReport?.id, maintenanceStatus);
@@ -161,9 +164,15 @@ export default function AdminContent({
         break;
       case "outlets":
         result = await recordOutletMaintenance(id, mostRecentReport?.id, maintenanceStatus);
+        if (maintenanceStatus === 'resolved') {
+          await deleteReportsByComponentId(id);
+        }
         break;
       case "storm_drains":
         result = await recordStormDrainMaintenance(id, mostRecentReport?.id, maintenanceStatus);
+        if (maintenanceStatus === 'resolved') {
+          await deleteReportsByComponentId(id);
+        }
         break;
       default:
         result = { error: "Unknown asset type." };
