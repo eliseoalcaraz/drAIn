@@ -889,11 +889,11 @@ export default function SimulationPage() {
         )}
 
         {/* Node Simulation Slideshow */}
-        {slideshowNode && (
+        {slideshowNode && selectedYear && (
           <NodeSimulationSlideshow
             nodeId={slideshowNode}
             onClose={handleCloseSlideshowNode}
-            tableData={tableData}
+            selectedYear={selectedYear}
           />
         )}
       </main>

@@ -7,6 +7,8 @@ import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchNodeDeets } from "@/lib/Vulnerabilities/FetchDeets";
 
+type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
+
 interface NodeDetails {
   Node_ID: string;
   Vulnerability_Category: string;
@@ -24,7 +26,7 @@ interface NodeDetails {
 interface NodeSimulationSlideshowProps {
   nodeId: string;
   onClose: () => void;
-  tableData: NodeDetails[] | null;
+  selectedYear: YearOption;
 }
 
 const LOADING_PHASES = [
@@ -53,7 +55,7 @@ const LOADING_PHASES = [
 export function NodeSimulationSlideshow({
   nodeId,
   onClose,
-  tableData,
+  selectedYear,
 }: NodeSimulationSlideshowProps) {
   const [currentPhase, setCurrentPhase] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,13 +64,11 @@ export function NodeSimulationSlideshow({
   // Fetch node details
   useEffect(() => {
     const fetchDetails = async () => {
-      if (tableData) {
-        const details = await fetchNodeDeets(nodeId, tableData);
-        setNodeDetails(details);
-      }
+      const details = await fetchNodeDeets(nodeId, selectedYear);
+      setNodeDetails(details);
     };
     fetchDetails();
-  }, [nodeId, tableData]);
+  }, [nodeId, selectedYear]);
 
   // Auto-advance through loading phases
   useEffect(() => {
@@ -275,7 +275,7 @@ export function NodeSimulationSlideshow({
                       No data available for this node.
                     </p>
                     <p className="text-xs text-muted-foreground mt-2">
-                      Please generate a vulnerability table first.
+                      Please select a year for vulnerability analysis.
                     </p>
                   </div>
                 )}
