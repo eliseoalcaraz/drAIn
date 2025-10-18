@@ -37,7 +37,7 @@ import {
   getreportCategoryCount,
   subscribeToReportChanges,
 } from "@/lib/supabase/report";
-
+import { fetchYRTable, fetchNodeDeets } from "@/lib/Vulnerabilities/FetchDeets";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function MapPage() {
@@ -105,7 +105,6 @@ export default function MapPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
 
   const [controlPanelDataset, setControlPanelDataset] =
     useState<DatasetType>("inlets");
