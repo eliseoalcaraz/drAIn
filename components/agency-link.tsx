@@ -21,10 +21,11 @@ import {
 } from "@/components/ui/select";
 
 interface AgencyLinkProps {
-  onLink: (agencyId: string, agencyName: string) => void;
+  onLink?: (agencyId: string, agencyName: string) => Promise<void>;
+  disabled?: boolean;
 }
 
-export default function AgencyLink({ onLink }: AgencyLinkProps) {
+export default function AgencyLink({ onLink, disabled }: AgencyLinkProps) {
   const [selectedAgency, setSelectedAgency] = useState("");
   const [selectedAgencyName, setSelectedAgencyName] = useState("");
   const [agencies, setAgencies] = useState<{ id: string; name: string }[]>([]);
@@ -47,8 +48,10 @@ export default function AgencyLink({ onLink }: AgencyLinkProps) {
     fetchAgencies();
   }, []);
 
-  const handleLinkAgency = () => {
-    onLink(selectedAgency, selectedAgencyName);
+  const handleLinkAgency = async () => {
+    if (onLink) {
+      await onLink(selectedAgency, selectedAgencyName);
+    }
   };
 
   const handleValueChange = (value: string) => {
@@ -69,8 +72,8 @@ export default function AgencyLink({ onLink }: AgencyLinkProps) {
         <div className="grid w-full items-center gap-4">
           <div className="flex flex-col space-y-1.5">
             <Label htmlFor="agency">Agency</Label>
-            <Select onValueChange={handleValueChange}>
-              <SelectTrigger id="agency" disabled={loading}>
+            <Select onValueChange={handleValueChange} disabled={disabled || loading}>
+              <SelectTrigger id="agency">
                 <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent position="popper">
@@ -95,7 +98,7 @@ export default function AgencyLink({ onLink }: AgencyLinkProps) {
         </div>
       </CardContent>
       <CardFooter className="flex justify-end">
-        <Button onClick={handleLinkAgency} disabled={!selectedAgency}>
+        <Button onClick={handleLinkAgency} disabled={disabled || !selectedAgency}>
           Link Agency
         </Button>
       </CardFooter>

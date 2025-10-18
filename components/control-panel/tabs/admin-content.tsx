@@ -11,7 +11,7 @@ import {
   recordStormDrainMaintenance,
   getStormDrainMaintenanceHistory,
 } from "@/app/actions/clientMaintenanceActions";
-import { fetchReports, Report } from "@/lib/supabase/report";
+import { fetchReports, Report, deleteReportsByComponentId } from "@/lib/supabase/report";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
   Card,
@@ -173,8 +173,8 @@ export default function AdminContent({
     } else {
       setMessage(`Maintenance recorded successfully for ${type} with ID ${id}.`);
       handleViewHistory(type, id);
+      loadReports(id); // Reload reports to reflect any deletions or changes
       if (mostRecentReport) {
-        loadReports(id);
       }
     }
   };

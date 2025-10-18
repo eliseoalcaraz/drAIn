@@ -119,6 +119,23 @@ export const updateReportStatus = async (reportId: string, status: 'in-progress'
     }
 }
 
+export const deleteReportsByComponentId = async (componentId: string) => {
+  try {
+    const { error } = await client
+      .from('reports')
+      .delete()
+      .eq('component_id', componentId);
+
+    if (error) {
+      console.error("Error deleting reports:", error);
+      throw error;
+    }
+  } catch (error) {
+    console.error("Error deleting reports:", error);
+    throw error;
+  }
+};
+
 const formatReport = (report: any): Report => {
   const {data: img} = client.storage
     .from('ReportImage')
