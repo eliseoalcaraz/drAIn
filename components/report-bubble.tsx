@@ -134,13 +134,13 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
 
     const getComponentColor = (type: string) => {
       switch (type) {
-        case "pipe":
+        case "man_pipes":
           return "bg-[#8B008B]";
-        case "drain":
+        case "storm_drains":
           return "bg-[#0088ff]";
-        case "inlet":
+        case "inlets":
           return "bg-[#00cc44]";
-        case "outlet":
+        case "outlets":
           return "bg-[#cc0000]";
         default:
           return "bg-gray-400";
