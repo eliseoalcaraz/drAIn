@@ -91,6 +91,12 @@ interface ContentRendererProps {
   publicAvatarUrl: string | null;
   setProfile: (profile: any) => void;
   setPublicAvatarUrl: (url: string | null) => void;
+
+  // Vulnerability table props
+  selectedYear?: number | null;
+  onYearChange?: (year: number | null) => void;
+  onGenerateTable?: () => void;
+  isLoadingTable?: boolean;
 }
 
 export function ContentRenderer({
@@ -135,6 +141,10 @@ export function ContentRenderer({
   publicAvatarUrl,
   setProfile,
   setPublicAvatarUrl,
+  selectedYear,
+  onYearChange,
+  onGenerateTable,
+  isLoadingTable,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -174,6 +184,10 @@ export function ContentRenderer({
           selectedOutlet={selectedOutlet}
           selectedPipe={selectedPipe}
           selectedDrain={selectedDrain}
+          selectedYear={selectedYear}
+          onYearChange={onYearChange}
+          onGenerateTable={onGenerateTable}
+          isLoadingTable={isLoadingTable}
         />
       );
 

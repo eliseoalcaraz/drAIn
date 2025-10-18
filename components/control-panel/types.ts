@@ -94,4 +94,9 @@ export interface ControlPanelProps {
   // Reports refresh
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
+  // Vulnerability table props
+  selectedYear?: number | null;
+  onYearChange?: (year: number | null) => void;
+  onGenerateTable?: () => void;
+  isLoadingTable?: boolean;
 }

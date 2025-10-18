@@ -16,6 +16,10 @@ interface SimulationsContentProps {
   selectedOutlet?: Outlet | null;
   selectedPipe?: Pipe | null;
   selectedDrain?: Drain | null;
+  selectedYear?: number | null;
+  onYearChange?: (year: number | null) => void;
+  onGenerateTable?: () => void;
+  isLoadingTable?: boolean;
 }
 
 export default function SimulationsContent({
@@ -25,6 +29,10 @@ export default function SimulationsContent({
   selectedOutlet = null,
   selectedPipe = null,
   selectedDrain = null,
+  selectedYear = null,
+  onYearChange = () => {},
+  onGenerateTable = () => {},
+  isLoadingTable = false,
 }: SimulationsContentProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
   const router = useRouter();
@@ -89,11 +97,19 @@ export default function SimulationsContent({
       selectedDrain,
     };
 
+    const model2Props = {
+      ...modelProps,
+      selectedYear,
+      onYearChange,
+      onGenerateTable,
+      isLoading: isLoadingTable,
+    };
+
     switch (selectedModel) {
       case "model1":
         return <Model1 {...modelProps} />;
       case "model2":
-        return <Model2 {...modelProps} />;
+        return <Model2 {...model2Props} />;
       case "model3":
         return <Model3 {...modelProps} />;
       default:

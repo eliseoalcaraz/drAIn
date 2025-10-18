@@ -36,6 +36,10 @@ export function ControlPanel({
   selectedPointForSimulation = null,
   onRefreshReports,
   isRefreshingReports = false,
+  selectedYear,
+  onYearChange,
+  onGenerateTable,
+  isLoadingTable,
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
@@ -209,6 +213,10 @@ export function ControlPanel({
             profile={profile}
             publicAvatarUrl={publicAvatarUrl}
             setProfile={setProfile}
+            selectedYear={selectedYear}
+            onYearChange={onYearChange}
+            onGenerateTable={onGenerateTable}
+            isLoadingTable={isLoadingTable}
             setPublicAvatarUrl={setPublicAvatarUrl}
           />
         </div>

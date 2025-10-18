@@ -36,6 +36,24 @@ import type {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { toast } from "sonner";
+import { VulnerabilityDataTable } from "@/components/vulnerability-data-table";
+import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
+
+type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
+
+interface NodeDetails {
+  Node_ID: string;
+  Vulnerability_Category: string;
+  Vulnerability_Rank: number;
+  Cluster: number;
+  Cluster_Score: number;
+  YR: number;
+  Time_Before_Overflow: number;
+  Hours_Flooded: number;
+  Maximum_Rate: number;
+  Time_Of_Max_Occurence: number;
+  Total_Flood_Volume: number;
+}
 
 export default function SimulationPage() {
   const router = useRouter();
@@ -86,6 +104,16 @@ export default function SimulationPage() {
   const [selectedPointForSimulation, setSelectedPointForSimulation] = useState<
     string | null
   >(null);
+
+  // Vulnerability table state
+  const [selectedYear, setSelectedYear] = useState<YearOption | null>(null);
+  const [tableData, setTableData] = useState<NodeDetails[] | null>(null);
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [isTableMinimized, setIsTableMinimized] = useState(false);
+  const [tablePosition, setTablePosition] = useState<{ x: number; y: number }>({
+    x: typeof window !== 'undefined' ? window.innerWidth * 0.6 - 250 : 400,
+    y: typeof window !== 'undefined' ? window.innerHeight * 0.5 - 300 : 100,
+  });
 
   // Function to clear all selections
   const clearSelections = () => {
@@ -158,6 +186,7 @@ export default function SimulationPage() {
         maxBounds: MAP_BOUNDS,
         pitch: SIMULATION_PITCH,
         bearing: SIMULATION_BEARING,
+        attributionControl: false,
       });
       mapRef.current = map;
 
@@ -629,6 +658,33 @@ export default function SimulationPage() {
     }, 200);
   };
 
+  // Vulnerability table handlers
+  const handleGenerateTable = async () => {
+    if (!selectedYear) return;
+
+    setIsLoadingTable(true);
+    try {
+      const data = await fetchYRTable(selectedYear);
+      setTableData(data);
+      setIsTableMinimized(false);
+      toast.success(`Successfully loaded ${data.length} nodes for ${selectedYear}YR`);
+    } catch (error) {
+      console.error("Error fetching vulnerability data:", error);
+      toast.error("Failed to load vulnerability data. Please try again.");
+      setTableData(null);
+    } finally {
+      setIsLoadingTable(false);
+    }
+  };
+
+  const handleToggleTableMinimize = () => {
+    setIsTableMinimized(!isTableMinimized);
+  };
+
+  const handleYearChange = (year: number | null) => {
+    setSelectedYear(year as YearOption | null);
+  };
+
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-gray-900">
@@ -671,6 +727,10 @@ export default function SimulationPage() {
           reports={[]}
           onRefreshReports={async () => {}}
           isRefreshingReports={false}
+          selectedYear={selectedYear}
+          onYearChange={handleYearChange}
+          onGenerateTable={handleGenerateTable}
+          isLoadingTable={isLoadingTable}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
@@ -680,6 +740,25 @@ export default function SimulationPage() {
           isSimulationActive={isSimulationActive}
           onExitSimulation={handleExitSimulation}
         />
+
+        {/* Vulnerability Data Table Overlay */}
+        {tableData && (
+          <div
+            className="absolute z-20 pointer-events-auto"
+            style={{
+              left: `${tablePosition.x}px`,
+              top: `${tablePosition.y}px`,
+            }}
+          >
+            <VulnerabilityDataTable
+              data={tableData}
+              isMinimized={isTableMinimized}
+              onToggleMinimize={handleToggleTableMinimize}
+              position={tablePosition}
+              onPositionChange={setTablePosition}
+            />
+          </div>
+        )}
       </main>
     </>
   );
