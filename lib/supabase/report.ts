@@ -14,7 +14,7 @@ export interface Report {
   address: string;
 }
 
-export const uploadReport = async (file: File, category: string, description: string, component_id: string, long: number, lat: number)  => {
+export const uploadReport = async (file: File, category: string, description: string, component_id: string, long: number, lat: number, userId: string, reporterName: string)  => {
     try {
         const { error } = await client.storage
             .from('ReportImage')
@@ -35,13 +35,14 @@ export const uploadReport = async (file: File, category: string, description: st
                     category,
                     description,
                     image: `public/${file.name}`,
-                    report_name: 'Anonymous',
+                    report_name: reporterName,
                     status: 'pending',
                     component_id: component_id,
                     long: long,
                     lat: lat,
                     address: null,
-                    geocoded_status: 'pending'
+                    geocoded_status: 'pending',
+                    user_id: userId,
                 },
             ]);
 

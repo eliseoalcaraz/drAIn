@@ -1,6 +1,34 @@
 import client from "@/app/api/client";
 import { Session } from "@supabase/supabase-js";
 
+export interface Profile {
+  id: string;
+  full_name: string;
+  avatar_url: string;
+  role: string;
+}
+
+export const getProfile = async (userId: string): Promise<Profile | null> => {
+  try {
+    const { data, error } = await client
+      .from("profiles")
+      .select("id, full_name, avatar_url, role")
+      .eq("id", userId)
+      .single();
+
+    if (error) {
+      console.error("Error fetching profile:", error);
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error("An unexpected error occurred while fetching profile:", error);
+    return null;
+  }
+};
+
+
 export const updateUserProfile = async (
   session: Session,
   fullName: string,

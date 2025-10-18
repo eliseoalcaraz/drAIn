@@ -3,11 +3,13 @@
 import { createContext, useState, useEffect, useContext } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import client from "@/app/api/client";
+import { getProfile, Profile } from "@/lib/supabase/profile";
 
 type AuthContextType = {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  profile: Profile | null;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -18,10 +20,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<Profile | null>(null);
+
 
   useEffect(() => {
-    // Load session on mount
-    const getSession = async () => {
+    const fetchAuthData = async () => {
+      setLoading(true);
       const {
         data: { session },
         error,
@@ -29,32 +33,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error("Error fetching session:", error.message);
+        setLoading(false);
+        return;
       }
 
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setSession(session);
+
+      if (currentUser) {
+        const userProfile = await getProfile(currentUser.id);
+        setProfile(userProfile);
+      } else {
+        setProfile(null);
+      }
       setLoading(false);
     };
 
-    getSession();
+    fetchAuthData();
 
-    // Listen for auth state changes
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
       setSession(session);
+      if (currentUser) {
+        getProfile(currentUser.id).then(setProfile);
+      } else {
+        setProfile(null);
+      }
       setLoading(false);
     });
 
-    // Cleanup
     return () => {
       subscription.unsubscribe();
     };
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, session, loading }}>
+    <AuthContext.Provider value={{ user, session, loading, profile }}>
       {children}
     </AuthContext.Provider>
   );

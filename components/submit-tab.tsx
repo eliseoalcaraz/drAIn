@@ -15,6 +15,7 @@ import { Checkbox } from "./ui/checkbox";
 import { uploadReport } from "@/lib/supabase/report";
 import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
+import { useAuth } from "@/components/context/AuthProvider";
 import { ComboboxForm } from "./combobox-form";
 import { Field, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
@@ -31,6 +32,7 @@ interface CategoryData {
 }
 
 export default function SubmitTab() {
+  const { user, profile } = useAuth();
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -93,10 +95,16 @@ export default function SubmitTab() {
   };
 
   const handleConfirmSubmit = async () => {
+    if (!user || !profile) {
+      console.error("User or profile information is not available.");
+      // Optionally show an error message to the user
+      return;
+    }
+
     const long = categoryData[categoryIndex].long;
     const lat = categoryData[categoryIndex].lat;
     const component_id = categoryData[categoryIndex].name;
-    await uploadReport(image!, category, description, component_id, long, lat);
+    await uploadReport(image!, category, description, component_id, long, lat, user.id, profile.full_name);
 
     setIsModalOpen(false);
     setTermsAccepted(false);
