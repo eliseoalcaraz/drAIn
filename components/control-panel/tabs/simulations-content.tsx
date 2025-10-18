@@ -20,6 +20,7 @@ interface SimulationsContentProps {
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
+  onCloseTable?: () => void;
 }
 
 export default function SimulationsContent({
@@ -33,6 +34,7 @@ export default function SimulationsContent({
   onYearChange = () => {},
   onGenerateTable = () => {},
   isLoadingTable = false,
+  onCloseTable = () => {},
 }: SimulationsContentProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
   const router = useRouter();
@@ -103,6 +105,7 @@ export default function SimulationsContent({
       onYearChange,
       onGenerateTable,
       isLoading: isLoadingTable,
+      onCloseTable,
     };
 
     switch (selectedModel) {

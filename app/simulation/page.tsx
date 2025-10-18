@@ -681,6 +681,11 @@ export default function SimulationPage() {
     setIsTableMinimized(!isTableMinimized);
   };
 
+  const handleCloseTable = () => {
+    setTableData(null);
+    setIsTableMinimized(false);
+  };
+
   const handleYearChange = (year: number | null) => {
     setSelectedYear(year as YearOption | null);
   };
@@ -731,6 +736,7 @@ export default function SimulationPage() {
           onYearChange={handleYearChange}
           onGenerateTable={handleGenerateTable}
           isLoadingTable={isLoadingTable}
+          onCloseTable={handleCloseTable}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
@@ -754,6 +760,7 @@ export default function SimulationPage() {
               data={tableData}
               isMinimized={isTableMinimized}
               onToggleMinimize={handleToggleTableMinimize}
+              onClose={handleCloseTable}
               position={tablePosition}
               onPositionChange={setTablePosition}
             />
