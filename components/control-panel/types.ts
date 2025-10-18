@@ -99,4 +99,5 @@ export interface ControlPanelProps {
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
+  onCloseTable?: () => void;
 }
