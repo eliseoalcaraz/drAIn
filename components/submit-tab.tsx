@@ -95,16 +95,13 @@ export default function SubmitTab() {
   };
 
   const handleConfirmSubmit = async () => {
-    if (!user || !profile) {
-      console.error("User or profile information is not available.");
-      // Optionally show an error message to the user
-      return;
-    }
+    const userID = user?.id ?? null;
+    const profileName = profile?.full_name ?? "Anonymous";
 
     const long = categoryData[categoryIndex].long;
     const lat = categoryData[categoryIndex].lat;
     const component_id = categoryData[categoryIndex].name;
-    await uploadReport(image!, category, description, component_id, long, lat, user.id, profile.full_name);
+    await uploadReport(image!, category, description, component_id, long, lat, userID, profileName);
 
     setIsModalOpen(false);
     setTermsAccepted(false);
