@@ -48,13 +48,13 @@ export default function SubmitTab() {
   const handleCategory = (value: string) => {
     setCategory(value);
 
-    if (value === "inlet") {
+    if (value === "inlets") {
       setCategoryLabel("Inlet");
-    } else if (value === "storm_drain") {
+    } else if (value === "storm_drains") {
       setCategoryLabel("Storm Drain");
-    } else if (value === "man_pipe") {
+    } else if (value === "man_pipes") {
       setCategoryLabel("Manduae Pipe");
-    } else if (value === "outlet") {
+    } else if (value === "outlets") {
       setCategoryLabel("Outlet");
     }
   };

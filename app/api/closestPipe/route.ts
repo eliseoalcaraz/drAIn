@@ -38,16 +38,16 @@ export async function POST(req: NextRequest) {
         // Determine which RPC function to call based on category
         let rpcFunction: string;
         switch (category.toLowerCase()) {
-            case 'inlet':
+            case 'inlets':
                 rpcFunction = 'get_closest_inlet';
                 break;
-            case 'outlet':
+            case 'outlets':
                 rpcFunction = 'get_closest_outlet';
                 break;
-            case 'man_pipe':
+            case 'man_pipes':
                 rpcFunction = 'get_closest_man_pipe';
                 break;
-            case 'storm_drain':
+            case 'storm_drains':
                 rpcFunction = 'get_closest_storm_drain';
                 break;
             default:
