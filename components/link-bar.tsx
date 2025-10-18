@@ -23,7 +23,9 @@ export function LinkBar({ link = "" }: LinkBarProps) {
 
   return (
     <div className="grid w-full max-w-sm gap-6">
-      <InputGroup className="px-1 [--radius:9999px]">
+      <InputGroup className="px-1 [--radius:9999px] min-w-0">
+        {" "}
+        {/* ensure children can shrink/truncate */}
         <Popover>
           <PopoverTrigger asChild>
             <InputGroupAddon>
@@ -46,13 +48,14 @@ export function LinkBar({ link = "" }: LinkBarProps) {
         <InputGroupAddon className="text-[#666666] font-normal pl-1.5">
           https://
         </InputGroupAddon>
-        <span className="flex-1 py-2 text-sm text-[#666666]">
+        <span className="flex-1 min-w-0 py-2 text-sm text-[#666666] truncate">
           {link || "your-link-here.com"}
         </span>
-        <InputGroupAddon align="inline-end">
+        <InputGroupAddon align="inline-end" className="flex-shrink-0">
           <InputGroupButton
             onClick={() => setIsFavorite(!isFavorite)}
             size="icon-xs"
+            className="flex-shrink-0"
           >
             <IconStar
               data-favorite={isFavorite}
