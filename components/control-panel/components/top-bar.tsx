@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import {
   ChevronLeft,
   MoreHorizontal,
@@ -9,6 +10,7 @@ import {
   LogOut,
   Bell,
   BellRing,
+  ArrowLeft,
 } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { SearchBar } from "../../search-bar";
@@ -80,6 +82,18 @@ export function TopBar({
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
+  // map simModel query param to specific links
+  const searchParams = useSearchParams();
+  const simModel = searchParams?.get("simModel") || null;
+  const modelLinkMap: Record<string, string> = {
+    model1: "example.com/model1",
+    model2: "example.com/model2",
+    model3: "example.com/model3",
+  };
+  const simulationLink = simModel
+    ? modelLinkMap[simModel] ?? "example.com"
+    : "example.com";
+
   // Example profile setup steps - replace with actual data
   const profileSteps: ProfileStep[] = [
     {
@@ -127,6 +141,19 @@ export function TopBar({
       toast.info("Notifications turned off");
     }
   };
+
+  const router = useRouter();
+  const pathname = usePathname();
+
+  // new: remove simModel param handler used by the topbar button
+  const clearSimModelParam = () => {
+    const params = new URLSearchParams(searchParams?.toString() || "");
+    params.delete("simModel");
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname);
+  };
+
+  const showChangeModelButton = activeTab === "simulations" && !!simModel;
 
   return (
     <div className="flex items-center gap-2 p-3 px-4">
@@ -271,10 +298,21 @@ export function TopBar({
         </div>
       )}
 
-      {/* Profile Progress */}
+      {/* small icon-only change-model button (shows when a model is selected) */}
+      {showChangeModelButton && (
+        <button
+          onClick={clearSimModelParam}
+          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]"
+          aria-label="Change Model"
+        >
+          <ArrowLeft className="h-4 w-4 text-[#8D8D8D]" />
+        </button>
+      )}
+
+      {/* Link Bar */}
       {showLinkBar && (
-        <div className="h-8.5 w-full">
-          <LinkBar link="example.com" />
+        <div className="h-8.5 flex-1">
+          <LinkBar link={simulationLink} />
         </div>
       )}
 

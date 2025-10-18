@@ -49,9 +49,43 @@ export const fetchYRTable = async (YR: YearOption): Promise<NodeDetails[]> => {
   }
 };
 
-//Accept a Node_ID and the table data to fetch the corresponding node details
-export const fetchNodeDeets = async (Node_ID: string, TableData: NodeDetails[] ) => {
-    const nodeData = TableData.find(item => item.Node_ID === Node_ID);
-    console.log(nodeData)
-    return nodeData || null;
+//Accept a Node_ID and YR parameter to fetch the corresponding node details directly from database
+export const fetchNodeDeets = async (Node_ID: string, YR: YearOption): Promise<NodeDetails | null> => {
+  try {
+    const { data, error } = await client
+      .from(`${YR}YR`)
+      .select('*')
+      .eq('Node_ID', Node_ID)
+      .single();
+
+    if (error) {
+      console.error(`Error fetching node ${Node_ID} from ${YR}YR:`, error);
+      return null;
+    }
+
+    if (!data) {
+      return null;
+    }
+
+    // Transform the data to match NodeDetails interface
+    const nodeDetails: NodeDetails = {
+      Node_ID: data.Node_ID,
+      Vulnerability_Category: data.Vulnerability_Category,
+      Vulnerability_Rank: data.Vulnerability_Rank,
+      Cluster: data.Cluster,
+      Cluster_Score: data.Cluster_Score,
+      YR: data.YR,
+      Time_Before_Overflow: data.Time_After_Raining_min,
+      Hours_Flooded: data["Hours Flooded"],
+      Maximum_Rate: data["Maximum Rate (CMS)"],
+      Time_Of_Max_Occurence: data["Time of Max (hr:min)"],
+      Total_Flood_Volume: data["Total Flood Volume (10^6 ltr)"]
+    };
+
+    console.log(nodeDetails);
+    return nodeDetails;
+  } catch (error) {
+    console.error("Fetch error:", error);
+    return null;
+  }
 }

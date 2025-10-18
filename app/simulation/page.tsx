@@ -36,6 +36,25 @@ import type {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { toast } from "sonner";
+import { VulnerabilityDataTable } from "@/components/vulnerability-data-table";
+import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
+import { NodeSimulationSlideshow } from "@/components/node-simulation-slideshow";
+
+type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
+
+interface NodeDetails {
+  Node_ID: string;
+  Vulnerability_Category: string;
+  Vulnerability_Rank: number;
+  Cluster: number;
+  Cluster_Score: number;
+  YR: number;
+  Time_Before_Overflow: number;
+  Hours_Flooded: number;
+  Maximum_Rate: number;
+  Time_Of_Max_Occurence: number;
+  Total_Flood_Volume: number;
+}
 
 export default function SimulationPage() {
   const router = useRouter();
@@ -86,6 +105,22 @@ export default function SimulationPage() {
   const [selectedPointForSimulation, setSelectedPointForSimulation] = useState<
     string | null
   >(null);
+
+  // Vulnerability table state
+  const [selectedYear, setSelectedYear] = useState<YearOption | null>(null);
+  const [tableData, setTableData] = useState<NodeDetails[] | null>(null);
+  const [isLoadingTable, setIsLoadingTable] = useState(false);
+  const [isTableMinimized, setIsTableMinimized] = useState(false);
+  const [tablePosition, setTablePosition] = useState<{ x: number; y: number }>({
+    x: typeof window !== "undefined" ? window.innerWidth * 0.6 - 250 : 400,
+    y: typeof window !== "undefined" ? window.innerHeight * 0.5 - 300 : 100,
+  });
+  const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(
+    new Set()
+  );
+
+  // Slideshow state
+  const [slideshowNode, setSlideshowNode] = useState<string | null>(null);
 
   // Function to clear all selections
   const clearSelections = () => {
@@ -158,6 +193,7 @@ export default function SimulationPage() {
         maxBounds: MAP_BOUNDS,
         pitch: SIMULATION_PITCH,
         bearing: SIMULATION_BEARING,
+        attributionControl: false,
       });
       mapRef.current = map;
 
@@ -629,6 +665,150 @@ export default function SimulationPage() {
     }, 200);
   };
 
+  // Vulnerability table handlers
+  const handleGenerateTable = async () => {
+    if (!selectedYear) return;
+
+    setIsLoadingTable(true);
+    try {
+      const data = await fetchYRTable(selectedYear);
+      setTableData(data);
+      setIsTableMinimized(false);
+      toast.success(
+        `Successfully loaded ${data.length} nodes for ${selectedYear}YR`
+      );
+    } catch (error) {
+      console.error("Error fetching vulnerability data:", error);
+      toast.error("Failed to load vulnerability data. Please try again.");
+      setTableData(null);
+    } finally {
+      setIsLoadingTable(false);
+    }
+  };
+
+  const handleToggleTableMinimize = () => {
+    setIsTableMinimized(!isTableMinimized);
+  };
+
+  const handleCloseTable = () => {
+    setTableData(null);
+    setIsTableMinimized(false);
+  };
+
+  const handleYearChange = (year: number | null) => {
+    setSelectedYear(year as YearOption | null);
+  };
+
+  // Helper function to parse Node_ID and determine source and feature ID
+  const parseNodeId = (
+    nodeId: string
+  ): { source: string | null; featureId: string | null } => {
+    if (nodeId.startsWith("ISD-")) {
+      // Storm drain: ISD-* maps to storm_drains source with In_Name as promoteId
+      return { source: "storm_drains", featureId: nodeId };
+    } else if (nodeId.startsWith("I-")) {
+      // Inlet: I-* maps to inlets source with In_Name as promoteId
+      return { source: "inlets", featureId: nodeId };
+    }
+    return { source: null, featureId: null };
+  };
+
+  // Handler for highlighting nodes from vulnerability table
+  const handleHighlightNodes = (nodeIds: Set<string>) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Clear previous highlights
+    highlightedNodes.forEach((nodeId) => {
+      const { source, featureId } = parseNodeId(nodeId);
+      if (source && featureId && map.getSource(source)) {
+        map.setFeatureState({ source, id: featureId }, { selected: false });
+      }
+    });
+
+    // Apply new highlights
+    nodeIds.forEach((nodeId) => {
+      const { source, featureId } = parseNodeId(nodeId);
+      if (source && featureId && map.getSource(source)) {
+        map.setFeatureState({ source, id: featureId }, { selected: true });
+      }
+    });
+
+    setHighlightedNodes(nodeIds);
+  };
+
+  // Handler for opening node simulation slideshow
+  const handleOpenNodeSimulation = async (nodeId: string) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Parse node ID to get source and feature ID
+    const { source, featureId } = parseNodeId(nodeId);
+    if (!source || !featureId) {
+      toast.error("Unable to locate node on map");
+      return;
+    }
+
+    // Find the node coordinates from our data
+    let coordinates: [number, number] | null = null;
+    if (source === "inlets") {
+      const inlet = inletsRef.current.find((i) => i.id === featureId);
+      if (inlet) coordinates = inlet.coordinates;
+    } else if (source === "storm_drains") {
+      const drain = drainsRef.current.find((d) => d.id === featureId);
+      if (drain) coordinates = drain.coordinates;
+    }
+
+    if (!coordinates) {
+      toast.error("Unable to locate node coordinates");
+      return;
+    }
+
+    // Step 1: Close the table first
+    handleCloseTable();
+
+    // Step 2: Wait for table to close (300ms delay)
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Step 3: Fly to the node
+    map.flyTo({
+      center: coordinates,
+      zoom: CAMERA_ANIMATION.targetZoom,
+      speed: CAMERA_ANIMATION.speed,
+      curve: CAMERA_ANIMATION.curve,
+      essential: CAMERA_ANIMATION.essential,
+      easing: CAMERA_ANIMATION.easing,
+    });
+
+    // Step 4: Wait for flyTo animation to mostly complete
+    // Calculate approximate duration based on distance and speed
+    const flyDuration = 1500; // ~1.5 seconds for fly animation
+    await new Promise((resolve) => setTimeout(resolve, flyDuration));
+
+    // Step 5: Highlight the node on the map
+    map.setFeatureState({ source, id: featureId }, { selected: true });
+
+    // Step 6: Wait a bit for highlight to be visible (200ms)
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    // Step 7: Show the slideshow
+    setSlideshowNode(nodeId);
+  };
+
+  // Handler for closing slideshow
+  const handleCloseSlideshowNode = () => {
+    const map = mapRef.current;
+    if (!map || !slideshowNode) return;
+
+    // Clear highlight
+    const { source, featureId } = parseNodeId(slideshowNode);
+    if (source && featureId && map.getSource(source)) {
+      map.setFeatureState({ source, id: featureId }, { selected: false });
+    }
+
+    setSlideshowNode(null);
+  };
+
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-gray-900">
@@ -671,6 +851,11 @@ export default function SimulationPage() {
           reports={[]}
           onRefreshReports={async () => {}}
           isRefreshingReports={false}
+          selectedYear={selectedYear}
+          onYearChange={handleYearChange}
+          onGenerateTable={handleGenerateTable}
+          isLoadingTable={isLoadingTable}
+          onCloseTable={handleCloseTable}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
@@ -680,6 +865,37 @@ export default function SimulationPage() {
           isSimulationActive={isSimulationActive}
           onExitSimulation={handleExitSimulation}
         />
+
+        {/* Vulnerability Data Table Overlay */}
+        {tableData && (
+          <div
+            className="absolute z-20 pointer-events-auto"
+            style={{
+              left: `${tablePosition.x}px`,
+              top: `${tablePosition.y}px`,
+            }}
+          >
+            <VulnerabilityDataTable
+              data={tableData}
+              isMinimized={isTableMinimized}
+              onToggleMinimize={handleToggleTableMinimize}
+              onClose={handleCloseTable}
+              position={tablePosition}
+              onPositionChange={setTablePosition}
+              onHighlightNodes={handleHighlightNodes}
+              onOpenNodeSimulation={handleOpenNodeSimulation}
+            />
+          </div>
+        )}
+
+        {/* Node Simulation Slideshow */}
+        {slideshowNode && selectedYear && (
+          <NodeSimulationSlideshow
+            nodeId={slideshowNode}
+            onClose={handleCloseSlideshowNode}
+            selectedYear={selectedYear}
+          />
+        )}
       </main>
     </>
   );
