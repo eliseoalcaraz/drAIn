@@ -15,6 +15,7 @@ import { Checkbox } from "./ui/checkbox";
 import { uploadReport } from "@/lib/supabase/report";
 import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
+import { useAuth } from "@/components/context/AuthProvider";
 import { ComboboxForm } from "./combobox-form";
 import { Field, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
@@ -31,6 +32,7 @@ interface CategoryData {
 }
 
 export default function SubmitTab() {
+  const { user, profile } = useAuth();
   const [description, setDescription] = useState("");
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,13 +48,13 @@ export default function SubmitTab() {
   const handleCategory = (value: string) => {
     setCategory(value);
 
-    if (value === "inlet") {
+    if (value === "inlets") {
       setCategoryLabel("Inlet");
-    } else if (value === "storm_drain") {
+    } else if (value === "storm_drains") {
       setCategoryLabel("Storm Drain");
-    } else if (value === "man_pipe") {
+    } else if (value === "man_pipes") {
       setCategoryLabel("Manduae Pipe");
-    } else if (value === "outlet") {
+    } else if (value === "outlets") {
       setCategoryLabel("Outlet");
     }
   };
@@ -93,10 +95,13 @@ export default function SubmitTab() {
   };
 
   const handleConfirmSubmit = async () => {
+    const userID = user?.id ?? null;
+    const profileName = profile?.full_name ?? "Anonymous";
+
     const long = categoryData[categoryIndex].long;
     const lat = categoryData[categoryIndex].lat;
     const component_id = categoryData[categoryIndex].name;
-    await uploadReport(image!, category, description, component_id, long, lat);
+    await uploadReport(image!, category, description, component_id, long, lat, userID, profileName);
 
     setIsModalOpen(false);
     setTermsAccepted(false);
