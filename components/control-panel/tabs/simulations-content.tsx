@@ -21,6 +21,19 @@ interface SimulationsContentProps {
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
+  // Model3 panel props
+  selectedComponentIds?: string[];
+  onComponentIdsChange?: (ids: string[]) => void;
+  selectedPipeIds?: string[];
+  onPipeIdsChange?: (ids: string[]) => void;
+  componentParams?: Map<string, any>;
+  onComponentParamsChange?: (params: Map<string, any>) => void;
+  pipeParams?: Map<string, any>;
+  onPipeParamsChange?: (params: Map<string, any>) => void;
+  showNodePanel?: boolean;
+  onToggleNodePanel?: () => void;
+  showLinkPanel?: boolean;
+  onToggleLinkPanel?: () => void;
 }
 
 export default function SimulationsContent({
@@ -35,6 +48,18 @@ export default function SimulationsContent({
   onGenerateTable = () => {},
   isLoadingTable = false,
   onCloseTable = () => {},
+  selectedComponentIds = [],
+  onComponentIdsChange = () => {},
+  selectedPipeIds = [],
+  onPipeIdsChange = () => {},
+  componentParams = new Map(),
+  onComponentParamsChange = () => {},
+  pipeParams = new Map(),
+  onPipeParamsChange = () => {},
+  showNodePanel = false,
+  onToggleNodePanel = () => {},
+  showLinkPanel = false,
+  onToggleLinkPanel = () => {},
 }: SimulationsContentProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
   const router = useRouter();
@@ -108,13 +133,29 @@ export default function SimulationsContent({
       onCloseTable,
     };
 
+    const model3Props = {
+      ...modelProps,
+      selectedComponentIds,
+      onComponentIdsChange,
+      selectedPipeIds,
+      onPipeIdsChange,
+      componentParams,
+      onComponentParamsChange,
+      pipeParams,
+      onPipeParamsChange,
+      showNodePanel,
+      onToggleNodePanel,
+      showLinkPanel,
+      onToggleLinkPanel,
+    };
+
     switch (selectedModel) {
       case "model1":
         return <Model1 {...modelProps} />;
       case "model2":
         return <Model2 {...model2Props} />;
       case "model3":
-        return <Model3 {...modelProps} />;
+        return <Model3 {...model3Props} />;
       default:
         return null;
     }

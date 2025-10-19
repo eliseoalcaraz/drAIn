@@ -39,6 +39,8 @@ import { toast } from "sonner";
 import { VulnerabilityDataTable } from "@/components/vulnerability-data-table";
 import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
 import { NodeSimulationSlideshow } from "@/components/node-simulation-slideshow";
+import { NodeParametersPanel } from "@/components/node-parameters-panel";
+import { LinkParametersPanel } from "@/components/link-parameters-panel";
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
 
@@ -122,6 +124,52 @@ export default function SimulationPage() {
   // Slideshow state
   const [slideshowNode, setSlideshowNode] = useState<string | null>(null);
 
+  // Model3 lifted state for parameters panels
+  const [selectedComponentIds, setSelectedComponentIds] = useState<string[]>([]);
+  const [selectedPipeIds, setSelectedPipeIds] = useState<string[]>([]);
+  const [componentParams, setComponentParams] = useState<Map<string, any>>(new Map());
+  const [pipeParams, setPipeParams] = useState<Map<string, any>>(new Map());
+
+  // Panel visibility - mutual exclusivity
+  const [activePanel, setActivePanel] = useState<'node' | 'link' | null>(null);
+
+  // Panel positions (persisted in localStorage)
+  const [nodePanelPosition, setNodePanelPosition] = useState<{ x: number; y: number }>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem('nodePanelPosition');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse saved node panel position', e);
+        }
+      }
+      return {
+        x: window.innerWidth * 0.5 - 250,
+        y: window.innerHeight * 0.5 - 300,
+      };
+    }
+    return { x: 400, y: 100 };
+  });
+
+  const [linkPanelPosition, setLinkPanelPosition] = useState<{ x: number; y: number }>(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem('linkPanelPosition');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Failed to parse saved link panel position', e);
+        }
+      }
+      return {
+        x: window.innerWidth * 0.5 - 250,
+        y: window.innerHeight * 0.5 - 300,
+      };
+    }
+    return { x: 400, y: 100 };
+  });
+
   // Function to clear all selections
   const clearSelections = () => {
     setSelectedInlet(null);
@@ -169,6 +217,37 @@ export default function SimulationPage() {
   useEffect(() => {
     selectedFeatureRef.current = selectedFeature;
   }, [selectedFeature]);
+
+  // Save panel positions to localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem('nodePanelPosition', JSON.stringify(nodePanelPosition));
+    }
+  }, [nodePanelPosition]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem('linkPanelPosition', JSON.stringify(linkPanelPosition));
+    }
+  }, [linkPanelPosition]);
+
+  // Auto-open node panel when components selected
+  useEffect(() => {
+    if (selectedComponentIds.length > 0 && activePanel !== 'node') {
+      setActivePanel('node');
+    } else if (selectedComponentIds.length === 0 && activePanel === 'node') {
+      setActivePanel(null);
+    }
+  }, [selectedComponentIds.length]);
+
+  // Auto-open link panel when pipes selected
+  useEffect(() => {
+    if (selectedPipeIds.length > 0 && activePanel !== 'link') {
+      setActivePanel('link');
+    } else if (selectedPipeIds.length === 0 && activePanel === 'link') {
+      setActivePanel(null);
+    }
+  }, [selectedPipeIds.length]);
 
   // Auto-close sidebar when simulation page loads (only once on mount)
   useEffect(() => {
@@ -438,6 +517,38 @@ export default function SimulationPage() {
   };
 
   const someVisible = Object.values(overlayVisibility).some(Boolean);
+
+  // Panel toggle handlers
+  const handleToggleNodePanel = () => {
+    if (activePanel === 'node') {
+      setActivePanel(null); // Close
+    } else {
+      setActivePanel('node'); // Open and close link panel
+    }
+  };
+
+  const handleToggleLinkPanel = () => {
+    if (activePanel === 'link') {
+      setActivePanel(null); // Close
+    } else {
+      setActivePanel('link'); // Open and close node panel
+    }
+  };
+
+  // Update param handlers
+  const updateComponentParam = (id: string, key: string, value: number) => {
+    const newParams = new Map(componentParams);
+    const current = newParams.get(id) || {};
+    newParams.set(id, { ...current, [key]: value });
+    setComponentParams(newParams);
+  };
+
+  const updatePipeParam = (id: string, key: string, value: number) => {
+    const newParams = new Map(pipeParams);
+    const current = newParams.get(id) || {};
+    newParams.set(id, { ...current, [key]: value });
+    setPipeParams(newParams);
+  };
 
   // Handler for the back button in control panel
   const handleControlPanelBack = () => {
@@ -849,6 +960,18 @@ export default function SimulationPage() {
           isSimulationMode={isSimulationActive}
           selectedPointForSimulation={selectedPointForSimulation}
           reports={[]}
+          selectedComponentIds={selectedComponentIds}
+          onComponentIdsChange={setSelectedComponentIds}
+          selectedPipeIds={selectedPipeIds}
+          onPipeIdsChange={setSelectedPipeIds}
+          componentParams={componentParams}
+          onComponentParamsChange={setComponentParams}
+          pipeParams={pipeParams}
+          onPipeParamsChange={setPipeParams}
+          showNodePanel={activePanel === 'node'}
+          onToggleNodePanel={handleToggleNodePanel}
+          showLinkPanel={activePanel === 'link'}
+          onToggleLinkPanel={handleToggleLinkPanel}
           onRefreshReports={async () => {}}
           isRefreshingReports={false}
           selectedYear={selectedYear}
@@ -895,6 +1018,50 @@ export default function SimulationPage() {
             onClose={handleCloseSlideshowNode}
             selectedYear={selectedYear}
           />
+        )}
+
+        {/* Node Parameters Panel - Draggable */}
+        {activePanel === 'node' && selectedComponentIds.length > 0 && (
+          <div
+            style={{
+              position: "fixed",
+              left: nodePanelPosition.x,
+              top: nodePanelPosition.y,
+              zIndex: 1000,
+            }}
+          >
+            <NodeParametersPanel
+              selectedComponentIds={selectedComponentIds}
+              componentParams={componentParams}
+              onUpdateParam={updateComponentParam}
+              onClose={() => setActivePanel(null)}
+              position={nodePanelPosition}
+              onPositionChange={setNodePanelPosition}
+              inlets={inlets}
+              drains={drains}
+            />
+          </div>
+        )}
+
+        {/* Link Parameters Panel - Draggable */}
+        {activePanel === 'link' && selectedPipeIds.length > 0 && (
+          <div
+            style={{
+              position: "fixed",
+              left: linkPanelPosition.x,
+              top: linkPanelPosition.y,
+              zIndex: 1000,
+            }}
+          >
+            <LinkParametersPanel
+              selectedPipeIds={selectedPipeIds}
+              pipeParams={pipeParams}
+              onUpdateParam={updatePipeParam}
+              onClose={() => setActivePanel(null)}
+              position={linkPanelPosition}
+              onPositionChange={setLinkPanelPosition}
+            />
+          </div>
         )}
       </main>
     </>

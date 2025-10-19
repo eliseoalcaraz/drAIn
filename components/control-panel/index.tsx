@@ -40,6 +40,18 @@ export function ControlPanel({
   onYearChange,
   onGenerateTable,
   isLoadingTable,
+  selectedComponentIds = [],
+  onComponentIdsChange = () => {},
+  selectedPipeIds = [],
+  onPipeIdsChange = () => {},
+  componentParams = new Map(),
+  onComponentParamsChange = () => {},
+  pipeParams = new Map(),
+  onPipeParamsChange = () => {},
+  showNodePanel = false,
+  onToggleNodePanel = () => {},
+  showLinkPanel = false,
+  onToggleLinkPanel = () => {},
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
@@ -218,6 +230,18 @@ export function ControlPanel({
             onGenerateTable={onGenerateTable}
             isLoadingTable={isLoadingTable}
             setPublicAvatarUrl={setPublicAvatarUrl}
+            selectedComponentIds={selectedComponentIds}
+            onComponentIdsChange={onComponentIdsChange}
+            selectedPipeIds={selectedPipeIds}
+            onPipeIdsChange={onPipeIdsChange}
+            componentParams={componentParams}
+            onComponentParamsChange={onComponentParamsChange}
+            pipeParams={pipeParams}
+            onPipeParamsChange={onPipeParamsChange}
+            showNodePanel={showNodePanel}
+            onToggleNodePanel={onToggleNodePanel}
+            showLinkPanel={showLinkPanel}
+            onToggleLinkPanel={onToggleLinkPanel}
           />
         </div>
       </div>

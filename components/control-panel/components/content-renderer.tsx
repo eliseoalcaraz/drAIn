@@ -97,6 +97,20 @@ interface ContentRendererProps {
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
+
+  // Model3 panel props
+  selectedComponentIds?: string[];
+  onComponentIdsChange?: (ids: string[]) => void;
+  selectedPipeIds?: string[];
+  onPipeIdsChange?: (ids: string[]) => void;
+  componentParams?: Map<string, any>;
+  onComponentParamsChange?: (params: Map<string, any>) => void;
+  pipeParams?: Map<string, any>;
+  onPipeParamsChange?: (params: Map<string, any>) => void;
+  showNodePanel?: boolean;
+  onToggleNodePanel?: () => void;
+  showLinkPanel?: boolean;
+  onToggleLinkPanel?: () => void;
 }
 
 export function ContentRenderer({
@@ -145,6 +159,18 @@ export function ContentRenderer({
   onYearChange,
   onGenerateTable,
   isLoadingTable,
+  selectedComponentIds = [],
+  onComponentIdsChange = () => {},
+  selectedPipeIds = [],
+  onPipeIdsChange = () => {},
+  componentParams = new Map(),
+  onComponentParamsChange = () => {},
+  pipeParams = new Map(),
+  onPipeParamsChange = () => {},
+  showNodePanel = false,
+  onToggleNodePanel = () => {},
+  showLinkPanel = false,
+  onToggleLinkPanel = () => {},
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -188,6 +214,18 @@ export function ContentRenderer({
           onYearChange={onYearChange}
           onGenerateTable={onGenerateTable}
           isLoadingTable={isLoadingTable}
+          selectedComponentIds={selectedComponentIds}
+          onComponentIdsChange={onComponentIdsChange}
+          selectedPipeIds={selectedPipeIds}
+          onPipeIdsChange={onPipeIdsChange}
+          componentParams={componentParams}
+          onComponentParamsChange={onComponentParamsChange}
+          pipeParams={pipeParams}
+          onPipeParamsChange={onPipeParamsChange}
+          showNodePanel={showNodePanel}
+          onToggleNodePanel={onToggleNodePanel}
+          showLinkPanel={showLinkPanel}
+          onToggleLinkPanel={onToggleLinkPanel}
         />
       );
 

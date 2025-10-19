@@ -100,4 +100,17 @@ export interface ControlPanelProps {
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
+  // Model3 panel props
+  selectedComponentIds?: string[];
+  onComponentIdsChange?: (ids: string[]) => void;
+  selectedPipeIds?: string[];
+  onPipeIdsChange?: (ids: string[]) => void;
+  componentParams?: Map<string, any>;
+  onComponentParamsChange?: (params: Map<string, any>) => void;
+  pipeParams?: Map<string, any>;
+  onPipeParamsChange?: (params: Map<string, any>) => void;
+  showNodePanel?: boolean;
+  onToggleNodePanel?: () => void;
+  showLinkPanel?: boolean;
+  onToggleLinkPanel?: () => void;
 }
