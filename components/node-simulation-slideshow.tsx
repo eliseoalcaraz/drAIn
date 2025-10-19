@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import { X } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchNodeDeets } from "@/lib/Vulnerabilities/FetchDeets";
+import { NodeMetricComparisonChart } from "@/components/node-metric-comparison-chart";
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
 
@@ -29,26 +30,49 @@ interface NodeSimulationSlideshowProps {
   selectedYear: YearOption;
 }
 
-const LOADING_PHASES = [
+interface MetricSlide {
+  id: string;
+  title: string;
+  value: (details: NodeDetails) => string;
+  unit: string;
+  description: string;
+}
+
+const METRIC_SLIDES: MetricSlide[] = [
   {
-    title: "Fetching Environmental Data",
-    subtitle: "Gathering comprehensive information about your location's climate, biodiversity, and environmental factors...",
-    duration: 2500,
+    id: "time_before_overflow",
+    title: "Time Before Overflow",
+    value: (details) => details.Time_Before_Overflow.toFixed(2),
+    unit: "min",
+    description: "Time elapsed before flooding occurs",
   },
   {
-    title: "Analyzing Drainage Network",
-    subtitle: "Processing node connections and flow patterns...",
-    duration: 2000,
+    id: "hours_flooded",
+    title: "Hours Flooded",
+    value: (details) => details.Hours_Flooded.toFixed(2),
+    unit: "hrs",
+    description: "Total duration of flooding at this location",
   },
   {
-    title: "Calculating Flow Metrics",
-    subtitle: "Computing maximum rates and flood volumes...",
-    duration: 2000,
+    id: "maximum_rate",
+    title: "Maximum Rate",
+    value: (details) => details.Maximum_Rate.toFixed(3),
+    unit: "CMS",
+    description: "Peak flow rate during the simulation period",
   },
   {
-    title: "Generating Results",
-    subtitle: "Finalizing simulation data...",
-    duration: 1500,
+    id: "time_of_max",
+    title: "Time of Max",
+    value: (details) => details.Time_Of_Max_Occurence.toFixed(2),
+    unit: "hr",
+    description: "Time when maximum flow rate occurs",
+  },
+  {
+    id: "total_flood_volume",
+    title: "Total Flood Volume",
+    value: (details) => details.Total_Flood_Volume.toFixed(3),
+    unit: "× 10⁶ L",
+    description: "Cumulative volume of water overflow",
   },
 ];
 
@@ -57,52 +81,67 @@ export function NodeSimulationSlideshow({
   onClose,
   selectedYear,
 }: NodeSimulationSlideshowProps) {
-  const [currentPhase, setCurrentPhase] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [nodeDetails, setNodeDetails] = useState<NodeDetails | null>(null);
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
 
-  // Fetch node details
+  // Fetch node details with minimum loading time
   useEffect(() => {
     const fetchDetails = async () => {
+      setIsLoading(true);
+      const startTime = Date.now();
       const details = await fetchNodeDeets(nodeId, selectedYear);
       setNodeDetails(details);
+
+      // Ensure loading screen shows for at least 3 seconds
+      const elapsedTime = Date.now() - startTime;
+      const remainingTime = Math.max(0, 3000 - elapsedTime);
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, remainingTime);
     };
     fetchDetails();
   }, [nodeId, selectedYear]);
-
-  // Auto-advance through loading phases
-  useEffect(() => {
-    if (currentPhase >= LOADING_PHASES.length) {
-      setIsLoading(false);
-      return;
-    }
-
-    const timer = setTimeout(() => {
-      setCurrentPhase((prev) => prev + 1);
-    }, LOADING_PHASES[currentPhase].duration);
-
-    return () => clearTimeout(timer);
-  }, [currentPhase]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
+      } else if (!isLoading) {
+        if (e.key === "ArrowLeft" && activeSlideIndex > 0) {
+          setActiveSlideIndex(activeSlideIndex - 1);
+        } else if (
+          e.key === "ArrowRight" &&
+          activeSlideIndex < METRIC_SLIDES.length - 1
+        ) {
+          setActiveSlideIndex(activeSlideIndex + 1);
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose]);
+  }, [onClose, activeSlideIndex, isLoading]);
 
-  const phase = LOADING_PHASES[currentPhase] || LOADING_PHASES[LOADING_PHASES.length - 1];
+  const handlePrevSlide = () => {
+    if (activeSlideIndex > 0) {
+      setActiveSlideIndex(activeSlideIndex - 1);
+    }
+  };
+
+  const handleNextSlide = () => {
+    if (activeSlideIndex < METRIC_SLIDES.length - 1) {
+      setActiveSlideIndex(activeSlideIndex + 1);
+    }
+  };
 
   // Calculate fixed position - always display on the right side, vertically centered
   const getFixedPosition = () => {
     const dialogWidth = 550;
     const dialogHeight = 500;
-    const padding = 20;
+    const padding = 150;
 
     // Fixed position: right side of screen with padding, vertically centered
     const x = window.innerWidth - dialogWidth - padding;
@@ -116,26 +155,23 @@ export function NodeSimulationSlideshow({
   return (
     <>
       {/* Overlay backdrop */}
-      <div
-        className="fixed inset-0 bg-black/20 z-[100]"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-black/20 z-[100]" onClick={onClose} />
 
-      {/* Loading screen dialog */}
+      {/* Dialog */}
       <div
-        className="fixed z-[101] bg-background border rounded-lg shadow-2xl flex flex-col"
+        className="fixed z-[101] bg-[#f7f7f7] border border-[#ced1cd] rounded-lg shadow-2xl flex flex-col"
         style={{
           left: `${x}px`,
           top: `${y}px`,
           width: "550px",
-          height: "500px",
+          height: "450px",
         }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b">
+        <div className="flex rounded-t-lg items-ccenter justify-between p-2 pl-5 bg-[#f7f7f7]">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm text-muted-foreground">
-              Node: {nodeId}
+              {nodeId} Simulation
             </h3>
           </div>
           <Button
@@ -149,9 +185,9 @@ export function NodeSimulationSlideshow({
         </div>
 
         {/* Main content */}
-        <div className="flex-1 flex flex-col items-center justify-center p-8 gap-6">
+        <div className="flex-1 flex flex-col items-center justify-center relative bg-white rounded-lg border-y border-[#ced1cd] ">
           {isLoading ? (
-            <>
+            <div className="flex flex-col items-center justify-center gap-6 ">
               {/* Spinner */}
               <div className="relative">
                 <Spinner className="h-16 w-16 text-primary" />
@@ -159,129 +195,122 @@ export function NodeSimulationSlideshow({
 
               {/* Loading text */}
               <div className="text-center space-y-2 max-w-[400px]">
-                <h2 className="text-xl font-semibold flex items-center justify-center gap-2">
-                  <span className="inline-block w-4 h-4 rounded-full bg-green-500/20 border-2 border-green-500"></span>
-                  {phase.title}
+                <h2 className="text-xl font-semibold">
+                  Loading Simulation Data
                 </h2>
                 <p className="text-sm text-muted-foreground">
-                  {phase.subtitle}
+                  Fetching node details and vulnerability metrics...
                 </p>
               </div>
+            </div>
+          ) : nodeDetails ? (
+            <>
+              {/* Slideshow content */}
+              <div className="w-full h-full flex flex-col ">
+                {/* Slide content */}
+                <div className="flex-1 flex flex-col space-y-4 px-8 py-6 ">
+                  <div className="flex flex-row justify-between">
+                    <div className="">
+                      <h2 className="text-2xl font-bold">
+                        {METRIC_SLIDES[activeSlideIndex].title}
+                      </h2>
 
-              {/* Progress dots */}
-              <div className="flex items-center gap-2">
-                {LOADING_PHASES.map((_, index) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      "h-2 w-2 rounded-full transition-all duration-300",
-                      index < currentPhase
-                        ? "bg-primary"
-                        : index === currentPhase
-                        ? "bg-primary animate-pulse"
-                        : "bg-muted-foreground/30"
+                      <p className="text-muted-foreground max-w-60 text-xs">
+                        {METRIC_SLIDES[activeSlideIndex].description}
+                      </p>
+                    </div>
+                    <div className="text-5xl font-bold text-primary">
+                      {METRIC_SLIDES[activeSlideIndex].value(nodeDetails)}
+                      <span className="text-xl ml-2">
+                        {METRIC_SLIDES[activeSlideIndex].unit}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Show comparison chart for each metric */}
+                  <div className="w-full max-w-lg">
+                    {METRIC_SLIDES[activeSlideIndex].id ===
+                      "time_before_overflow" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Time_Before_Overflow"
+                        metricLabel="Time Before Overflow (min)"
+                        maxNodes={50}
+                      />
                     )}
-                  />
-                ))}
+                    {METRIC_SLIDES[activeSlideIndex].id === "hours_flooded" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Hours_Flooded"
+                        metricLabel="Hours Flooded (hrs)"
+                        maxNodes={50}
+                      />
+                    )}
+                    {METRIC_SLIDES[activeSlideIndex].id === "maximum_rate" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Maximum_Rate"
+                        metricLabel="Maximum Rate (CMS)"
+                        maxNodes={50}
+                      />
+                    )}
+                    {METRIC_SLIDES[activeSlideIndex].id === "time_of_max" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Time_Of_Max_Occurence"
+                        metricLabel="Time of Max (hr)"
+                        maxNodes={50}
+                      />
+                    )}
+                    {METRIC_SLIDES[activeSlideIndex].id ===
+                      "total_flood_volume" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Total_Flood_Volume"
+                        metricLabel="Total Flood Volume (× 10⁶ L)"
+                        maxNodes={50}
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
             </>
           ) : (
-            <>
-              {/* Results */}
-              <div className="w-full space-y-4 max-h-full overflow-y-auto">
-                <h2 className="text-2xl font-bold text-center mb-4">
-                  Simulation Results
-                </h2>
-
-                {nodeDetails ? (
-                  <div className="space-y-3">
-                    <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Time Before Overflow</span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {nodeDetails.Time_Before_Overflow.toFixed(2)} min
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Hours Flooded</span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {nodeDetails.Hours_Flooded.toFixed(2)} hrs
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Maximum Rate</span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {nodeDetails.Maximum_Rate.toFixed(3)} CMS
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Time of Max</span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {nodeDetails.Time_Of_Max_Occurence.toFixed(2)} hr
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="p-3 bg-muted/50 rounded-lg border border-border">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm font-medium">Total Flood Volume</span>
-                        <span className="text-sm font-semibold text-foreground">
-                          {nodeDetails.Total_Flood_Volume.toFixed(3)} × 10⁶ L
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="mt-4 p-3 bg-primary/10 rounded-lg border border-primary/20">
-                      <div className="space-y-2">
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-muted-foreground">
-                            Vulnerability Category
-                          </span>
-                          <span className="text-sm font-semibold text-primary">
-                            {nodeDetails.Vulnerability_Category}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-muted-foreground">
-                            Vulnerability Rank
-                          </span>
-                          <span className="text-sm font-semibold text-primary">
-                            {nodeDetails.Vulnerability_Rank}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-xs font-medium text-muted-foreground">
-                            Cluster Score
-                          </span>
-                          <span className="text-sm font-semibold text-primary">
-                            {nodeDetails.Cluster_Score.toFixed(3)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="text-center p-8">
-                    <p className="text-sm text-muted-foreground">
-                      No data available for this node.
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      Please select a year for vulnerability analysis.
-                    </p>
-                  </div>
-                )}
-              </div>
-            </>
+            <div className="text-center p-8">
+              <p className="text-sm text-muted-foreground">
+                No data available for this node.
+              </p>
+              <p className="text-xs text-muted-foreground mt-2">
+                Please select a year for vulnerability analysis.
+              </p>
+            </div>
           )}
+        </div>
+        {/* Footer*/}
+        <div className="w-full rounded-b-lg px-5 h-10 flex items-center justify-between">
+          <span className="text-xs text-muted-foreground mb-0.5">
+            Use arrow keys or click page navigation
+          </span>
+          <div className="flex gap-2">
+            {METRIC_SLIDES.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveSlideIndex(index)}
+                className={cn(
+                  "h-2 rounded-full transition-all",
+                  index === activeSlideIndex
+                    ? "w-8 bg-[#3f83db]"
+                    : "w-2 bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                )}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
         </div>
       </div>
     </>
