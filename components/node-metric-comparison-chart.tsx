@@ -1,20 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts";
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart";
+import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
+import { ChartContainer } from "@/components/ui/chart";
 import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -34,44 +22,54 @@ interface NodeDetails {
   Total_Flood_Volume: number;
 }
 
-interface NodeMaximumRateChartProps {
+type MetricKey =
+  | "Time_Before_Overflow"
+  | "Hours_Flooded"
+  | "Maximum_Rate"
+  | "Time_Of_Max_Occurence"
+  | "Total_Flood_Volume";
+
+interface NodeMetricComparisonChartProps {
   nodeId: string;
   year: YearOption;
+  metricKey: MetricKey;
+  metricLabel: string;
   maxNodes?: number;
 }
 
 interface ChartDataPoint {
   nodeId: string;
-  maxRate: number;
+  value: number;
   isSelected: boolean;
   rank: number;
 }
 
-export function NodeMaximumRateChart({
+export function NodeMetricComparisonChart({
   nodeId,
   year,
+  metricKey,
+  metricLabel,
   maxNodes = 50,
-}: NodeMaximumRateChartProps) {
+}: NodeMetricComparisonChartProps) {
   const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
-  const [selectedNodeData, setSelectedNodeData] =
-    useState<ChartDataPoint | null>(null);
+  const [selectedNodeData, setSelectedNodeData] = useState<ChartDataPoint | null>(null);
+  const [totalNodes, setTotalNodes] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
         const allNodes = await fetchYRTable(year);
+        setTotalNodes(allNodes.length);
 
-        // Sort by Maximum_Rate descending
+        // Sort by the specified metric descending
         const sortedNodes = [...allNodes].sort(
-          (a, b) => b.Maximum_Rate - a.Maximum_Rate
+          (a, b) => b[metricKey] - a[metricKey]
         );
 
         // Find the selected node
-        const selectedNode = sortedNodes.find(
-          (node) => node.Node_ID === nodeId
-        );
+        const selectedNode = sortedNodes.find((node) => node.Node_ID === nodeId);
         const selectedNodeIndex = sortedNodes.findIndex(
           (node) => node.Node_ID === nodeId
         );
@@ -85,24 +83,22 @@ export function NodeMaximumRateChart({
         }
 
         // Transform to chart format
-        const transformed: ChartDataPoint[] = nodesToShow.map(
-          (node, index) => ({
-            nodeId: node.Node_ID,
-            maxRate: node.Maximum_Rate,
-            isSelected: node.Node_ID === nodeId,
-            rank: sortedNodes.findIndex((n) => n.Node_ID === node.Node_ID) + 1,
-          })
-        );
+        const transformed: ChartDataPoint[] = nodesToShow.map((node) => ({
+          nodeId: node.Node_ID,
+          value: node[metricKey],
+          isSelected: node.Node_ID === nodeId,
+          rank: sortedNodes.findIndex((n) => n.Node_ID === node.Node_ID) + 1,
+        }));
 
-        // Sort again by maxRate for consistent display
-        transformed.sort((a, b) => b.maxRate - a.maxRate);
+        // Sort again by value for consistent display
+        transformed.sort((a, b) => b.value - a.value);
 
         setChartData(transformed);
 
         if (selectedNode) {
           setSelectedNodeData({
             nodeId: selectedNode.Node_ID,
-            maxRate: selectedNode.Maximum_Rate,
+            value: selectedNode[metricKey],
             isSelected: true,
             rank: selectedNodeIndex + 1,
           });
@@ -115,11 +111,11 @@ export function NodeMaximumRateChart({
     };
 
     fetchData();
-  }, [nodeId, year, maxNodes]);
+  }, [nodeId, year, metricKey, maxNodes]);
 
   const chartConfig = {
-    maxRate: {
-      label: "Maximum Rate (CMS)",
+    value: {
+      label: metricLabel,
     },
   };
 
@@ -136,7 +132,7 @@ export function NodeMaximumRateChart({
       {selectedNodeData && (
         <div className="flex justify-center">
           <div className="w-48 text-xs h-6 rounded-xl border flex items-center justify-center bg-gray-500/10 text-gray-700 dark:text-gray-400 border-gray-500/20">
-            Ranked #{selectedNodeData.rank} out of {chartData.length} nodes
+            Ranked #{selectedNodeData.rank} out of {totalNodes} nodes
           </div>
         </div>
       )}
@@ -175,21 +171,20 @@ export function NodeMaximumRateChart({
                         Rank: #{data.rank}
                       </div>
                       <div className="text-foreground font-mono">
-                        {data.maxRate.toFixed(3)} CMS
+                        {data.value.toFixed(3)}
                       </div>
                     </div>
                   </div>
                 );
               }}
             />
-            <Bar dataKey="maxRate" fill="#3b82f6" radius={[4, 4, 0, 0]}>
+            <Bar dataKey="value" fill="#3b82f6" radius={[4, 4, 0, 0]}>
               {chartData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={`hsl(${
                     240 -
-                    (entry.maxRate /
-                      Math.max(...chartData.map((d) => d.maxRate))) *
+                    (entry.value / Math.max(...chartData.map((d) => d.value))) *
                       240
                   }, 70%, 50%)`}
                 />

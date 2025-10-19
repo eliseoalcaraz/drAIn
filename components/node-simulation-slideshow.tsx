@@ -6,7 +6,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { fetchNodeDeets } from "@/lib/Vulnerabilities/FetchDeets";
-import { NodeMaximumRateChart } from "@/components/node-maximum-rate-chart";
+import { NodeMetricComparisonChart } from "@/components/node-metric-comparison-chart";
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
 
@@ -44,7 +44,7 @@ const METRIC_SLIDES: MetricSlide[] = [
     title: "Time Before Overflow",
     value: (details) => details.Time_Before_Overflow.toFixed(2),
     unit: "min",
-    description: "Time elapsed before flooding occurs at this node",
+    description: "Time elapsed before flooding occurs",
   },
   {
     id: "hours_flooded",
@@ -168,10 +168,10 @@ export function NodeSimulationSlideshow({
         }}
       >
         {/* Header */}
-        <div className="flex rounded-t-lg items-center justify-between p-2 pl-5 bg-[#f7f7f7]">
+        <div className="flex rounded-t-lg items-ccenter justify-between p-2 pl-5 bg-[#f7f7f7]">
           <div className="flex items-center gap-2">
             <h3 className="font-semibold text-sm text-muted-foreground">
-              {nodeId}
+              {nodeId} Simulation
             </h3>
           </div>
           <Button
@@ -227,16 +227,56 @@ export function NodeSimulationSlideshow({
                     </div>
                   </div>
 
-                  {/* Show chart only for Maximum Rate slide */}
-                  {METRIC_SLIDES[activeSlideIndex].id === "maximum_rate" && (
-                    <div className="w-full max-w-lg">
-                      <NodeMaximumRateChart
+                  {/* Show comparison chart for each metric */}
+                  <div className="w-full max-w-lg">
+                    {METRIC_SLIDES[activeSlideIndex].id ===
+                      "time_before_overflow" && (
+                      <NodeMetricComparisonChart
                         nodeId={nodeId}
                         year={selectedYear}
+                        metricKey="Time_Before_Overflow"
+                        metricLabel="Time Before Overflow (min)"
                         maxNodes={50}
                       />
-                    </div>
-                  )}
+                    )}
+                    {METRIC_SLIDES[activeSlideIndex].id === "hours_flooded" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Hours_Flooded"
+                        metricLabel="Hours Flooded (hrs)"
+                        maxNodes={50}
+                      />
+                    )}
+                    {METRIC_SLIDES[activeSlideIndex].id === "maximum_rate" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Maximum_Rate"
+                        metricLabel="Maximum Rate (CMS)"
+                        maxNodes={50}
+                      />
+                    )}
+                    {METRIC_SLIDES[activeSlideIndex].id === "time_of_max" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Time_Of_Max_Occurence"
+                        metricLabel="Time of Max (hr)"
+                        maxNodes={50}
+                      />
+                    )}
+                    {METRIC_SLIDES[activeSlideIndex].id ===
+                      "total_flood_volume" && (
+                      <NodeMetricComparisonChart
+                        nodeId={nodeId}
+                        year={selectedYear}
+                        metricKey="Total_Flood_Volume"
+                        metricLabel="Total Flood Volume (× 10⁶ L)"
+                        maxNodes={50}
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
             </>
@@ -253,7 +293,9 @@ export function NodeSimulationSlideshow({
         </div>
         {/* Footer*/}
         <div className="w-full rounded-b-lg px-5 h-10 flex items-center justify-between">
-          <span className="text-xs">Navigation</span>
+          <span className="text-xs text-muted-foreground mb-0.5">
+            Use arrow keys or click page navigation
+          </span>
           <div className="flex gap-2">
             {METRIC_SLIDES.map((_, index) => (
               <button
