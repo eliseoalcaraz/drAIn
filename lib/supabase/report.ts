@@ -197,7 +197,7 @@ export const getreportCategoryCount = async (targetCategory: string, categoryId:
     return categoryCount?? 0;
   }
   catch (error) {
-    console.error("Error fetching reports:", error); 
+    console.error("Error fetching reports:", error);
     return 0;
   }
 };
