@@ -155,7 +155,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             e.stopPropagation();
             handleOpen();
           }}
-          className={`relative w-6 h-6 rounded-full flex items-center justify-center text-white text-xs font-bold transition-all duration-200 hover:scale-110 hover:shadow-lg active:scale-95 ${getComponentColor(
+          className={`relative w-6 h-6 rounded-full pt-0.5 flex items-center justify-center text-white text-xs font-bold transition-all duration-200 hover:scale-110 hover:shadow-lg active:scale-95 ${getComponentColor(
             report.category
           )}`}
         >
@@ -182,17 +182,17 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             {/* Header */}
             <div className="flex items-center gap-3 mb-2">
               <div
-                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm ${getComponentColor(
+                className={`w-9 h-9 pt-0.5 rounded-full flex items-center justify-center flex-shrink-0 text-white font-bold text-sm ${getComponentColor(
                   report.category
                 )}`}
               >
                 {initials}
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-gray-900">
+                <h3 className="font-semibold text-gray-900 ">
                   {report.reporterName}
                 </h3>
-                <div className="flex flex-row gap-2 pt-1 items-end">
+                <div className="flex flex-row gap-2  items-end">
                   <p className="text-2xs  pb-1 text-gray-500">
                     {formatDistanceToNow(new Date(report.date), {
                       addSuffix: true,

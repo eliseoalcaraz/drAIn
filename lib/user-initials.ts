@@ -1,9 +1,11 @@
 export function getInitials(name: string | null | undefined): string {
   if (!name || !name.trim()) return "NA";
 
-  return name
-    .split(" ")
-    .filter(Boolean) // remove extra spaces
-    .map((word) => word[0]?.toUpperCase() ?? "")
-    .join("");
+  const parts = name.trim().split(" ").filter(Boolean);
+  if (parts.length === 1) return parts[0][0].toUpperCase();
+
+  const first = parts[0][0]?.toUpperCase() ?? "";
+  const last = parts[parts.length - 1][0]?.toUpperCase() ?? "";
+
+  return first + last;
 }

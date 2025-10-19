@@ -35,7 +35,7 @@ export const uploadReport = async (file: File, category: string, description: st
                     category,
                     description,
                     image: `public/${file.name}`,
-                    report_name: reporterName,
+                    reporter_name: reporterName,
                     status: 'pending',
                     component_id: component_id,
                     long: long,
@@ -83,8 +83,8 @@ export const fetchReports = async (): Promise<Report[]> => {
 
   // Transform into desired format
   const formattedReports: Report[] = data.map((report: any, index: number) => ({
-    id: report.id?.toString() ?? String(index + 1),
-    date: report.created_at ?? new Date().toISOString(),
+    id: report.id?.toString(),
+    date: report.created_at,
     category: report.category,
     description: report.description,
     image: imageUrls[index].imageUrl ?? "",
@@ -147,7 +147,7 @@ const formatReport = (report: any): Report => {
     category: report.category,
     description: report.description,
     image: img.publicUrl ?? "",
-    reporterName: report.reporter_name ?? "Unknown Reporter",
+    reporterName: report.reporter_name,
     status: report.status,
     componentId: report.component_id ?? "N/A",
     coordinates: [report.long as number, report.lat as number] as [number, number],
