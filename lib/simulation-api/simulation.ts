@@ -46,7 +46,9 @@ export async function runSimulation(
   rainfall: RainfallData
 ): Promise<SimulationResponse> {
   try {
-    const response = await fetch(`${API_BASE_URL}/run-simulation`, {
+    // Ensure proper URL construction (remove trailing slash from base URL if present)
+    const baseUrl = API_BASE_URL?.replace(/\/$/, '') || '';
+    const response = await fetch(`${baseUrl}/run-simulation`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

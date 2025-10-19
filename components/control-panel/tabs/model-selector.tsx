@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
-export type ModelType = "model1" | "model2" | "model3";
+export type ModelType = "model2" | "model3";
 
 interface ModelOption {
   id: ModelType;
@@ -21,12 +21,6 @@ interface ModelOption {
 }
 
 const MODEL_OPTIONS: ModelOption[] = [
-  {
-    id: "model1",
-    title: "Flood Prediction Model",
-    description:
-      "Predict flood risk based on depth, pipe diameter, distance to outlet, and inlet density",
-  },
   {
     id: "model2",
     title: "Hydraulic Capacity Model",

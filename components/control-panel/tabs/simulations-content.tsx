@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { SimulationGateway } from "@/components/simulation-gateway";
 import { ModelSelector, type ModelType } from "./model-selector";
-import Model1 from "./simulation-models/model1";
 import Model2 from "./simulation-models/model2";
 import Model3 from "./simulation-models/model3";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
@@ -150,8 +149,6 @@ export default function SimulationsContent({
     };
 
     switch (selectedModel) {
-      case "model1":
-        return <Model1 {...modelProps} />;
       case "model2":
         return <Model2 {...model2Props} />;
       case "model3":
