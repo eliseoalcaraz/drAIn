@@ -92,11 +92,19 @@ interface ContentRendererProps {
   setProfile: (profile: any) => void;
   setPublicAvatarUrl: (url: string | null) => void;
 
-  // Vulnerability table props
+  // Vulnerability table props (Model 2)
   selectedYear?: number | null;
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
+  onCloseTable?: () => void;
+  hasTable?: boolean;
+
+  // Model 3 table props
+  onGenerateTable3?: () => void;
+  isLoadingTable3?: boolean;
+  onCloseTable3?: () => void;
+  hasTable3?: boolean;
 
   // Model3 panel props
   selectedComponentIds?: string[];
@@ -159,6 +167,12 @@ export function ContentRenderer({
   onYearChange,
   onGenerateTable,
   isLoadingTable,
+  onCloseTable,
+  hasTable = false,
+  onGenerateTable3,
+  isLoadingTable3 = false,
+  onCloseTable3,
+  hasTable3 = false,
   selectedComponentIds = [],
   onComponentIdsChange = () => {},
   selectedPipeIds = [],
@@ -214,6 +228,12 @@ export function ContentRenderer({
           onYearChange={onYearChange}
           onGenerateTable={onGenerateTable}
           isLoadingTable={isLoadingTable}
+          onCloseTable={onCloseTable}
+          hasTable={hasTable}
+          onGenerateTable3={onGenerateTable3}
+          isLoadingTable3={isLoadingTable3}
+          onCloseTable3={onCloseTable3}
+          hasTable3={hasTable3}
           selectedComponentIds={selectedComponentIds}
           onComponentIdsChange={onComponentIdsChange}
           selectedPipeIds={selectedPipeIds}

@@ -15,11 +15,18 @@ interface SimulationsContentProps {
   selectedOutlet?: Outlet | null;
   selectedPipe?: Pipe | null;
   selectedDrain?: Drain | null;
+  // Model 2 props
   selectedYear?: number | null;
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
+  hasTable?: boolean;
+  // Model 3 props
+  onGenerateTable3?: () => void;
+  isLoadingTable3?: boolean;
+  onCloseTable3?: () => void;
+  hasTable3?: boolean;
   // Model3 panel props
   selectedComponentIds?: string[];
   onComponentIdsChange?: (ids: string[]) => void;
@@ -47,6 +54,11 @@ export default function SimulationsContent({
   onGenerateTable = () => {},
   isLoadingTable = false,
   onCloseTable = () => {},
+  hasTable = false,
+  onGenerateTable3 = () => {},
+  isLoadingTable3 = false,
+  onCloseTable3 = () => {},
+  hasTable3 = false,
   selectedComponentIds = [],
   onComponentIdsChange = () => {},
   selectedPipeIds = [],
@@ -130,6 +142,7 @@ export default function SimulationsContent({
       onGenerateTable,
       isLoading: isLoadingTable,
       onCloseTable,
+      hasTable,
     };
 
     const model3Props = {
@@ -146,6 +159,10 @@ export default function SimulationsContent({
       onToggleNodePanel,
       showLinkPanel,
       onToggleLinkPanel,
+      onGenerateTable: onGenerateTable3,
+      isLoadingTable: isLoadingTable3,
+      onCloseTable: onCloseTable3,
+      hasTable: hasTable3,
     };
 
     switch (selectedModel) {

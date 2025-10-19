@@ -6,15 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Badge } from "@/components/ui/badge";
 import { Spinner } from "@/components/ui/spinner";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import {
   Tooltip,
   TooltipContent,
@@ -22,11 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MultiSelect } from "@/components/ui/multi-select";
-import {
-  runSimulation,
-  type SimulationResponse,
-} from "@/lib/simulation-api/simulation";
-import { AlertCircle, CheckCircle2, RotateCcw, Settings } from "lucide-react";
+import { AlertCircle, RotateCcw, Settings, CaptionsOff } from "lucide-react";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
 import { useInlets } from "@/hooks/useInlets";
 import { useDrain } from "@/hooks/useDrain";
@@ -72,6 +60,11 @@ interface Model3Props {
   onToggleNodePanel: () => void;
   showLinkPanel: boolean;
   onToggleLinkPanel: () => void;
+  // Table props (similar to Model 2)
+  onGenerateTable: () => void;
+  isLoadingTable: boolean;
+  onCloseTable?: () => void;
+  hasTable?: boolean;
 }
 
 const DEFAULT_NODE_PARAMS: NodeParams = {
@@ -111,14 +104,15 @@ export default function Model3({
   onToggleNodePanel,
   showLinkPanel,
   onToggleLinkPanel,
+  onGenerateTable,
+  isLoadingTable,
+  onCloseTable,
+  hasTable = false,
 }: Model3Props) {
   const [rainfallParams, setRainfallParams] = useState<RainfallParams>(
     DEFAULT_RAINFALL_PARAMS
   );
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<SimulationResponse | null>(null);
-  const [showResults, setShowResults] = useState(false);
 
   // Load data from hooks
   const { inlets, loading: inletsLoading } = useInlets();
@@ -207,44 +201,15 @@ export default function Model3({
     }
   }, [selectedPipeIds]);
 
-  const handleRunSimulation = async () => {
+  const handleGenerateTableClick = () => {
     if (selectedComponentIds.length === 0) {
       setError("Please select at least one component (inlet or drain)");
+      toast.error("Please select at least one component");
       return;
     }
 
-    setLoading(true);
     setError(null);
-    setResult(null);
-
-    try {
-      // Build nodes object from componentParams
-      const nodes: Record<string, NodeParams> = {};
-      componentParams.forEach((params, id) => {
-        nodes[id] = params;
-      });
-
-      // Build links object from pipeParams
-      const links: Record<string, LinkParams> = {};
-      pipeParams.forEach((params, id) => {
-        links[id] = params;
-      });
-
-      const data = await runSimulation(nodes, links, rainfallParams);
-      setResult(data);
-      setShowResults(true);
-      toast.success("Simulation completed successfully!");
-    } catch (err) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Unknown error occurred";
-      setError(errorMessage);
-      toast.error("Simulation failed", {
-        description: errorMessage,
-      });
-      console.error("Simulation failed:", err);
-    } finally {
-      setLoading(false);
-    }
+    onGenerateTable();
   };
 
   const handleReset = () => {
@@ -253,9 +218,7 @@ export default function Model3({
     onComponentParamsChange(new Map());
     onPipeParamsChange(new Map());
     setRainfallParams(DEFAULT_RAINFALL_PARAMS);
-    setResult(null);
     setError(null);
-    setShowResults(false);
   };
 
   return (
@@ -431,32 +394,6 @@ export default function Model3({
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-3 pt-4 items-center">
-          <Button
-            onClick={handleRunSimulation}
-            disabled={loading || selectedComponentIds.length === 0}
-            className="flex-1 h-full"
-          >
-            {loading ? (
-              <>
-                <Spinner className="mr-2 h-4 w-4" />
-                Running Simulation...
-              </>
-            ) : (
-              "Run Simulation"
-            )}
-          </Button>
-
-          <Button
-            onClick={handleReset}
-            variant="outline"
-            size="icon"
-            disabled={loading}
-          >
-            <RotateCcw className="h-4 w-4" />
-          </Button>
-        </div>
       </div>
 
       {/* Error Display */}
@@ -467,84 +404,52 @@ export default function Model3({
         </Alert>
       )}
 
-      {/* Results Dialog */}
-      <Dialog open={showResults} onOpenChange={setShowResults}>
-        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-          <DialogHeader>
-            <div className="flex items-center justify-between">
-              <DialogTitle className="flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
-                Simulation Results
-              </DialogTitle>
-              <Badge variant="secondary">SWMM Analysis</Badge>
-            </div>
-            <DialogDescription>
-              Infrastructure health simulation completed at{" "}
-              {new Date().toLocaleString()}
-            </DialogDescription>
-          </DialogHeader>
+      {/* Generate and Close Buttons (side-by-side) placed at bottom */}
+      <div className="mt-auto">
+        <div className="flex gap-2">
+          <Button
+            onClick={handleGenerateTableClick}
+            disabled={selectedComponentIds.length === 0 || isLoadingTable}
+            className="flex-1"
+          >
+            {isLoadingTable ? (
+              <>
+                <Spinner className="mr-2 h-4 w-4" />
+                Loading Data...
+              </>
+            ) : (
+              "Generate Table on Map"
+            )}
+          </Button>
 
-          <div className="space-y-4">
-            {/* Included Components Summary */}
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Included in Simulation</div>
-              <div className="flex flex-wrap gap-2">
-                <div className="text-xs text-muted-foreground">
-                  Components ({selectedComponentIds.length}):
-                </div>
-                {selectedComponentIds.map((id) => (
-                  <Badge key={id} variant="secondary">
-                    {id}
-                  </Badge>
-                ))}
-              </div>
-              {selectedPipeIds.length > 0 && (
-                <div className="flex flex-wrap gap-2">
-                  <div className="text-xs text-muted-foreground">
-                    Pipes ({selectedPipeIds.length}):
-                  </div>
-                  {selectedPipeIds.map((id) => (
-                    <Badge key={id} variant="outline">
-                      {id}
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
+          <Button
+            onClick={handleReset}
+            variant="outline"
+            size="icon"
+            disabled={isLoadingTable}
+            aria-label="Reset simulation parameters"
+          >
+            <RotateCcw className="h-4 w-4" />
+          </Button>
 
-            {/* Main Result Display */}
-            <div className="bg-muted rounded-lg p-4">
-              <div className="text-sm text-muted-foreground mb-2">
-                Simulation Output
-              </div>
-              <div className="bg-background rounded p-4 overflow-auto max-h-96">
-                <pre className="text-xs text-foreground whitespace-pre-wrap">
-                  {JSON.stringify(result, null, 2)}
-                </pre>
-              </div>
-            </div>
+          {onCloseTable && (
+            <Button
+              variant="outline"
+              onClick={() => onCloseTable()}
+              disabled={isLoadingTable || !hasTable}
+              className="flex-none"
+              aria-label="Close vulnerability table"
+            >
+              <CaptionsOff className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
 
-            {/* Configuration Summary */}
-            <div className="space-y-2">
-              <div className="text-sm font-medium">Rainfall Configuration</div>
-              <div className="grid grid-cols-2 gap-2 text-sm">
-                <div className="flex justify-between p-2 bg-muted rounded">
-                  <span className="text-muted-foreground">Precipitation:</span>
-                  <span className="font-medium">
-                    {rainfallParams.total_precip.toFixed(0)} mm
-                  </span>
-                </div>
-                <div className="flex justify-between p-2 bg-muted rounded">
-                  <span className="text-muted-foreground">Duration:</span>
-                  <span className="font-medium">
-                    {rainfallParams.duration_hr.toFixed(1)} hr
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+        <p className="text-[10px] text-muted-foreground mt-3">
+          The vulnerability data table will appear on the map and can be sorted
+          and dragged to reposition.
+        </p>
+      </div>
     </div>
   );
 }

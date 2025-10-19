@@ -94,12 +94,18 @@ export interface ControlPanelProps {
   // Reports refresh
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
-  // Vulnerability table props
+  // Vulnerability table props (Model 2)
   selectedYear?: number | null;
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
+  hasTable?: boolean;
+  // Model 3 table props
+  onGenerateTable3?: () => void;
+  isLoadingTable3?: boolean;
+  onCloseTable3?: () => void;
+  hasTable3?: boolean;
   // Model3 panel props
   selectedComponentIds?: string[];
   onComponentIdsChange?: (ids: string[]) => void;

@@ -108,7 +108,7 @@ export default function SimulationPage() {
     string | null
   >(null);
 
-  // Vulnerability table state
+  // Vulnerability table state (Model 2)
   const [selectedYear, setSelectedYear] = useState<YearOption | null>(null);
   const [tableData, setTableData] = useState<NodeDetails[] | null>(null);
   const [isLoadingTable, setIsLoadingTable] = useState(false);
@@ -120,28 +120,47 @@ export default function SimulationPage() {
   const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(
     new Set()
   );
+  const [vulnerabilityMap, setVulnerabilityMap] = useState<Map<string, string>>(
+    new Map()
+  );
+
+  // Model 3 table state
+  const [tableData3, setTableData3] = useState<NodeDetails[] | null>(null);
+  const [isLoadingTable3, setIsLoadingTable3] = useState(false);
+  const [isTable3Minimized, setIsTable3Minimized] = useState(false);
+  const [table3Position, setTable3Position] = useState<{ x: number; y: number }>({
+    x: typeof window !== "undefined" ? window.innerWidth * 0.6 - 250 : 400,
+    y: typeof window !== "undefined" ? window.innerHeight * 0.5 - 300 : 100,
+  });
 
   // Slideshow state
   const [slideshowNode, setSlideshowNode] = useState<string | null>(null);
 
   // Model3 lifted state for parameters panels
-  const [selectedComponentIds, setSelectedComponentIds] = useState<string[]>([]);
+  const [selectedComponentIds, setSelectedComponentIds] = useState<string[]>(
+    []
+  );
   const [selectedPipeIds, setSelectedPipeIds] = useState<string[]>([]);
-  const [componentParams, setComponentParams] = useState<Map<string, any>>(new Map());
+  const [componentParams, setComponentParams] = useState<Map<string, any>>(
+    new Map()
+  );
   const [pipeParams, setPipeParams] = useState<Map<string, any>>(new Map());
 
   // Panel visibility - mutual exclusivity
-  const [activePanel, setActivePanel] = useState<'node' | 'link' | null>(null);
+  const [activePanel, setActivePanel] = useState<"node" | "link" | null>(null);
 
   // Panel positions (persisted in localStorage)
-  const [nodePanelPosition, setNodePanelPosition] = useState<{ x: number; y: number }>(() => {
+  const [nodePanelPosition, setNodePanelPosition] = useState<{
+    x: number;
+    y: number;
+  }>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem('nodePanelPosition');
+      const saved = localStorage.getItem("nodePanelPosition");
       if (saved) {
         try {
           return JSON.parse(saved);
         } catch (e) {
-          console.error('Failed to parse saved node panel position', e);
+          console.error("Failed to parse saved node panel position", e);
         }
       }
       return {
@@ -152,14 +171,17 @@ export default function SimulationPage() {
     return { x: 400, y: 100 };
   });
 
-  const [linkPanelPosition, setLinkPanelPosition] = useState<{ x: number; y: number }>(() => {
+  const [linkPanelPosition, setLinkPanelPosition] = useState<{
+    x: number;
+    y: number;
+  }>(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem('linkPanelPosition');
+      const saved = localStorage.getItem("linkPanelPosition");
       if (saved) {
         try {
           return JSON.parse(saved);
         } catch (e) {
-          console.error('Failed to parse saved link panel position', e);
+          console.error("Failed to parse saved link panel position", e);
         }
       }
       return {
@@ -221,30 +243,36 @@ export default function SimulationPage() {
   // Save panel positions to localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem('nodePanelPosition', JSON.stringify(nodePanelPosition));
+      localStorage.setItem(
+        "nodePanelPosition",
+        JSON.stringify(nodePanelPosition)
+      );
     }
   }, [nodePanelPosition]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
-      localStorage.setItem('linkPanelPosition', JSON.stringify(linkPanelPosition));
+      localStorage.setItem(
+        "linkPanelPosition",
+        JSON.stringify(linkPanelPosition)
+      );
     }
   }, [linkPanelPosition]);
 
   // Auto-open node panel when components selected
   useEffect(() => {
-    if (selectedComponentIds.length > 0 && activePanel !== 'node') {
-      setActivePanel('node');
-    } else if (selectedComponentIds.length === 0 && activePanel === 'node') {
+    if (selectedComponentIds.length > 0 && activePanel !== "node") {
+      setActivePanel("node");
+    } else if (selectedComponentIds.length === 0 && activePanel === "node") {
       setActivePanel(null);
     }
   }, [selectedComponentIds.length]);
 
   // Auto-open link panel when pipes selected
   useEffect(() => {
-    if (selectedPipeIds.length > 0 && activePanel !== 'link') {
-      setActivePanel('link');
-    } else if (selectedPipeIds.length === 0 && activePanel === 'link') {
+    if (selectedPipeIds.length > 0 && activePanel !== "link") {
+      setActivePanel("link");
+    } else if (selectedPipeIds.length === 0 && activePanel === "link") {
       setActivePanel(null);
     }
   }, [selectedPipeIds.length]);
@@ -520,18 +548,18 @@ export default function SimulationPage() {
 
   // Panel toggle handlers
   const handleToggleNodePanel = () => {
-    if (activePanel === 'node') {
+    if (activePanel === "node") {
       setActivePanel(null); // Close
     } else {
-      setActivePanel('node'); // Open and close link panel
+      setActivePanel("node"); // Open and close link panel
     }
   };
 
   const handleToggleLinkPanel = () => {
-    if (activePanel === 'link') {
+    if (activePanel === "link") {
       setActivePanel(null); // Close
     } else {
-      setActivePanel('link'); // Open and close node panel
+      setActivePanel("link"); // Open and close node panel
     }
   };
 
@@ -652,7 +680,7 @@ export default function SimulationPage() {
         >
           here
         </button>{" "}
-        to view more details
+        to view details
       </div>
     );
   };
@@ -776,6 +804,152 @@ export default function SimulationPage() {
     }, 200);
   };
 
+  // Helper function to apply vulnerability colors to map layers
+  const applyVulnerabilityColors = (vulnerabilityData: NodeDetails[]) => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    // Create vulnerability mapping: Node_ID -> Vulnerability_Category
+    const vulnMap = new Map<string, string>();
+    vulnerabilityData.forEach((node) => {
+      vulnMap.set(node.Node_ID, node.Vulnerability_Category);
+    });
+    setVulnerabilityMap(vulnMap);
+
+    // Debug: Log unique vulnerability categories
+    const uniqueCategories = new Set(
+      vulnerabilityData.map((node) => node.Vulnerability_Category)
+    );
+    console.log(
+      "Unique vulnerability categories:",
+      Array.from(uniqueCategories)
+    );
+    console.log("Sample nodes:", vulnerabilityData.slice(0, 5));
+
+    // Color mapping for vulnerability categories
+    // Using a function to handle case-insensitive and flexible matching
+    const getColorForCategory = (category: string): string => {
+      const normalized = category.toLowerCase().trim();
+
+      if (normalized.includes("high")) return "#D32F2F";
+      if (normalized.includes("medium")) return "#FFA000";
+      if (normalized.includes("low")) return "#FFF176";
+      if (normalized.includes("no")) return "#388E3C";
+
+      // Fallback based on exact matches
+      const colorMap: Record<string, string> = {
+        "High Risk": "#D32F2F",
+        "Medium Risk": "#FFA000",
+        "Low Risk": "#FFF176",
+        "No Risk": "#388E3C",
+        "high risk": "#D32F2F",
+        "medium risk": "#FFA000",
+        "low risk": "#FFF176",
+        "no risk": "#388E3C",
+      };
+
+      return colorMap[category] || colorMap[normalized] || "#5687ca";
+    };
+
+    // Get darker stroke color for vulnerability categories
+    const getStrokeColorForCategory = (category: string): string => {
+      const normalized = category.toLowerCase().trim();
+
+      if (normalized.includes("high")) return "#8B0000"; // Dark red
+      if (normalized.includes("medium")) return "#B36200"; // Dark amber
+      if (normalized.includes("low")) return "#C4B000"; // Dark yellow
+      if (normalized.includes("no")) return "#1B5E20"; // Dark green
+
+      // Fallback based on exact matches
+      const strokeColorMap: Record<string, string> = {
+        "High Risk": "#8B0000",
+        "Medium Risk": "#B36200",
+        "Low Risk": "#C4B000",
+        "No Risk": "#1B5E20",
+        "high risk": "#8B0000",
+        "medium risk": "#B36200",
+        "low risk": "#C4B000",
+        "no risk": "#1B5E20",
+      };
+
+      return (
+        strokeColorMap[category] || strokeColorMap[normalized] || "#00346c"
+      );
+    };
+
+    // Build match expression for Mapbox for inlets
+    // Format: ["match", ["get", "In_Name"], node1, color1, node2, color2, ..., defaultColor]
+    const inletsMatchExpression: any[] = ["match", ["get", "In_Name"]];
+    const inletsStrokeMatchExpression: any[] = ["match", ["get", "In_Name"]];
+
+    vulnerabilityData.forEach((node) => {
+      const color = getColorForCategory(node.Vulnerability_Category);
+      const strokeColor = getStrokeColorForCategory(
+        node.Vulnerability_Category
+      );
+      inletsMatchExpression.push(node.Node_ID, color);
+      inletsStrokeMatchExpression.push(node.Node_ID, strokeColor);
+      console.log(
+        `Node ${node.Node_ID}: ${node.Vulnerability_Category} -> ${color} / ${strokeColor}`
+      );
+    });
+
+    // Default color for inlets not in vulnerability data
+    inletsMatchExpression.push("#00ca67"); // Original inlets color
+    inletsStrokeMatchExpression.push("#005400"); // Original inlets stroke color
+
+    // Build match expression for storm drains
+    const drainsMatchExpression: any[] = ["match", ["get", "In_Name"]];
+    const drainsStrokeMatchExpression: any[] = ["match", ["get", "In_Name"]];
+
+    vulnerabilityData.forEach((node) => {
+      const color = getColorForCategory(node.Vulnerability_Category);
+      const strokeColor = getStrokeColorForCategory(
+        node.Vulnerability_Category
+      );
+      drainsMatchExpression.push(node.Node_ID, color);
+      drainsStrokeMatchExpression.push(node.Node_ID, strokeColor);
+    });
+
+    // Default color for drains not in vulnerability data
+    drainsMatchExpression.push("#5687ca"); // Original storm_drains color
+    drainsStrokeMatchExpression.push("#00346c"); // Original storm_drains stroke color
+
+    // Update inlets-layer color and stroke
+    if (map.getLayer("inlets-layer")) {
+      map.setPaintProperty("inlets-layer", "circle-color", [
+        "case",
+        ["boolean", ["feature-state", "selected"], false],
+        "#66ed7b", // Selected color (light green)
+        inletsMatchExpression,
+      ]);
+      map.setPaintProperty("inlets-layer", "circle-stroke-color", [
+        "case",
+        ["boolean", ["feature-state", "selected"], false],
+        "#307524", // Selected stroke color
+        inletsStrokeMatchExpression,
+      ]);
+      console.log("Updated inlets-layer color and stroke");
+    }
+
+    // Update storm_drains-layer color and stroke
+    if (map.getLayer("storm_drains-layer")) {
+      map.setPaintProperty("storm_drains-layer", "circle-color", [
+        "case",
+        ["boolean", ["feature-state", "selected"], false],
+        "#49a8ff", // Selected color (cyan)
+        drainsMatchExpression,
+      ]);
+      map.setPaintProperty("storm_drains-layer", "circle-stroke-color", [
+        "case",
+        ["boolean", ["feature-state", "selected"], false],
+        "#355491", // Selected stroke color
+        drainsStrokeMatchExpression,
+      ]);
+      console.log("Updated storm_drains-layer color and stroke");
+    }
+  };
+
   // Vulnerability table handlers
   const handleGenerateTable = async () => {
     if (!selectedYear) return;
@@ -785,6 +959,17 @@ export default function SimulationPage() {
       const data = await fetchYRTable(selectedYear);
       setTableData(data);
       setIsTableMinimized(false);
+
+      // Hide outlets and pipes layers when table is generated
+      setOverlayVisibility((prev) => ({
+        ...prev,
+        "outlets-layer": false,
+        "man_pipes-layer": false,
+      }));
+
+      // Apply vulnerability colors to inlets and storm drains
+      applyVulnerabilityColors(data);
+
       toast.success(
         `Successfully loaded ${data.length} nodes for ${selectedYear}YR`
       );
@@ -794,6 +979,79 @@ export default function SimulationPage() {
       setTableData(null);
     } finally {
       setIsLoadingTable(false);
+    }
+  };
+
+  // Model 3 table handler
+  const handleGenerateTable3 = async () => {
+    if (selectedComponentIds.length === 0) {
+      toast.error("Please select at least one component");
+      return;
+    }
+
+    // Close panels before starting
+    if (activePanel === "node") {
+      setActivePanel(null);
+    }
+    if (activePanel === "link") {
+      setActivePanel(null);
+    }
+
+    setIsLoadingTable3(true);
+    try {
+      // Import the simulation functions
+      const { runSimulation, transformToNodeDetails } = await import(
+        "@/lib/simulation-api/simulation"
+      );
+
+      // Build nodes object from componentParams
+      const nodes: Record<string, any> = {};
+      componentParams.forEach((params, id) => {
+        nodes[id] = params;
+      });
+
+      // Build links object from pipeParams
+      const links: Record<string, any> = {};
+      pipeParams.forEach((params, id) => {
+        links[id] = params;
+      });
+
+      // Use default rainfall params or get from somewhere
+      const rainfallParams = {
+        total_precip: 140,
+        duration_hr: 1,
+      };
+
+      const response = await runSimulation(nodes, links, rainfallParams);
+
+      // Transform the nodes_list to NodeDetails format
+      const transformedData = transformToNodeDetails(
+        response.nodes_list,
+        rainfallParams.duration_hr
+      );
+
+      setTableData3(transformedData);
+      setIsTable3Minimized(false);
+
+      // Hide outlets and pipes layers when table is generated
+      setOverlayVisibility((prev) => ({
+        ...prev,
+        "outlets-layer": false,
+        "man_pipes-layer": false,
+      }));
+
+      // Apply vulnerability colors to inlets and storm drains
+      applyVulnerabilityColors(transformedData);
+
+      toast.success(
+        `Successfully generated vulnerability data for ${transformedData.length} nodes`
+      );
+    } catch (error) {
+      console.error("Error running simulation:", error);
+      toast.error("Simulation failed. Please try again.");
+      setTableData3(null);
+    } finally {
+      setIsLoadingTable3(false);
     }
   };
 
@@ -808,6 +1066,16 @@ export default function SimulationPage() {
 
   const handleYearChange = (year: number | null) => {
     setSelectedYear(year as YearOption | null);
+  };
+
+  // Model 3 table handlers
+  const handleToggleTable3Minimize = () => {
+    setIsTable3Minimized(!isTable3Minimized);
+  };
+
+  const handleCloseTable3 = () => {
+    setTableData3(null);
+    setIsTable3Minimized(false);
   };
 
   // Helper function to parse Node_ID and determine source and feature ID
@@ -968,9 +1236,9 @@ export default function SimulationPage() {
           onComponentParamsChange={setComponentParams}
           pipeParams={pipeParams}
           onPipeParamsChange={setPipeParams}
-          showNodePanel={activePanel === 'node'}
+          showNodePanel={activePanel === "node"}
           onToggleNodePanel={handleToggleNodePanel}
-          showLinkPanel={activePanel === 'link'}
+          showLinkPanel={activePanel === "link"}
           onToggleLinkPanel={handleToggleLinkPanel}
           onRefreshReports={async () => {}}
           isRefreshingReports={false}
@@ -979,6 +1247,11 @@ export default function SimulationPage() {
           onGenerateTable={handleGenerateTable}
           isLoadingTable={isLoadingTable}
           onCloseTable={handleCloseTable}
+          hasTable={!!tableData}
+          onGenerateTable3={handleGenerateTable3}
+          isLoadingTable3={isLoadingTable3}
+          onCloseTable3={handleCloseTable3}
+          hasTable3={!!tableData3}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
@@ -989,7 +1262,7 @@ export default function SimulationPage() {
           onExitSimulation={handleExitSimulation}
         />
 
-        {/* Vulnerability Data Table Overlay */}
+        {/* Vulnerability Data Table Overlay (Model 2) */}
         {tableData && (
           <div
             className="absolute z-20 pointer-events-auto"
@@ -1011,6 +1284,28 @@ export default function SimulationPage() {
           </div>
         )}
 
+        {/* Vulnerability Data Table Overlay (Model 3) */}
+        {tableData3 && (
+          <div
+            className="absolute z-20 pointer-events-auto"
+            style={{
+              left: `${table3Position.x}px`,
+              top: `${table3Position.y}px`,
+            }}
+          >
+            <VulnerabilityDataTable
+              data={tableData3}
+              isMinimized={isTable3Minimized}
+              onToggleMinimize={handleToggleTable3Minimize}
+              onClose={handleCloseTable3}
+              position={table3Position}
+              onPositionChange={setTable3Position}
+              onHighlightNodes={handleHighlightNodes}
+              onOpenNodeSimulation={handleOpenNodeSimulation}
+            />
+          </div>
+        )}
+
         {/* Node Simulation Slideshow */}
         {slideshowNode && selectedYear && (
           <NodeSimulationSlideshow
@@ -1021,7 +1316,7 @@ export default function SimulationPage() {
         )}
 
         {/* Node Parameters Panel - Draggable */}
-        {activePanel === 'node' && selectedComponentIds.length > 0 && (
+        {activePanel === "node" && selectedComponentIds.length > 0 && (
           <div
             style={{
               position: "fixed",
@@ -1044,7 +1339,7 @@ export default function SimulationPage() {
         )}
 
         {/* Link Parameters Panel - Draggable */}
-        {activePanel === 'link' && selectedPipeIds.length > 0 && (
+        {activePanel === "link" && selectedPipeIds.length > 0 && (
           <div
             style={{
               position: "fixed",

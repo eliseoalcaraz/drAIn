@@ -40,6 +40,12 @@ export function ControlPanel({
   onYearChange,
   onGenerateTable,
   isLoadingTable,
+  onCloseTable,
+  hasTable = false,
+  onGenerateTable3,
+  isLoadingTable3 = false,
+  onCloseTable3,
+  hasTable3 = false,
   selectedComponentIds = [],
   onComponentIdsChange = () => {},
   selectedPipeIds = [],
@@ -229,6 +235,12 @@ export function ControlPanel({
             onYearChange={onYearChange}
             onGenerateTable={onGenerateTable}
             isLoadingTable={isLoadingTable}
+            onCloseTable={onCloseTable}
+            hasTable={hasTable}
+            onGenerateTable3={onGenerateTable3}
+            isLoadingTable3={isLoadingTable3}
+            onCloseTable3={onCloseTable3}
+            hasTable3={hasTable3}
             setPublicAvatarUrl={setPublicAvatarUrl}
             selectedComponentIds={selectedComponentIds}
             onComponentIdsChange={onComponentIdsChange}
