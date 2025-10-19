@@ -1,4 +1,5 @@
 import client from "@/app/api/client";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export interface Report {
   id: string;
@@ -136,54 +137,84 @@ export const deleteReportsByComponentId = async (componentId: string) => {
   }
 };
 
-const formatReport = (report: any): Report => {
-  const {data: img} = client.storage
-    .from('ReportImage')
-    .getPublicUrl(report.image);
+export const formatReport = (report: any): Report => {
+  const { data: img } = client.storage
+    .from("ReportImage")
+    .getPublicUrl(report.image || "");
+
+  const rawDate = report.created_at || report.date || null;
+  const parsedDate = new Date(rawDate);
+  const safeDate = !rawDate || isNaN(parsedDate.getTime())
+    ? new Date().toISOString()
+    : parsedDate.toISOString();
+
+  const long = parseFloat(report.long);
+  const lat = parseFloat(report.lat);
+  const safeCoords =
+    !isNaN(long) && !isNaN(lat)
+      ? [long, lat] as [number, number]
+      : [0, 0] as [number, number];
 
   return {
-    id: report.id?.toString(),
-    date: report.created_at,
-    category: report.category,
-    description: report.description,
-    image: img.publicUrl ?? "",
-    reporterName: report.reporter_name,
-    status: report.status,
+    id: report.id?.toString() ?? crypto.randomUUID(),
+    date: safeDate,
+    category: report.category ?? "Uncategorized",
+    description: report.description ?? "No description provided.",
+    image: img?.publicUrl ?? "",
+    reporterName: report.reporter_name ?? "Anonymous",
+    status: report.status ?? "Pending",
     componentId: report.component_id ?? "N/A",
-    coordinates: [report.long as number, report.lat as number] as [number, number],
+    coordinates: safeCoords,
     geocoded_status: report.geocoded_status ?? "pending",
-    address: report.address ?? "Loading address...",
+    address: report.address ?? "Unknown address",
   };
 };
 
-export const subscribeToReportChanges = (
-  onInsert: (newReport: Report) => void,
-  onUpdate: (updatedReport: Report) => void
-  ) => {
-  const channel = client
-    .channel('realtime-reports')
-    .on(
-      'postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'reports' },
-      (payload) => {
-        const formattedReport = formatReport(payload.new);
-        onInsert(formattedReport);
-      }
-    )
-    .on(
-      'postgres_changes',
-      { event: 'UPDATE', schema: 'public', table: 'reports' },
-      (payload) => {
-        const formattedReport = formatReport(payload.new);
-        onUpdate(formattedReport);
-      }
-    )
-    .subscribe();
+
+let channel: RealtimeChannel | null = null;
+const listeners: {
+  onInsert: ((report: any) => void)[];
+  onUpdate: ((report: any) => void)[];
+} = {
+  onInsert: [],
+  onUpdate: [],
+};
+
+export function initReportChannel() {
+  if (channel) return channel;
+
+  channel = client.channel("reports_shared");
+
+  channel
+    .on("postgres_changes", { event: "INSERT", schema: "public", table: "reports" }, (payload) => {
+      console.log("Shared Channel Insert:", payload.new);
+      listeners.onInsert.forEach((cb) => cb(payload.new));
+    })
+    .on("postgres_changes", { event: "UPDATE", schema: "public", table: "reports" }, (payload) => {
+      console.log("Shared Channel Update:", payload.new);
+      listeners.onUpdate.forEach((cb) => cb(payload.new));
+    })
+    .subscribe((status, err) => {
+      console.log("Shared Report Channel status:", status, err || "");
+    });
+
+  return channel;
+}
+
+
+export function subscribeToReportChanges(onInsert?: (r: any) => void, onUpdate?: (r: any) => void) {
+  initReportChannel();
+
+  if (onInsert) listeners.onInsert.push(onInsert);
+  if (onUpdate) listeners.onUpdate.push(onUpdate);
 
   return () => {
-    client.removeChannel(channel);
+    if (onInsert)
+      listeners.onInsert = listeners.onInsert.filter((cb) => cb !== onInsert);
+    if (onUpdate)
+      listeners.onUpdate = listeners.onUpdate.filter((cb) => cb !== onUpdate);
   };
-};
+}
 
 export const getreportCategoryCount = async (targetCategory: string, categoryId: string): Promise<number> => {
   try {

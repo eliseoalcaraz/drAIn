@@ -34,6 +34,7 @@ import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   fetchReports,
+  formatReport,
   getreportCategoryCount,
   subscribeToReportChanges,
 } from "@/lib/supabase/report";
@@ -146,24 +147,21 @@ export default function MapPage() {
       }
     };
     loadReports();
-    const unsubscribe = subscribeToReportChanges(
-      // On INSERT: Add to array
+      const unsubscribe = subscribeToReportChanges(
       (newReport) => {
-        setReports((prev) => [...prev, newReport]);
-        console.log("New report added:", newReport);
+        const formatted = formatReport(newReport);
+        setReports((prev) => [...prev, formatted]);
+        console.log("🗺️ MapPage new report:", formatted);
       },
-      // On UPDATE: Replace existing report
       (updatedReport) => {
+        const formatted = formatReport(updatedReport);
         setReports((prev) =>
-          prev.map((report) =>
-            report.id === updatedReport.id ? updatedReport : report
-          )
+          prev.map((r) => (r.id === formatted.id ? formatted : r))
         );
       }
     );
-    return () => {
-      unsubscribe();
-    };
+
+    return () => unsubscribe();
   }, []);
 
   // Update refs when data changes
