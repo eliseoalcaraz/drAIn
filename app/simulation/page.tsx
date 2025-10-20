@@ -958,7 +958,12 @@ export default function SimulationPage() {
 
     setIsLoadingTable(true);
     try {
-      const data = await fetchYRTable(selectedYear);
+      // Enforce minimum 2-second loading time for better UX
+      const [data] = await Promise.all([
+        fetchYRTable(selectedYear),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
+
       setTableData(data);
       setIsTableMinimized(false);
 
@@ -1024,7 +1029,11 @@ export default function SimulationPage() {
         duration_hr: 1,
       };
 
-      const response = await runSimulation(nodes, links, rainfallParams);
+      // Enforce minimum 2-second loading time for better UX
+      const [response] = await Promise.all([
+        runSimulation(nodes, links, rainfallParams),
+        new Promise((resolve) => setTimeout(resolve, 2000)),
+      ]);
 
       // Transform the nodes_list to NodeDetails format
       const transformedData = transformToNodeDetails(

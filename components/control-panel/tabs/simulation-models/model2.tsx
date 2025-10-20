@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
 import { Loader2, Minimize2, Maximize2 } from "lucide-react";
+import { LoadingScreen } from "@/components/loading-screen";
 import type { Inlet, Outlet, Pipe, Drain } from "../../types";
 
 interface Model2Props {
@@ -56,96 +57,111 @@ export default function Model2({
   onToggleMinimize,
 }: Model2Props) {
   return (
-    // expand to full available height and allow inner flex children to size correctly
-    <div className="flex flex-col flex-1 h-full min-h-0 pt-3 pb-5 pl-5 pr-4">
-      <CardHeader className="py-0 px-1 mb-6">
-        <CardTitle>Hydraulic Capacity Model</CardTitle>
-        <CardDescription className="text-xs">
-          Analyze drainage system capacity and flow rates under various storm
-          return periods
-        </CardDescription>
-      </CardHeader>
+    <>
+      {/* Loading Screen */}
+      <LoadingScreen
+        title="Analyzing Hydraulic Capacity"
+        messages={[
+          "Fetching vulnerability data...",
+          "Analyzing drainage system...",
+          "Calculating flow rates...",
+          "Preparing results table...",
+        ]}
+        isLoading={isLoading}
+        position="bottom-right"
+      />
 
-      {/* main content grows */}
-      <div className="space-y-4 flex-1">
-        {/* Year Selector (row with tooltip) */}
-        <div className="flex flex-row justify-between items-center">
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm">Return Period</span>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <IconInfoCircleFilled className="w-3.5 h-3.5 text-[#8D8D8D]/50 hover:text-[#8D8D8D] cursor-help" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p className="text-xs max-w-xs">
-                    Choose a storm return period to generate vulnerability
-                    results for that event frequency.
-                  </p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+      {/* expand to full available height and allow inner flex children to size correctly */}
+      <div className="flex flex-col flex-1 h-full min-h-0 pt-3 pb-5 pl-5 pr-4">
+        <CardHeader className="py-0 px-1 mb-6">
+          <CardTitle>Hydraulic Capacity Model</CardTitle>
+          <CardDescription className="text-xs">
+            Analyze drainage system capacity and flow rates under various storm
+            return periods
+          </CardDescription>
+        </CardHeader>
+
+        {/* main content grows */}
+        <div className="space-y-4 flex-1">
+          {/* Year Selector (row with tooltip) */}
+          <div className="flex flex-row justify-between items-center">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm">Return Period</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <IconInfoCircleFilled className="w-3.5 h-3.5 text-[#8D8D8D]/50 hover:text-[#8D8D8D] cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs max-w-xs">
+                      Choose a storm return period to generate vulnerability
+                      results for that event frequency.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+
+            <Select
+              value={selectedYear?.toString() || ""}
+              onValueChange={(value) => onYearChange(Number(value) as YearOption)}
+            >
+              <SelectTrigger id="year-select" className="min-w-[120px]">
+                <SelectValue placeholder="Choose" />
+              </SelectTrigger>
+              <SelectContent>
+                {YEAR_OPTIONS.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year} Year Storm
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <Select
-            value={selectedYear?.toString() || ""}
-            onValueChange={(value) => onYearChange(Number(value) as YearOption)}
-          >
-            <SelectTrigger id="year-select" className="min-w-[120px]">
-              <SelectValue placeholder="Choose" />
-            </SelectTrigger>
-            <SelectContent>
-              {YEAR_OPTIONS.map((year) => (
-                <SelectItem key={year} value={year.toString()}>
-                  {year} Year Storm
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* other content can go here and will scroll if necessary */}
         </div>
 
-        {/* other content can go here and will scroll if necessary */}
-      </div>
+        {/* footer anchored to bottom */}
+        {/* Generate and Close Buttons (side-by-side) placed at bottom */}
+        <div className="mt-auto">
+          <div className="flex gap-2">
+            <Button
+              onClick={onGenerateTable}
+              disabled={!selectedYear || isLoading}
+              className="flex-1"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Loading Data...
+                </>
+              ) : (
+                "Generate Table on Map"
+              )}
+            </Button>
 
-      {/* footer anchored to bottom */}
-      {/* Generate and Close Buttons (side-by-side) placed at bottom */}
-      <div className="mt-auto">
-        <div className="flex gap-2">
-          <Button
-            onClick={onGenerateTable}
-            disabled={!selectedYear || isLoading}
-            className="flex-1"
-          >
-            {isLoading ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Loading Data...
-              </>
-            ) : (
-              "Generate Table on Map"
-            )}
-          </Button>
+            <Button
+              variant="outline"
+              onClick={() => onToggleMinimize && onToggleMinimize()}
+              disabled={isLoading || !hasTable}
+              className="flex-none"
+              aria-label={isTableMinimized ? "Show table" : "Hide table"}
+            >
+              {isTableMinimized ? (
+                <Maximize2 className="h-4 w-4" />
+              ) : (
+                <Minimize2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
 
-          <Button
-            variant="outline"
-            onClick={() => onToggleMinimize && onToggleMinimize()}
-            disabled={isLoading || !hasTable}
-            className="flex-none"
-            aria-label={isTableMinimized ? "Show table" : "Hide table"}
-          >
-            {isTableMinimized ? (
-              <Maximize2 className="h-4 w-4" />
-            ) : (
-              <Minimize2 className="h-4 w-4" />
-            )}
-          </Button>
+          <p className="text-[10px] text-muted-foreground mt-3">
+            The vulnerability data table will appear on the map and can be sorted
+            and dragged to reposition.
+          </p>
         </div>
-
-        <p className="text-[10px] text-muted-foreground mt-3">
-          The vulnerability data table will appear on the map and can be sorted
-          and dragged to reposition.
-        </p>
       </div>
-    </div>
+    </>
   );
 }

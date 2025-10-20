@@ -1,7 +1,7 @@
 "use client";
 
 import type React from "react";
-
+import { IconCloud } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 
 interface LoadingScreenProps {
@@ -49,7 +49,7 @@ export function LoadingScreen({
       role="status"
       aria-live="polite"
     >
-      <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-black/50 px-5 py-4 shadow-2xl backdrop-blur-md">
+      <div className="flex items-center gap-4 rounded-2xl border border-white/10 bg-black/50 pl-5 pr-15 py-4 shadow-2xl backdrop-blur-md">
         <div className="relative flex-shrink-0">
           <div className="h-12 w-12 animate-spin">
             <svg className="h-full w-full" viewBox="0 0 100 100">
@@ -71,7 +71,7 @@ export function LoadingScreen({
                 strokeWidth="4"
                 strokeLinecap="round"
                 strokeDasharray="70 212"
-                className="text-emerald-500"
+                className="text-[#4b72f3]"
                 style={{
                   transformOrigin: "center",
                   transform: "rotate(-90deg)",
@@ -80,22 +80,8 @@ export function LoadingScreen({
             </svg>
           </div>
 
-          <div className="absolute left-1/2 top-1/2 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-emerald-500 shadow-lg">
-            {iconContent || (
-              <svg
-                className="h-4 w-4 text-white"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2.5}
-                  d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
-                />
-              </svg>
-            )}
+          <div className="absolute left-1/2 top-1/2 flex h-7 w-7 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-[#4b72f3] shadow-lg">
+            {iconContent || <IconCloud className="h-4 w-4 text-white" />}
           </div>
         </div>
 
