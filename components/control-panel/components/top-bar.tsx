@@ -86,7 +86,6 @@ export function TopBar({
   const searchParams = useSearchParams();
   const simModel = searchParams?.get("simModel") || null;
   const modelLinkMap: Record<string, string> = {
-    model1: "example.com/model1",
     model2: "example.com/model2",
     model3: "example.com/model3",
   };

@@ -2,10 +2,8 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { fetchNodeDeets } from "@/lib/Vulnerabilities/FetchDeets";
 import { NodeMetricComparisonChart } from "@/components/node-metric-comparison-chart";
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
@@ -28,6 +26,8 @@ interface NodeSimulationSlideshowProps {
   nodeId: string;
   onClose: () => void;
   selectedYear: YearOption;
+  nodeData: NodeDetails;
+  allNodesData: NodeDetails[];
 }
 
 interface MetricSlide {
@@ -80,36 +80,17 @@ export function NodeSimulationSlideshow({
   nodeId,
   onClose,
   selectedYear,
+  nodeData,
+  allNodesData,
 }: NodeSimulationSlideshowProps) {
-  const [isLoading, setIsLoading] = useState(true);
-  const [nodeDetails, setNodeDetails] = useState<NodeDetails | null>(null);
   const [activeSlideIndex, setActiveSlideIndex] = useState(0);
-
-  // Fetch node details with minimum loading time
-  useEffect(() => {
-    const fetchDetails = async () => {
-      setIsLoading(true);
-      const startTime = Date.now();
-      const details = await fetchNodeDeets(nodeId, selectedYear);
-      setNodeDetails(details);
-
-      // Ensure loading screen shows for at least 3 seconds
-      const elapsedTime = Date.now() - startTime;
-      const remainingTime = Math.max(0, 3000 - elapsedTime);
-
-      setTimeout(() => {
-        setIsLoading(false);
-      }, remainingTime);
-    };
-    fetchDetails();
-  }, [nodeId, selectedYear]);
 
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         onClose();
-      } else if (!isLoading) {
+      } else {
         if (e.key === "ArrowLeft" && activeSlideIndex > 0) {
           setActiveSlideIndex(activeSlideIndex - 1);
         } else if (
@@ -123,25 +104,13 @@ export function NodeSimulationSlideshow({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [onClose, activeSlideIndex, isLoading]);
-
-  const handlePrevSlide = () => {
-    if (activeSlideIndex > 0) {
-      setActiveSlideIndex(activeSlideIndex - 1);
-    }
-  };
-
-  const handleNextSlide = () => {
-    if (activeSlideIndex < METRIC_SLIDES.length - 1) {
-      setActiveSlideIndex(activeSlideIndex + 1);
-    }
-  };
+  }, [onClose, activeSlideIndex]);
 
   // Calculate fixed position - always display on the right side, vertically centered
   const getFixedPosition = () => {
     const dialogWidth = 550;
     const dialogHeight = 500;
-    const padding = 150;
+    const padding = 100;
 
     // Fixed position: right side of screen with padding, vertically centered
     const x = window.innerWidth - dialogWidth - padding;
@@ -186,110 +155,85 @@ export function NodeSimulationSlideshow({
 
         {/* Main content */}
         <div className="flex-1 flex flex-col items-center justify-center relative bg-white rounded-lg border-y border-[#ced1cd] ">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center gap-6 ">
-              {/* Spinner */}
-              <div className="relative">
-                <Spinner className="h-16 w-16 text-primary" />
-              </div>
+          {/* Slideshow content */}
+          <div className="w-full h-full flex flex-col ">
+            {/* Slide content */}
+            <div className="flex-1 flex flex-col space-y-4 px-8 py-6 ">
+              <div className="flex flex-row justify-between">
+                <div className="">
+                  <h2 className="text-2xl font-bold">
+                    {METRIC_SLIDES[activeSlideIndex].title}
+                  </h2>
 
-              {/* Loading text */}
-              <div className="text-center space-y-2 max-w-[400px]">
-                <h2 className="text-xl font-semibold">
-                  Loading Simulation Data
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  Fetching node details and vulnerability metrics...
-                </p>
-              </div>
-            </div>
-          ) : nodeDetails ? (
-            <>
-              {/* Slideshow content */}
-              <div className="w-full h-full flex flex-col ">
-                {/* Slide content */}
-                <div className="flex-1 flex flex-col space-y-4 px-8 py-6 ">
-                  <div className="flex flex-row justify-between">
-                    <div className="">
-                      <h2 className="text-2xl font-bold">
-                        {METRIC_SLIDES[activeSlideIndex].title}
-                      </h2>
-
-                      <p className="text-muted-foreground max-w-60 text-xs">
-                        {METRIC_SLIDES[activeSlideIndex].description}
-                      </p>
-                    </div>
-                    <div className="text-5xl font-bold text-primary">
-                      {METRIC_SLIDES[activeSlideIndex].value(nodeDetails)}
-                      <span className="text-xl ml-2">
-                        {METRIC_SLIDES[activeSlideIndex].unit}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Show comparison chart for each metric */}
-                  <div className="w-full max-w-lg">
-                    {METRIC_SLIDES[activeSlideIndex].id ===
-                      "time_before_overflow" && (
-                      <NodeMetricComparisonChart
-                        nodeId={nodeId}
-                        year={selectedYear}
-                        metricKey="Time_Before_Overflow"
-                        metricLabel="Time Before Overflow (min)"
-                        maxNodes={50}
-                      />
-                    )}
-                    {METRIC_SLIDES[activeSlideIndex].id === "hours_flooded" && (
-                      <NodeMetricComparisonChart
-                        nodeId={nodeId}
-                        year={selectedYear}
-                        metricKey="Hours_Flooded"
-                        metricLabel="Hours Flooded (hrs)"
-                        maxNodes={50}
-                      />
-                    )}
-                    {METRIC_SLIDES[activeSlideIndex].id === "maximum_rate" && (
-                      <NodeMetricComparisonChart
-                        nodeId={nodeId}
-                        year={selectedYear}
-                        metricKey="Maximum_Rate"
-                        metricLabel="Maximum Rate (CMS)"
-                        maxNodes={50}
-                      />
-                    )}
-                    {METRIC_SLIDES[activeSlideIndex].id === "time_of_max" && (
-                      <NodeMetricComparisonChart
-                        nodeId={nodeId}
-                        year={selectedYear}
-                        metricKey="Time_Of_Max_Occurence"
-                        metricLabel="Time of Max (hr)"
-                        maxNodes={50}
-                      />
-                    )}
-                    {METRIC_SLIDES[activeSlideIndex].id ===
-                      "total_flood_volume" && (
-                      <NodeMetricComparisonChart
-                        nodeId={nodeId}
-                        year={selectedYear}
-                        metricKey="Total_Flood_Volume"
-                        metricLabel="Total Flood Volume (× 10⁶ L)"
-                        maxNodes={50}
-                      />
-                    )}
-                  </div>
+                  <p className="text-muted-foreground max-w-60 text-xs">
+                    {METRIC_SLIDES[activeSlideIndex].description}
+                  </p>
+                </div>
+                <div className="text-5xl font-bold text-primary">
+                  {METRIC_SLIDES[activeSlideIndex].value(nodeData)}
+                  <span className="text-xl ml-2">
+                    {METRIC_SLIDES[activeSlideIndex].unit}
+                  </span>
                 </div>
               </div>
-            </>
-          ) : (
-            <div className="text-center p-8">
-              <p className="text-sm text-muted-foreground">
-                No data available for this node.
-              </p>
-              <p className="text-xs text-muted-foreground mt-2">
-                Please select a year for vulnerability analysis.
-              </p>
+
+              {/* Show comparison chart for each metric */}
+              <div className="w-full max-w-lg">
+                {METRIC_SLIDES[activeSlideIndex].id ===
+                  "time_before_overflow" && (
+                  <NodeMetricComparisonChart
+                    nodeId={nodeId}
+                    year={selectedYear}
+                    metricKey="Time_Before_Overflow"
+                    metricLabel="Time Before Overflow (min)"
+                    maxNodes={50}
+                    allNodesData={allNodesData}
+                  />
+                )}
+                {METRIC_SLIDES[activeSlideIndex].id === "hours_flooded" && (
+                  <NodeMetricComparisonChart
+                    nodeId={nodeId}
+                    year={selectedYear}
+                    metricKey="Hours_Flooded"
+                    metricLabel="Hours Flooded (hrs)"
+                    maxNodes={50}
+                    allNodesData={allNodesData}
+                  />
+                )}
+                {METRIC_SLIDES[activeSlideIndex].id === "maximum_rate" && (
+                  <NodeMetricComparisonChart
+                    nodeId={nodeId}
+                    year={selectedYear}
+                    metricKey="Maximum_Rate"
+                    metricLabel="Maximum Rate (CMS)"
+                    maxNodes={50}
+                    allNodesData={allNodesData}
+                  />
+                )}
+                {METRIC_SLIDES[activeSlideIndex].id === "time_of_max" && (
+                  <NodeMetricComparisonChart
+                    nodeId={nodeId}
+                    year={selectedYear}
+                    metricKey="Time_Of_Max_Occurence"
+                    metricLabel="Time of Max (hr)"
+                    maxNodes={50}
+                    allNodesData={allNodesData}
+                  />
+                )}
+                {METRIC_SLIDES[activeSlideIndex].id ===
+                  "total_flood_volume" && (
+                  <NodeMetricComparisonChart
+                    nodeId={nodeId}
+                    year={selectedYear}
+                    metricKey="Total_Flood_Volume"
+                    metricLabel="Total Flood Volume (× 10⁶ L)"
+                    maxNodes={50}
+                    allNodesData={allNodesData}
+                  />
+                )}
+              </div>
             </div>
-          )}
+          </div>
         </div>
         {/* Footer*/}
         <div className="w-full rounded-b-lg px-5 h-10 flex items-center justify-between">

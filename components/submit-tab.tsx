@@ -68,6 +68,10 @@ export default function SubmitTab() {
       setErrorCode("No valid image");
     } else {
       const location = await extractExifLocation(image);
+      // const location = {
+      //   latitude: 10.360832542295604,
+      //   longitude: 123.927200298236968,
+      // };
       //need to fix bug
       console.log("Extracted Location:", location);
       if (!location.latitude || !location.longitude) {
@@ -102,7 +106,16 @@ export default function SubmitTab() {
     const long = categoryData[categoryIndex].long;
     const lat = categoryData[categoryIndex].lat;
     const component_id = categoryData[categoryIndex].name;
-    await uploadReport(image!, category, description, component_id, long, lat, userID, profileName);
+    await uploadReport(
+      image!,
+      category,
+      description,
+      component_id,
+      long,
+      lat,
+      userID,
+      profileName
+    );
 
     setIsModalOpen(false);
     setTermsAccepted(false);

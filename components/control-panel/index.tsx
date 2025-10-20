@@ -40,6 +40,29 @@ export function ControlPanel({
   onYearChange,
   onGenerateTable,
   isLoadingTable,
+  onCloseTable,
+  hasTable = false,
+  isTableMinimized = false,
+  onToggleTableMinimize = () => {},
+  onGenerateTable3,
+  isLoadingTable3 = false,
+  onCloseTable3,
+  hasTable3 = false,
+  isTable3Minimized = false,
+  onToggleTable3Minimize = () => {},
+  selectedComponentIds = [],
+  onComponentIdsChange = () => {},
+  selectedPipeIds = [],
+  onPipeIdsChange = () => {},
+  componentParams = new Map(),
+  onComponentParamsChange = () => {},
+  pipeParams = new Map(),
+  onPipeParamsChange = () => {},
+  showNodePanel = false,
+  onToggleNodePanel = () => {},
+  showLinkPanel = false,
+  onToggleLinkPanel = () => {},
+  onOpenNodeSimulation,
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
@@ -217,7 +240,30 @@ export function ControlPanel({
             onYearChange={onYearChange}
             onGenerateTable={onGenerateTable}
             isLoadingTable={isLoadingTable}
+            onCloseTable={onCloseTable}
+            hasTable={hasTable}
+            isTableMinimized={isTableMinimized}
+            onToggleTableMinimize={onToggleTableMinimize}
+            onGenerateTable3={onGenerateTable3}
+            isLoadingTable3={isLoadingTable3}
+            onCloseTable3={onCloseTable3}
+            hasTable3={hasTable3}
+            isTable3Minimized={isTable3Minimized}
+            onToggleTable3Minimize={onToggleTable3Minimize}
             setPublicAvatarUrl={setPublicAvatarUrl}
+            selectedComponentIds={selectedComponentIds}
+            onComponentIdsChange={onComponentIdsChange}
+            selectedPipeIds={selectedPipeIds}
+            onPipeIdsChange={onPipeIdsChange}
+            componentParams={componentParams}
+            onComponentParamsChange={onComponentParamsChange}
+            pipeParams={pipeParams}
+            onPipeParamsChange={onPipeParamsChange}
+            showNodePanel={showNodePanel}
+            onToggleNodePanel={onToggleNodePanel}
+            showLinkPanel={showLinkPanel}
+            onToggleLinkPanel={onToggleLinkPanel}
+            onOpenNodeSimulation={onOpenNodeSimulation}
           />
         </div>
       </div>
