@@ -53,14 +53,23 @@ export default function NotificationBell() {
             {notifications.slice(0, 5).map((n) => (
               <li
                 key={n.id}
-                className="border rounded-lg p-2 hover:bg-gray-50 transition"
+                className="border rounded-lg p-3 hover:bg-gray-50 transition flex flex-col gap-1"
               >
-                <p className="font-medium text-sm">
-                  New report: {n.title || "Untitled"}
+                <p className="font-medium text-sm text-gray-800">
+                   {n.status == "pending" ? "New Report Added" : "Update for"} {n.category || "report"} from {n.reporter_name || "Unknown"}
                 </p>
-                <p className="text-xs text-gray-500">
-                  {new Date(n.created_at || Date.now()).toLocaleString()}
+                <p className="text-sm text-gray-600">
+                  {n.address || "No address provided"}
                 </p>
+                {n.description && (
+                  <p className="text-xs text-gray-500 italic">
+                    “{n.description.length > 60 ? n.description.slice(0, 60) + "..." : n.description}”
+                  </p>
+                )}
+                <div className="flex justify-between items-center text-xs text-gray-400 mt-1">
+                  <span>Status: {n.status || "pending"}</span>
+                  <span>{new Date(n.created_at || Date.now()).toLocaleString()}</span>
+                </div>
               </li>
             ))}
           </ul>

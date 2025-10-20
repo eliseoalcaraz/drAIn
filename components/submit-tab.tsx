@@ -78,17 +78,16 @@ export default function SubmitTab() {
       setErrorCode("No valid image");
     } else {
 
-      // const location = await extractExifLocation(image);
-      // console.log("Extracted Location:", location);
-      // if (!location.latitude || !location.longitude) {
-      //   setIsErrorModalOpen(true);
-      //   setErrorCode("No GPS data found in image");
-      //   return;
-      // }
-
+      const location = await extractExifLocation(image);
+      console.log("Extracted Location:", location);
+      if (!location.latitude || !location.longitude) {
+        setIsErrorModalOpen(true);
+        setErrorCode("No GPS data found in image");
+        return;
+      }
 
       //mock location for testing
-      const location = { latitude: 10.3263275618157, longitude: 123.925696045157 };
+      //const location = { latitude: 10.3263275618157, longitude: 123.925696045157 };
 
       try {
         const Pipedata = await getClosestPipes(
