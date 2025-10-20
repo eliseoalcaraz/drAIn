@@ -99,12 +99,16 @@ interface ContentRendererProps {
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
   hasTable?: boolean;
+  isTableMinimized?: boolean;
+  onToggleTableMinimize?: () => void;
 
   // Model 3 table props
   onGenerateTable3?: () => void;
   isLoadingTable3?: boolean;
   onCloseTable3?: () => void;
   hasTable3?: boolean;
+  isTable3Minimized?: boolean;
+  onToggleTable3Minimize?: () => void;
 
   // Model3 panel props
   selectedComponentIds?: string[];
@@ -119,6 +123,9 @@ interface ContentRendererProps {
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
   onToggleLinkPanel?: () => void;
+
+  // Shared handler for opening node simulation slideshow
+  onOpenNodeSimulation?: (nodeId: string) => void;
 }
 
 export function ContentRenderer({
@@ -169,10 +176,14 @@ export function ContentRenderer({
   isLoadingTable,
   onCloseTable,
   hasTable = false,
+  isTableMinimized = false,
+  onToggleTableMinimize = () => {},
   onGenerateTable3,
   isLoadingTable3 = false,
   onCloseTable3,
   hasTable3 = false,
+  isTable3Minimized = false,
+  onToggleTable3Minimize = () => {},
   selectedComponentIds = [],
   onComponentIdsChange = () => {},
   selectedPipeIds = [],
@@ -185,6 +196,7 @@ export function ContentRenderer({
   onToggleNodePanel = () => {},
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
+  onOpenNodeSimulation,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -230,10 +242,14 @@ export function ContentRenderer({
           isLoadingTable={isLoadingTable}
           onCloseTable={onCloseTable}
           hasTable={hasTable}
+          isTableMinimized={isTableMinimized}
+          onToggleTableMinimize={onToggleTableMinimize}
           onGenerateTable3={onGenerateTable3}
           isLoadingTable3={isLoadingTable3}
           onCloseTable3={onCloseTable3}
           hasTable3={hasTable3}
+          isTable3Minimized={isTable3Minimized}
+          onToggleTable3Minimize={onToggleTable3Minimize}
           selectedComponentIds={selectedComponentIds}
           onComponentIdsChange={onComponentIdsChange}
           selectedPipeIds={selectedPipeIds}
@@ -246,6 +262,7 @@ export function ContentRenderer({
           onToggleNodePanel={onToggleNodePanel}
           showLinkPanel={showLinkPanel}
           onToggleLinkPanel={onToggleLinkPanel}
+          onOpenNodeSimulation={onOpenNodeSimulation}
         />
       );
 

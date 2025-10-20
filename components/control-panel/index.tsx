@@ -42,10 +42,14 @@ export function ControlPanel({
   isLoadingTable,
   onCloseTable,
   hasTable = false,
+  isTableMinimized = false,
+  onToggleTableMinimize = () => {},
   onGenerateTable3,
   isLoadingTable3 = false,
   onCloseTable3,
   hasTable3 = false,
+  isTable3Minimized = false,
+  onToggleTable3Minimize = () => {},
   selectedComponentIds = [],
   onComponentIdsChange = () => {},
   selectedPipeIds = [],
@@ -58,6 +62,7 @@ export function ControlPanel({
   onToggleNodePanel = () => {},
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
+  onOpenNodeSimulation,
 }: ControlPanelProps & { reports: any[] }) {
   const router = useRouter();
   const supabase = client;
@@ -237,10 +242,14 @@ export function ControlPanel({
             isLoadingTable={isLoadingTable}
             onCloseTable={onCloseTable}
             hasTable={hasTable}
+            isTableMinimized={isTableMinimized}
+            onToggleTableMinimize={onToggleTableMinimize}
             onGenerateTable3={onGenerateTable3}
             isLoadingTable3={isLoadingTable3}
             onCloseTable3={onCloseTable3}
             hasTable3={hasTable3}
+            isTable3Minimized={isTable3Minimized}
+            onToggleTable3Minimize={onToggleTable3Minimize}
             setPublicAvatarUrl={setPublicAvatarUrl}
             selectedComponentIds={selectedComponentIds}
             onComponentIdsChange={onComponentIdsChange}
@@ -254,6 +263,7 @@ export function ControlPanel({
             onToggleNodePanel={onToggleNodePanel}
             showLinkPanel={showLinkPanel}
             onToggleLinkPanel={onToggleLinkPanel}
+            onOpenNodeSimulation={onOpenNodeSimulation}
           />
         </div>
       </div>

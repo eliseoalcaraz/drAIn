@@ -14,7 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { MultiSelect } from "@/components/ui/multi-select";
-import { AlertCircle, RotateCcw, Settings, CaptionsOff } from "lucide-react";
+import { AlertCircle, RotateCcw, Settings, Minimize2, Maximize2 } from "lucide-react";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
 import { useInlets } from "@/hooks/useInlets";
 import { useDrain } from "@/hooks/useDrain";
@@ -65,6 +65,9 @@ interface Model3Props {
   isLoadingTable: boolean;
   onCloseTable?: () => void;
   hasTable?: boolean;
+  isTableMinimized?: boolean;
+  onToggleMinimize?: () => void;
+  onOpenNodeSimulation?: (nodeId: string) => void;
 }
 
 const DEFAULT_NODE_PARAMS: NodeParams = {
@@ -108,6 +111,8 @@ export default function Model3({
   isLoadingTable,
   onCloseTable,
   hasTable = false,
+  isTableMinimized = false,
+  onToggleMinimize,
 }: Model3Props) {
   const [rainfallParams, setRainfallParams] = useState<RainfallParams>(
     DEFAULT_RAINFALL_PARAMS
@@ -432,15 +437,19 @@ export default function Model3({
             <RotateCcw className="h-4 w-4" />
           </Button>
 
-          {onCloseTable && (
+          {onToggleMinimize && (
             <Button
               variant="outline"
-              onClick={() => onCloseTable()}
+              onClick={() => onToggleMinimize()}
               disabled={isLoadingTable || !hasTable}
               className="flex-none"
-              aria-label="Close vulnerability table"
+              aria-label={isTableMinimized ? "Show table" : "Hide table"}
             >
-              <CaptionsOff className="h-4 w-4" />
+              {isTableMinimized ? (
+                <Maximize2 className="h-4 w-4" />
+              ) : (
+                <Minimize2 className="h-4 w-4" />
+              )}
             </Button>
           )}
         </div>

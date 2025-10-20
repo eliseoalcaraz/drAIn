@@ -135,6 +135,8 @@ export default function SimulationPage() {
 
   // Slideshow state
   const [slideshowNode, setSlideshowNode] = useState<string | null>(null);
+  const [slideshowNodeData, setSlideshowNodeData] = useState<NodeDetails | null>(null);
+  const [slideshowAllData, setSlideshowAllData] = useState<NodeDetails[] | null>(null);
 
   // Model3 lifted state for parameters panels
   const [selectedComponentIds, setSelectedComponentIds] = useState<string[]>(
@@ -1143,13 +1145,47 @@ export default function SimulationPage() {
       return;
     }
 
-    // Step 1: Close the table first
-    handleCloseTable();
+    // If selectedYear is not set (Model 3 scenario), try to extract it from table data
+    let yearToUse = selectedYear;
+    if (!yearToUse) {
+      // Try to find the year from Model 3 table data
+      if (tableData3) {
+        const nodeData = tableData3.find((node) => node.Node_ID === nodeId);
+        if (nodeData && nodeData.YR) {
+          // Set the year from the node data
+          yearToUse = nodeData.YR as YearOption;
+          setSelectedYear(yearToUse);
+        } else {
+          toast.error("Unable to determine year for simulation data");
+          return;
+        }
+      } else {
+        toast.error("Please select a year or generate simulation data first");
+        return;
+      }
+    }
 
-    // Step 2: Wait for table to close (300ms delay)
+    // Step 1: Extract node data and all data from the appropriate table
+    const activeTableData = tableData3 || tableData;
+    if (!activeTableData) {
+      toast.error("No table data available");
+      return;
+    }
+
+    const nodeData = activeTableData.find((node) => node.Node_ID === nodeId);
+    if (!nodeData) {
+      toast.error("Node data not found in table");
+      return;
+    }
+
+    // Step 2: Minimize both tables instead of closing them (Model 2 and Model 3)
+    setIsTableMinimized(true);
+    setIsTable3Minimized(true);
+
+    // Step 3: Wait for tables to minimize and year state to update (300ms delay)
     await new Promise((resolve) => setTimeout(resolve, 300));
 
-    // Step 3: Fly to the node
+    // Step 4: Fly to the node
     map.flyTo({
       center: coordinates,
       zoom: CAMERA_ANIMATION.targetZoom,
@@ -1159,18 +1195,20 @@ export default function SimulationPage() {
       easing: CAMERA_ANIMATION.easing,
     });
 
-    // Step 4: Wait for flyTo animation to mostly complete
+    // Step 5: Wait for flyTo animation to mostly complete
     // Calculate approximate duration based on distance and speed
     const flyDuration = 1500; // ~1.5 seconds for fly animation
     await new Promise((resolve) => setTimeout(resolve, flyDuration));
 
-    // Step 5: Highlight the node on the map
+    // Step 6: Highlight the node on the map
     map.setFeatureState({ source, id: featureId }, { selected: true });
 
-    // Step 6: Wait a bit for highlight to be visible (200ms)
+    // Step 7: Wait a bit for highlight to be visible (200ms)
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    // Step 7: Show the slideshow
+    // Step 8: Set slideshow data and show the slideshow
+    setSlideshowNodeData(nodeData);
+    setSlideshowAllData(activeTableData);
     setSlideshowNode(nodeId);
   };
 
@@ -1185,7 +1223,10 @@ export default function SimulationPage() {
       map.setFeatureState({ source, id: featureId }, { selected: false });
     }
 
+    // Clear all slideshow state
     setSlideshowNode(null);
+    setSlideshowNodeData(null);
+    setSlideshowAllData(null);
   };
 
   return (
@@ -1248,10 +1289,15 @@ export default function SimulationPage() {
           isLoadingTable={isLoadingTable}
           onCloseTable={handleCloseTable}
           hasTable={!!tableData}
+          isTableMinimized={isTableMinimized}
+          onToggleTableMinimize={handleToggleTableMinimize}
           onGenerateTable3={handleGenerateTable3}
           isLoadingTable3={isLoadingTable3}
           onCloseTable3={handleCloseTable3}
           hasTable3={!!tableData3}
+          isTable3Minimized={isTable3Minimized}
+          onToggleTable3Minimize={handleToggleTable3Minimize}
+          onOpenNodeSimulation={handleOpenNodeSimulation}
         />
         <CameraControls
           onZoomIn={handleZoomIn}
@@ -1263,7 +1309,8 @@ export default function SimulationPage() {
         />
 
         {/* Vulnerability Data Table Overlay (Model 2) */}
-        {tableData && (
+        {/* Vulnerability Data Table Overlay (Model 2) - Only render when NOT minimized */}
+        {tableData && !isTableMinimized && (
           <div
             className="absolute z-20 pointer-events-auto"
             style={{
@@ -1273,9 +1320,8 @@ export default function SimulationPage() {
           >
             <VulnerabilityDataTable
               data={tableData}
-              isMinimized={isTableMinimized}
+              isMinimized={false}
               onToggleMinimize={handleToggleTableMinimize}
-              onClose={handleCloseTable}
               position={tablePosition}
               onPositionChange={setTablePosition}
               onHighlightNodes={handleHighlightNodes}
@@ -1284,8 +1330,8 @@ export default function SimulationPage() {
           </div>
         )}
 
-        {/* Vulnerability Data Table Overlay (Model 3) */}
-        {tableData3 && (
+        {/* Vulnerability Data Table Overlay (Model 3) - Only render when NOT minimized */}
+        {tableData3 && !isTable3Minimized && (
           <div
             className="absolute z-20 pointer-events-auto"
             style={{
@@ -1295,9 +1341,8 @@ export default function SimulationPage() {
           >
             <VulnerabilityDataTable
               data={tableData3}
-              isMinimized={isTable3Minimized}
+              isMinimized={false}
               onToggleMinimize={handleToggleTable3Minimize}
-              onClose={handleCloseTable3}
               position={table3Position}
               onPositionChange={setTable3Position}
               onHighlightNodes={handleHighlightNodes}
@@ -1307,11 +1352,13 @@ export default function SimulationPage() {
         )}
 
         {/* Node Simulation Slideshow */}
-        {slideshowNode && selectedYear && (
+        {slideshowNode && selectedYear && slideshowNodeData && slideshowAllData && (
           <NodeSimulationSlideshow
             nodeId={slideshowNode}
             onClose={handleCloseSlideshowNode}
             selectedYear={selectedYear}
+            nodeData={slideshowNodeData}
+            allNodesData={slideshowAllData}
           />
         )}
 

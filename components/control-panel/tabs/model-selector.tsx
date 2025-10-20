@@ -95,9 +95,9 @@ export function ModelSelector({ onModelSelect }: ModelSelectorProps) {
                         <div className="h-2 w-2 rounded-full bg-white" />
                       )}
                     </div>
-                    <span className="font-medium">{model.title}</span>
+                    <span className="font-normal">{model.title}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground pl-6">
+                  <p className="text-xs font-normal text-muted-foreground pl-6">
                     {model.description}
                   </p>
                 </div>

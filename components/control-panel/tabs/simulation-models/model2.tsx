@@ -17,7 +17,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
-import { Loader2, CaptionsOff } from "lucide-react";
+import { Loader2, Minimize2, Maximize2 } from "lucide-react";
 import type { Inlet, Outlet, Pipe, Drain } from "../../types";
 
 interface Model2Props {
@@ -32,6 +32,8 @@ interface Model2Props {
   isLoading: boolean;
   onCloseTable?: () => void;
   hasTable?: boolean;
+  isTableMinimized?: boolean;
+  onToggleMinimize?: () => void;
 }
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
@@ -50,6 +52,8 @@ export default function Model2({
   isLoading,
   onCloseTable,
   hasTable = false,
+  isTableMinimized = false,
+  onToggleMinimize,
 }: Model2Props) {
   return (
     // expand to full available height and allow inner flex children to size correctly
@@ -124,12 +128,16 @@ export default function Model2({
 
           <Button
             variant="outline"
-            onClick={() => onCloseTable && onCloseTable()}
+            onClick={() => onToggleMinimize && onToggleMinimize()}
             disabled={isLoading || !hasTable}
             className="flex-none"
-            aria-label="Close vulnerability table"
+            aria-label={isTableMinimized ? "Show table" : "Hide table"}
           >
-            <CaptionsOff className="h-4 w-4" />
+            {isTableMinimized ? (
+              <Maximize2 className="h-4 w-4" />
+            ) : (
+              <Minimize2 className="h-4 w-4" />
+            )}
           </Button>
         </div>
 

@@ -22,11 +22,15 @@ interface SimulationsContentProps {
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
   hasTable?: boolean;
+  isTableMinimized?: boolean;
+  onToggleTableMinimize?: () => void;
   // Model 3 props
   onGenerateTable3?: () => void;
   isLoadingTable3?: boolean;
   onCloseTable3?: () => void;
   hasTable3?: boolean;
+  isTable3Minimized?: boolean;
+  onToggleTable3Minimize?: () => void;
   // Model3 panel props
   selectedComponentIds?: string[];
   onComponentIdsChange?: (ids: string[]) => void;
@@ -40,6 +44,8 @@ interface SimulationsContentProps {
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
   onToggleLinkPanel?: () => void;
+  // Shared handler for opening node simulation slideshow
+  onOpenNodeSimulation?: (nodeId: string) => void;
 }
 
 export default function SimulationsContent({
@@ -55,10 +61,14 @@ export default function SimulationsContent({
   isLoadingTable = false,
   onCloseTable = () => {},
   hasTable = false,
+  isTableMinimized = false,
+  onToggleTableMinimize = () => {},
   onGenerateTable3 = () => {},
   isLoadingTable3 = false,
   onCloseTable3 = () => {},
   hasTable3 = false,
+  isTable3Minimized = false,
+  onToggleTable3Minimize = () => {},
   selectedComponentIds = [],
   onComponentIdsChange = () => {},
   selectedPipeIds = [],
@@ -71,6 +81,7 @@ export default function SimulationsContent({
   onToggleNodePanel = () => {},
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
+  onOpenNodeSimulation,
 }: SimulationsContentProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
   const router = useRouter();
@@ -143,6 +154,8 @@ export default function SimulationsContent({
       isLoading: isLoadingTable,
       onCloseTable,
       hasTable,
+      isTableMinimized,
+      onToggleMinimize: onToggleTableMinimize,
     };
 
     const model3Props = {
@@ -163,6 +176,9 @@ export default function SimulationsContent({
       isLoadingTable: isLoadingTable3,
       onCloseTable: onCloseTable3,
       hasTable: hasTable3,
+      isTableMinimized: isTable3Minimized,
+      onToggleMinimize: onToggleTable3Minimize,
+      onOpenNodeSimulation,
     };
 
     switch (selectedModel) {
