@@ -86,7 +86,7 @@ export default function SubmitTab() {
         return;
       }
 
-      //mock location for testing
+      //mock location for testing yes
       //const location = { latitude: 10.3263275618157, longitude: 123.925696045157 };
 
       try {
