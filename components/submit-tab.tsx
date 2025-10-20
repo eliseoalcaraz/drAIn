@@ -67,11 +67,11 @@ export default function SubmitTab() {
       setIsErrorModalOpen(true);
       setErrorCode("No valid image");
     } else {
-      // const location = await extractExifLocation(image);
-      const location = {
-        latitude: 10.360832542295604,
-        longitude: 123.927200298236968,
-      };
+      const location = await extractExifLocation(image);
+      // const location = {
+      //   latitude: 10.360832542295604,
+      //   longitude: 123.927200298236968,
+      // };
       console.log("Extracted Location:", location);
       if (!location.latitude || !location.longitude) {
         setIsErrorModalOpen(true);
