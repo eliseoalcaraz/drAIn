@@ -94,10 +94,35 @@ export interface ControlPanelProps {
   // Reports refresh
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
-  // Vulnerability table props
+  // Vulnerability table props (Model 2)
   selectedYear?: number | null;
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
+  hasTable?: boolean;
+  isTableMinimized?: boolean;
+  onToggleTableMinimize?: () => void;
+  // Model 3 table props
+  onGenerateTable3?: () => void;
+  isLoadingTable3?: boolean;
+  onCloseTable3?: () => void;
+  hasTable3?: boolean;
+  isTable3Minimized?: boolean;
+  onToggleTable3Minimize?: () => void;
+  // Model3 panel props
+  selectedComponentIds?: string[];
+  onComponentIdsChange?: (ids: string[]) => void;
+  selectedPipeIds?: string[];
+  onPipeIdsChange?: (ids: string[]) => void;
+  componentParams?: Map<string, any>;
+  onComponentParamsChange?: (params: Map<string, any>) => void;
+  pipeParams?: Map<string, any>;
+  onPipeParamsChange?: (params: Map<string, any>) => void;
+  showNodePanel?: boolean;
+  onToggleNodePanel?: () => void;
+  showLinkPanel?: boolean;
+  onToggleLinkPanel?: () => void;
+  // Shared handler for opening node simulation slideshow
+  onOpenNodeSimulation?: (nodeId: string) => void;
 }

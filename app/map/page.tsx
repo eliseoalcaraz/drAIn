@@ -38,7 +38,6 @@ import {
   getreportCategoryCount,
   subscribeToReportChanges,
 } from "@/lib/supabase/report";
-import { fetchYRTable, fetchNodeDeets } from "@/lib/Vulnerabilities/FetchDeets";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 export default function MapPage() {

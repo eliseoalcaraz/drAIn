@@ -114,7 +114,7 @@ export default function WelcomePage() {
         <div className="flex flex-col items-center gap-3 mb-6">
           <div className="relative w-32 h-32 pointer-events-auto rounded-2xl border border-[#7b7d7c]/50 p-4 overflow-hidden">
             <Image
-              src="/images/logo1.png"
+              src="/images/logo6.png"
               alt="drAIn Logo"
               fill
               className="object-contain"

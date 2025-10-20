@@ -3,8 +3,6 @@
 import React, { useEffect, useState } from "react";
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, Cell } from "recharts";
 import { ChartContainer } from "@/components/ui/chart";
-import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
-import { Spinner } from "@/components/ui/spinner";
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
 
@@ -35,6 +33,7 @@ interface NodeMetricComparisonChartProps {
   metricKey: MetricKey;
   metricLabel: string;
   maxNodes?: number;
+  allNodesData: NodeDetails[];
 }
 
 interface ChartDataPoint {
@@ -50,21 +49,19 @@ export function NodeMetricComparisonChart({
   metricKey,
   metricLabel,
   maxNodes = 50,
+  allNodesData,
 }: NodeMetricComparisonChartProps) {
-  const [loading, setLoading] = useState(true);
   const [chartData, setChartData] = useState<ChartDataPoint[]>([]);
   const [selectedNodeData, setSelectedNodeData] = useState<ChartDataPoint | null>(null);
   const [totalNodes, setTotalNodes] = useState(0);
 
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
+    const processData = () => {
       try {
-        const allNodes = await fetchYRTable(year);
-        setTotalNodes(allNodes.length);
+        setTotalNodes(allNodesData.length);
 
         // Sort by the specified metric descending
-        const sortedNodes = [...allNodes].sort(
+        const sortedNodes = [...allNodesData].sort(
           (a, b) => b[metricKey] - a[metricKey]
         );
 
@@ -104,28 +101,18 @@ export function NodeMetricComparisonChart({
           });
         }
       } catch (error) {
-        console.error("Error fetching chart data:", error);
-      } finally {
-        setLoading(false);
+        console.error("Error processing chart data:", error);
       }
     };
 
-    fetchData();
-  }, [nodeId, year, metricKey, maxNodes]);
+    processData();
+  }, [nodeId, year, metricKey, maxNodes, allNodesData]);
 
   const chartConfig = {
     value: {
       label: metricLabel,
     },
   };
-
-  if (loading) {
-    return (
-      <div className="w-full h-[200px] flex items-center justify-center">
-        <Spinner className="h-8 w-8 text-primary" />
-      </div>
-    );
-  }
 
   return (
     <div className="w-full pt-2">

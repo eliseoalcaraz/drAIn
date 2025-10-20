@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { SimulationGateway } from "@/components/simulation-gateway";
 import { ModelSelector, type ModelType } from "./model-selector";
-import Model1 from "./simulation-models/model1";
 import Model2 from "./simulation-models/model2";
 import Model3 from "./simulation-models/model3";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
@@ -16,11 +15,37 @@ interface SimulationsContentProps {
   selectedOutlet?: Outlet | null;
   selectedPipe?: Pipe | null;
   selectedDrain?: Drain | null;
+  // Model 2 props
   selectedYear?: number | null;
   onYearChange?: (year: number | null) => void;
   onGenerateTable?: () => void;
   isLoadingTable?: boolean;
   onCloseTable?: () => void;
+  hasTable?: boolean;
+  isTableMinimized?: boolean;
+  onToggleTableMinimize?: () => void;
+  // Model 3 props
+  onGenerateTable3?: () => void;
+  isLoadingTable3?: boolean;
+  onCloseTable3?: () => void;
+  hasTable3?: boolean;
+  isTable3Minimized?: boolean;
+  onToggleTable3Minimize?: () => void;
+  // Model3 panel props
+  selectedComponentIds?: string[];
+  onComponentIdsChange?: (ids: string[]) => void;
+  selectedPipeIds?: string[];
+  onPipeIdsChange?: (ids: string[]) => void;
+  componentParams?: Map<string, any>;
+  onComponentParamsChange?: (params: Map<string, any>) => void;
+  pipeParams?: Map<string, any>;
+  onPipeParamsChange?: (params: Map<string, any>) => void;
+  showNodePanel?: boolean;
+  onToggleNodePanel?: () => void;
+  showLinkPanel?: boolean;
+  onToggleLinkPanel?: () => void;
+  // Shared handler for opening node simulation slideshow
+  onOpenNodeSimulation?: (nodeId: string) => void;
 }
 
 export default function SimulationsContent({
@@ -35,6 +60,28 @@ export default function SimulationsContent({
   onGenerateTable = () => {},
   isLoadingTable = false,
   onCloseTable = () => {},
+  hasTable = false,
+  isTableMinimized = false,
+  onToggleTableMinimize = () => {},
+  onGenerateTable3 = () => {},
+  isLoadingTable3 = false,
+  onCloseTable3 = () => {},
+  hasTable3 = false,
+  isTable3Minimized = false,
+  onToggleTable3Minimize = () => {},
+  selectedComponentIds = [],
+  onComponentIdsChange = () => {},
+  selectedPipeIds = [],
+  onPipeIdsChange = () => {},
+  componentParams = new Map(),
+  onComponentParamsChange = () => {},
+  pipeParams = new Map(),
+  onPipeParamsChange = () => {},
+  showNodePanel = false,
+  onToggleNodePanel = () => {},
+  showLinkPanel = false,
+  onToggleLinkPanel = () => {},
+  onOpenNodeSimulation,
 }: SimulationsContentProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
   const router = useRouter();
@@ -106,15 +153,39 @@ export default function SimulationsContent({
       onGenerateTable,
       isLoading: isLoadingTable,
       onCloseTable,
+      hasTable,
+      isTableMinimized,
+      onToggleMinimize: onToggleTableMinimize,
+    };
+
+    const model3Props = {
+      ...modelProps,
+      selectedComponentIds,
+      onComponentIdsChange,
+      selectedPipeIds,
+      onPipeIdsChange,
+      componentParams,
+      onComponentParamsChange,
+      pipeParams,
+      onPipeParamsChange,
+      showNodePanel,
+      onToggleNodePanel,
+      showLinkPanel,
+      onToggleLinkPanel,
+      onGenerateTable: onGenerateTable3,
+      isLoadingTable: isLoadingTable3,
+      onCloseTable: onCloseTable3,
+      hasTable: hasTable3,
+      isTableMinimized: isTable3Minimized,
+      onToggleMinimize: onToggleTable3Minimize,
+      onOpenNodeSimulation,
     };
 
     switch (selectedModel) {
-      case "model1":
-        return <Model1 {...modelProps} />;
       case "model2":
         return <Model2 {...model2Props} />;
       case "model3":
-        return <Model3 {...modelProps} />;
+        return <Model3 {...model3Props} />;
       default:
         return null;
     }
