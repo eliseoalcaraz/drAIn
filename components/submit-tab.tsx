@@ -72,6 +72,7 @@ export default function SubmitTab() {
       //   latitude: 10.360832542295604,
       //   longitude: 123.927200298236968,
       // };
+      //need to fix bug
       console.log("Extracted Location:", location);
       if (!location.latitude || !location.longitude) {
         setIsErrorModalOpen(true);
