@@ -82,7 +82,7 @@ export const fetchReports = async (): Promise<Report[]> => {
     };
   });
 
-  // Transform into desired format
+
   const formattedReports: Report[] = data.map((report: any, index: number) => ({
     id: report.id?.toString(),
     date: report.created_at,
