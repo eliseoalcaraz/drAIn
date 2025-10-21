@@ -23,6 +23,7 @@ import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SpinnerEmpty } from "./spinner-empty";
 import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { AlertCircle } from "lucide-react";
+import { clear } from "console";
 
 interface CategoryData {
   name: string;
@@ -59,6 +60,15 @@ export default function SubmitTab() {
     }
   };
 
+  const clearInputs = () => {
+    setDescription("");
+    setImage(null);
+    setCategory("");
+    setCategoryLabel("");
+    setCategoryData([]);
+    setCategoryIndex(0);
+  }
+
   const handlePreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -67,6 +77,7 @@ export default function SubmitTab() {
       setIsErrorModalOpen(true);
       setErrorCode("No valid image");
     } else {
+
       const location = await extractExifLocation(image);
       // const location = {
       //   latitude: 10.360832542295604,
@@ -79,6 +90,9 @@ export default function SubmitTab() {
         setErrorCode("No GPS data found in image");
         return;
       }
+
+      //mock location for testing yes
+      //const location = { latitude: 10.3263275618157, longitude: 123.925696045157 };
 
       try {
         const Pipedata = await getClosestPipes(
@@ -119,6 +133,7 @@ export default function SubmitTab() {
 
     setIsModalOpen(false);
     setTermsAccepted(false);
+    clearInputs();
   };
 
   const handleCancelModal = () => {
@@ -127,12 +142,7 @@ export default function SubmitTab() {
   };
 
   const handleCancel = () => {
-    setDescription("");
-    setImage(null);
-    setCategory("");
-    setCategoryLabel("");
-    setCategoryData([]);
-    setCategoryIndex(0);
+    clearInputs();
   };
 
   if (isSubmitting) {
