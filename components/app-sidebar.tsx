@@ -19,6 +19,8 @@ import { useAuth } from "@/components/context/AuthProvider";
 import client from "@/app/api/client";
 import { useState, useEffect } from "react";
 
+import NotificationBell from "@/components/report-notif";
+
 // This is the data structure for the sidebar
 const data = {
   team: {
@@ -134,6 +136,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
+      <div className="border-t px-3 py-2 flex justify-center">
+        <NotificationBell />
+      </div>
       <SidebarFooter className="border-t">
         <NavUser user={userData} onLogout={handleLogout} />
       </SidebarFooter>
