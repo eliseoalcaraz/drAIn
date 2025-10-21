@@ -16,7 +16,7 @@ export function useControlPanelState() {
   >("submission");
   const [activeAdminTab, setActiveAdminTab] = useState<
     "maintenance" | "reports"
-  >("maintenance");
+  >("reports");
 
   // Selected items state
   const [selectedInlet, setSelectedInlet] = useState<Inlet | null>(null);

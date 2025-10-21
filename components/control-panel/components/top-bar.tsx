@@ -303,7 +303,7 @@ export function TopBar({
         </div>
       )}
 
-      {/* Reports Tab */}
+      {/* Admin Tab */}
       {showAdminTab && onAdminTabChange && (
         <div className="flex-1">
           <AdminTabControl

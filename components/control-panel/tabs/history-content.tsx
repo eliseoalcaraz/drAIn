@@ -5,7 +5,7 @@ import ReportHistoryList from "../../report-history-list";
 import type { DateFilterValue } from "../../date-sort";
 import Maintenance from "./maintenance";
 
-export type AdminContentProps = {
+export type HistoryContentProps = {
   activeAdminTab?: "maintenance" | "reports";
   dateFilter?: DateFilterValue;
   selectedInlet?: Inlet | null;
@@ -16,10 +16,11 @@ export type AdminContentProps = {
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
   isSimulationMode?: boolean;
+  profile?: any;
 };
 
-export default function AdminContent({
-  activeAdminTab = "reports",
+export default function HistoryContent({
+  activeAdminTab = "maintenance",
   dateFilter = "all",
   selectedInlet,
   selectedOutlet,
@@ -29,7 +30,8 @@ export default function AdminContent({
   onRefreshReports,
   isRefreshingReports = false,
   isSimulationMode = false,
-}: AdminContentProps) {
+  profile,
+}: HistoryContentProps) {
   return (
     <div className="w-full h-full flex flex-col">
       {activeAdminTab === "maintenance" ? (
@@ -38,6 +40,7 @@ export default function AdminContent({
           selectedOutlet={selectedOutlet}
           selectedPipe={selectedPipe}
           selectedDrain={selectedDrain}
+          profile={profile}
         />
       ) : (
         <ReportHistoryList
