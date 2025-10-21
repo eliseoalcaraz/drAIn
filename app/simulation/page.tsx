@@ -10,6 +10,10 @@ import {
   MAP_BOUNDS,
   MAPBOX_ACCESS_TOKEN,
 } from "@/lib/map/config";
+
+import { runSimulation, transformToNodeDetails } from  "@/lib/simulation-api/simulation";
+
+
 import {
   SIMULATION_MAP_STYLE,
   SIMULATION_PITCH,
@@ -1006,11 +1010,6 @@ export default function SimulationPage() {
 
     setIsLoadingTable3(true);
     try {
-      // Import the simulation functions
-      const { runSimulation, transformToNodeDetails } = await import(
-        "@/lib/simulation-api/simulation"
-      );
-
       // Build nodes object from componentParams
       const nodes: Record<string, any> = {};
       componentParams.forEach((params, id) => {
