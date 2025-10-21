@@ -140,7 +140,7 @@ export default function MapPage() {
       try {
         const data = await fetchReports();
         setReports(data);
-        console.log("Fetched reports:", data);
+        //console.log("Fetched reports:", data);
       } catch (err) {
         console.error("Failed to load reports:", err);
       }
@@ -219,12 +219,6 @@ export default function MapPage() {
         bearing: -17.6,
         attributionControl: false, // Disable default attribution
       });
-
-      // Disable all default navigation controls since we have custom CameraControls
-      // map.addControl(
-      //   new mapboxgl.AttributionControl({ compact: true }),
-      //   "bottom-left"
-      // );
 
       mapRef.current = map;
 
@@ -327,8 +321,12 @@ export default function MapPage() {
       map.on("load", addCustomLayers);
       map.on("style.load", addCustomLayers);
 
-      // Click handlers
+      // Move click handler inside here where map is defined
       map.on("click", (e) => {
+        //console.log("=== Map Click Debug ===");
+        //console.log("Current tab from ref:", currentTabRef.current);
+        //console.log("Data consumer tabs:", dataConsumerTabs);
+
         const validLayers = [
           "inlets-layer",
           "outlets-layer",
@@ -336,15 +334,18 @@ export default function MapPage() {
           "man_pipes-layer",
         ].filter((id) => map.getLayer(id));
 
-        if (!validLayers.length) return;
+        if (!validLayers.length) {
+          console.log("No valid layers found");
+          return;
+        }
 
         const features = map.queryRenderedFeatures(e.point, {
           layers: validLayers,
         });
 
         if (!features.length) {
+          //console.log("No features found at click point");
           clearSelections();
-          setControlPanelTab("overlays");
           return;
         }
 
@@ -352,27 +353,52 @@ export default function MapPage() {
         const props = feature.properties || {};
         if (!feature.layer) return;
 
+        // Use currentTabRef instead of controlPanelTab
+        const shouldKeepTab = dataConsumerTabs.includes(currentTabRef.current);
+        //console.log("Should keep current tab?", shouldKeepTab);
+
         switch (feature.layer.id) {
           case "man_pipes-layer": {
             const pipe = pipesRef.current.find((p) => p.id === props.Name);
-            if (pipe) handleSelectPipe(pipe);
+            if (pipe) {
+              //console.log("Selected pipe:", pipe.id);
+              handleSelectPipe(pipe);
+              if (!shouldKeepTab) {
+                handleTabChange("stats");
+              }
+            }
             break;
           }
           case "inlets-layer": {
             const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
-            if (inlet) handleSelectInlet(inlet);
+            if (inlet) {
+              handleSelectInlet(inlet);
+              if (!shouldKeepTab) {
+                handleTabChange("stats");
+              }
+            }
             break;
           }
           case "outlets-layer": {
             const outlet = outletsRef.current.find(
               (o) => o.id === props.Out_Name
             );
-            if (outlet) handleSelectOutlet(outlet);
+            if (outlet) {
+              handleSelectOutlet(outlet);
+              if (!shouldKeepTab) {
+                handleTabChange("stats");
+              }
+            }
             break;
           }
           case "storm_drains-layer": {
             const drain = drainsRef.current.find((d) => d.id === props.In_Name);
-            if (drain) handleSelectDrain(drain);
+            if (drain) {
+              handleSelectDrain(drain);
+              if (!shouldKeepTab) {
+                handleTabChange("stats");
+              }
+            }
             break;
           }
         }
@@ -523,7 +549,7 @@ export default function MapPage() {
     try {
       const data = await fetchReports();
       setReports(data);
-      console.log("Refreshed reports:", data);
+      //console.log("Refreshed reports:", data);
     } catch (err) {
       console.error("Failed to refresh reports:", err);
     } finally {
@@ -540,9 +566,7 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedInlet(inlet);
-    if (!dataConsumerTabs.includes(controlPanelTab)) {
-      setControlPanelTab("stats");
-    }
+    // Remove the tab switching from here since it's handled in the click handler
     setControlPanelDataset("inlets");
 
     // Set new map feature state
@@ -576,9 +600,7 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedOutlet(outlet);
-    if (!dataConsumerTabs.includes(controlPanelTab)) {
-      setControlPanelTab("stats");
-    }
+    // Remove the tab switching from here since it's handled in the click handler
     setControlPanelDataset("outlets");
 
     // Set new map feature state
@@ -612,9 +634,7 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedDrain(drain);
-    if (!dataConsumerTabs.includes(controlPanelTab)) {
-      setControlPanelTab("stats");
-    }
+    // Remove the tab switching from here since it's handled in the click handler
     setControlPanelDataset("storm_drains");
 
     // Set new map feature state
@@ -648,9 +668,7 @@ export default function MapPage() {
 
     // Set the new selection state for control panel
     setSelectedPipe(pipe);
-    if (!dataConsumerTabs.includes(controlPanelTab)) {
-      setControlPanelTab("stats");
-    }
+    // Remove the tab switching from here since it's handled in the click handler
     setControlPanelDataset("man_pipes");
 
     // Set new map feature state
@@ -679,6 +697,26 @@ export default function MapPage() {
     });
   };
 
+  // Add a ref to track current tab
+  const currentTabRef = useRef(initialTab);
+
+  // Update the tab change handler
+  const handleTabChange = (tab: string) => {
+    //console.log("Tab changing from:", currentTabRef.current, "to:", tab);
+    setControlPanelTab(tab);
+    currentTabRef.current = tab;
+    const newParams = new URLSearchParams(searchParams.toString());
+    newParams.set("activetab", tab);
+    router.replace(`?${newParams.toString()}`);
+  };
+
+  // Update the useEffect for URL sync
+  useEffect(() => {
+    const tab = searchParams.get("activetab") || "overlays";
+    currentTabRef.current = tab;
+    setControlPanelTab(tab);
+  }, [searchParams]);
+
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-blue-200">
@@ -690,12 +728,7 @@ export default function MapPage() {
           selectedOutlet={selectedOutlet}
           selectedPipe={selectedPipe}
           selectedDrain={selectedDrain}
-          onTabChange={(tab) => {
-            setControlPanelTab(tab);
-            const newParams = new URLSearchParams(searchParams.toString());
-            newParams.set("activetab", tab);
-            router.replace(`?${newParams.toString()}`);
-          }}
+          onTabChange={handleTabChange}
           onDatasetChange={setControlPanelDataset}
           onSelectInlet={handleSelectInlet}
           onSelectOutlet={handleSelectOutlet}

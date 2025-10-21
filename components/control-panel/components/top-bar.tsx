@@ -41,6 +41,7 @@ import type { DatasetType } from "../types";
 import { LinkBar } from "@/components/link-bar";
 import { ReportsTabControl } from "../../reports-tab-control";
 import { DateSort, type DateFilterValue } from "../../date-sort";
+import { AdminTabControl } from "@/components/admin-tab-control";
 
 interface TopBarProps {
   activeTab: string;
@@ -56,7 +57,9 @@ interface TopBarProps {
   onToggleDrag?: (enabled: boolean) => void;
   onSignOut?: () => void;
   activeReportTab?: "submission" | "reports";
+  activeAdminTab?: "maintenance" | "reports";
   onReportTabChange?: (tab: "submission" | "reports") => void;
+  onAdminTabChange?: (tab: "maintenance" | "reports") => void;
   dateFilter?: DateFilterValue;
   onDateFilterChange?: (value: DateFilterValue) => void;
 }
@@ -76,6 +79,8 @@ export function TopBar({
   onSignOut,
   activeReportTab = "submission",
   onReportTabChange,
+  onAdminTabChange,
+  activeAdminTab = "maintenance",
   dateFilter = "all",
   onDateFilterChange,
 }: TopBarProps) {
@@ -130,7 +135,8 @@ export function TopBar({
   const showProfileProgress = activeTab === "profile";
   const showLinkBar = activeTab === "simulations";
   const showReportTabs = activeTab === "report";
-  const showDateSort = activeTab === "report";
+  const showAdminTab = activeTab === "admin";
+  const showDateSort = activeTab === "report" || activeTab === "admin";
 
   const handleNotificationToggle = (pressed: boolean) => {
     setNotificationsEnabled(pressed);
@@ -289,10 +295,20 @@ export function TopBar({
 
       {/* Reports Tab */}
       {showReportTabs && onReportTabChange && (
-        <div className="flex-1">
+        <div className="flex-10">
           <ReportsTabControl
             activeTab={activeReportTab}
             onTabChange={onReportTabChange}
+          />
+        </div>
+      )}
+
+      {/* Reports Tab */}
+      {showAdminTab && onAdminTabChange && (
+        <div className="flex-1">
+          <AdminTabControl
+            activeTab={activeAdminTab}
+            onTabChange={onAdminTabChange}
           />
         </div>
       )}
@@ -321,7 +337,10 @@ export function TopBar({
           <DateSort
             value={dateFilter}
             onValueChange={onDateFilterChange}
-            disabled={activeReportTab === "submission"}
+            disabled={
+              (activeReportTab === "submission" && activeTab === "report") ||
+              (activeAdminTab === "maintenance" && activeTab === "admin")
+            }
           />
         </div>
       )}

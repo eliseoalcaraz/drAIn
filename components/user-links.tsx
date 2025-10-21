@@ -18,23 +18,24 @@ export default function UserLinks({
   onUnlink,
 }: UserLinksProps) {
   return (
-    <Card className="rounded-none h-full pt-0 pb-14 border-none">
-      <CardContent className="flex-1 flex items-center justify-center">
+    <Card className="rounded-none h-full border-none flex flex-col pb-12">
+      <CardContent className="flex-1 flex  justify-center">
         {profile?.agency_id ? (
-          <div className="space-y-2 flex flex-col justify-center text-center">
-            <div className="text-sm text-muted-foreground py-8">
-              You are linked to {profile.agency_name}.
+          <div className="space-y-6 flex flex-col justify-center text-center">
+            <div className="text-sm text-muted-foreground">
+              You are linked to {profile.agency_name}. You can now respond to
+              reports.
             </div>
-            <Button className="self-center" onClick={onUnlink} disabled={isGuest}>
+            <Button
+              className="self-center"
+              onClick={onUnlink}
+              disabled={isGuest}
+            >
               Unlink Agency
             </Button>
           </div>
         ) : (
-          <div className="space-y-2 flex flex-col justify-center">
-            <div className="text-sm text-muted-foreground text-center py-8">
-              No agency linked yet. Connect your agency account to gain admin
-              controls and respond to user reports.
-            </div>
+          <div className="space-y-2 flex flex-col justify-center w-full">
             <AgencyLink onLink={onLink} disabled={isGuest} />
           </div>
         )}

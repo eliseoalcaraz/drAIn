@@ -17,9 +17,7 @@ import {
 } from "@/components/control-panel/tabs/tables-content";
 import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
 import ProfileContent from "@/components/control-panel/tabs/profile-content";
-import AdminContent, {
-  AdminContentProps,
-} from "@/components/control-panel/tabs/admin-content";
+import AdminContent from "@/components/control-panel/tabs/admin-content";
 import type { ProfileView } from "../hooks/use-control-panel-state";
 
 interface ContentRendererProps {
@@ -78,6 +76,7 @@ interface ContentRendererProps {
   // Reports
   reports: any[];
   activeReportTab?: "submission" | "reports";
+  activeAdminTab?: "maintenance" | "reports";
   dateFilter?: DateFilterValue;
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
@@ -161,6 +160,7 @@ export function ContentRenderer({
   selectedPointForSimulation = null,
   reports,
   activeReportTab = "submission",
+  activeAdminTab = "maintenance",
   dateFilter = "all",
   onRefreshReports,
   isRefreshingReports = false,
@@ -300,10 +300,16 @@ export function ContentRenderer({
     case "admin":
       return (
         <AdminContent
+          activeAdminTab={activeAdminTab}
+          dateFilter={dateFilter}
           selectedInlet={selectedInlet}
           selectedOutlet={selectedOutlet}
           selectedPipe={selectedPipe}
           selectedDrain={selectedDrain}
+          reports={reports}
+          onRefreshReports={onRefreshReports}
+          isRefreshingReports={isRefreshingReports}
+          isSimulationMode={isSimulationMode}
         />
       );
 
