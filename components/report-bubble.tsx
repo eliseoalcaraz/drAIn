@@ -199,7 +199,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                     })}
                   </p>
                   <div
-                    className={`text-[10px] px-3 py-0.5 mb-1 h-5 rounded-md border flex items-center justify-center ${getStatusStyle(
+                    className={`text-[10px] px-3 mb-1 h-5 rounded-md border flex items-center justify-center ${getStatusStyle(
                       report.status
                     )}`}
                   >
@@ -210,7 +210,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             </div>
 
             {/* Description */}
-            <div className="ml-[52px] mb-4">
+            <div className="ml-[48px] mb-4">
               <p className="text-xs text-gray-800 flex flex-col gap-2">
                 {report.description}{" "}
                 {report.image && (
@@ -218,7 +218,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                     onClick={() => setShowImageViewer(true)}
                     className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
                   >
-                    <span className="flex flex-row gap-1 items-center">
+                    <span className="flex flex-row gap-1 items-center ml-[-1px]">
                       Image Attached
                       <Link className="w-3 h-3 mb-0.5" />
                     </span>
