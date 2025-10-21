@@ -18,10 +18,8 @@ import {
 } from "@/lib/supabase/report";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
-  Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -33,7 +31,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 

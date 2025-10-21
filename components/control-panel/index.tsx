@@ -113,6 +113,8 @@ export function ControlPanel({
     setProfileView,
     activeReportTab,
     setActiveReportTab,
+    setActiveAdminTab,
+    activeAdminTab,
     handleSort,
     handleSearch,
   } = useControlPanelState();
@@ -187,6 +189,8 @@ export function ControlPanel({
           onReportTabChange={setActiveReportTab}
           dateFilter={dateFilter}
           onDateFilterChange={setDateFilter}
+          activeAdminTab={activeAdminTab}
+          onAdminTabChange={setActiveAdminTab}
         />
 
         {/* Main Content */}
