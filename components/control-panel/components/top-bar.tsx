@@ -136,7 +136,7 @@ export function TopBar({
   const showLinkBar = activeTab === "simulations";
   const showReportTabs = activeTab === "report";
   const showAdminTab = activeTab === "admin";
-  const showDateSort = activeTab === "report" || "admin";
+  const showDateSort = activeTab === "report" || activeTab === "admin";
 
   const handleNotificationToggle = (pressed: boolean) => {
     setNotificationsEnabled(pressed);

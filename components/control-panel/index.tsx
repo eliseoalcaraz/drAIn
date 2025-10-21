@@ -234,6 +234,7 @@ export function ControlPanel({
             profileView={profileView}
             onProfileViewChange={setProfileView}
             activeReportTab={activeReportTab}
+            activeAdminTab={activeAdminTab}
             dateFilter={dateFilter}
             onRefreshReports={onRefreshReports}
             isRefreshingReports={isRefreshingReports}
