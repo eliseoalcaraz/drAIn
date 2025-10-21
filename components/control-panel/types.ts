@@ -125,4 +125,7 @@ export interface ControlPanelProps {
   onToggleLinkPanel?: () => void;
   // Shared handler for opening node simulation slideshow
   onOpenNodeSimulation?: (nodeId: string) => void;
+  // Admin tab state
+  activeAdminTab?: "maintenance" | "reports";
+  onAdminTabChange?: (tab: "maintenance" | "reports") => void;
 }

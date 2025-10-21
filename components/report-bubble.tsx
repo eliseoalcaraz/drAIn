@@ -29,6 +29,7 @@ interface Props {
   map: mapboxgl.Map | null;
   coordinates: [number, number];
   onOpen?: () => void;
+  onHistoryClick?: () => void;
 }
 
 export interface ReportBubbleRef {
@@ -36,7 +37,7 @@ export interface ReportBubbleRef {
 }
 
 export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
-  function ReportBubble({ reportSize, report, map, coordinates, onOpen }, ref) {
+  function ReportBubble({ reportSize, report, map, coordinates, onOpen, onHistoryClick }, ref) {
     const [isOpen, setIsOpen] = useState(false);
     const [isClosing, setIsClosing] = useState(false);
     const [showImageViewer, setShowImageViewer] = useState(false);
@@ -238,9 +239,15 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                   {resolvedReportSize > 1 ? "reports" : "report"}
                 </span>
               </div>
-              <div className="rounded-full bg-[#b3b3b3] p-1">
-                <History className="w-4 h-4 text-white" />
-              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onHistoryClick?.();
+                }}
+                className="p-1 bg-[#EBEBEB] border border-[#bcbcbc] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <History className="w-4 h-4 text-[#8D8D8D]" />
+              </button>
             </div>
           </div>
         )}

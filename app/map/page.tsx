@@ -2,7 +2,7 @@
 
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import {
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
@@ -88,6 +88,7 @@ export default function MapPage() {
   const initialTab = searchParams.get("activetab") || "overlays";
 
   const [controlPanelTab, setControlPanelTab] = useState<string>(initialTab);
+
   useEffect(() => {
     const tab = searchParams.get("activetab") || "overlays";
     setControlPanelTab(tab);
@@ -419,6 +420,60 @@ export default function MapPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layerIds, open]);
 
+  // Handler for clicking history button on report bubble
+  const handleReportHistoryClick = useCallback(
+    (category: string, componentId: string) => {
+      // Find the matching component based on category
+      switch (category) {
+        case "inlets": {
+          const inlet = inlets.find((i) => i.id === componentId);
+          if (inlet) {
+            setSelectedInlet(inlet);
+            setSelectedOutlet(null);
+            setSelectedPipe(null);
+            setSelectedDrain(null);
+            setControlPanelTab("admin");
+          }
+          break;
+        }
+        case "outlets": {
+          const outlet = outlets.find((o) => o.id === componentId);
+          if (outlet) {
+            setSelectedOutlet(outlet);
+            setSelectedInlet(null);
+            setSelectedPipe(null);
+            setSelectedDrain(null);
+            setControlPanelTab("admin");
+          }
+          break;
+        }
+        case "man_pipes": {
+          const pipe = pipes.find((p) => p.id === componentId);
+          if (pipe) {
+            setSelectedPipe(pipe);
+            setSelectedInlet(null);
+            setSelectedOutlet(null);
+            setSelectedDrain(null);
+            setControlPanelTab("admin");
+          }
+          break;
+        }
+        case "storm_drains": {
+          const drain = drains.find((d) => d.id === componentId);
+          if (drain) {
+            setSelectedDrain(drain);
+            setSelectedInlet(null);
+            setSelectedOutlet(null);
+            setSelectedPipe(null);
+            setControlPanelTab("admin");
+          }
+          break;
+        }
+      }
+    },
+    [inlets, outlets, pipes, drains]
+  );
+
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !reports || reports.length === 0) return;
@@ -470,10 +525,13 @@ export default function MapPage() {
           map={map}
           coordinates={report.coordinates}
           onOpen={handleOpenBubble}
+          onHistoryClick={() =>
+            handleReportHistoryClick(report.category, report.componentId)
+          }
         />
       );
     });
-  }, [reports]);
+  }, [reports, handleReportHistoryClick]);
 
   useEffect(() => {
     if (mapRef.current) {
