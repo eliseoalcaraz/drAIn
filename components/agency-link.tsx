@@ -19,6 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface AgencyLinkProps {
   onLink?: (agencyId: string, agencyName: string) => Promise<void>;
@@ -30,6 +31,7 @@ export default function AgencyLink({ onLink, disabled }: AgencyLinkProps) {
   const [selectedAgencyName, setSelectedAgencyName] = useState("");
   const [agencies, setAgencies] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
+  const [agreed, setAgreed] = useState(false);
 
   useEffect(() => {
     const fetchAgencies = async () => {
@@ -61,47 +63,64 @@ export default function AgencyLink({ onLink, disabled }: AgencyLinkProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Link Agency</CardTitle>
-        <CardDescription>
-          Select your agency to gain admin controls and respond to user reports.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid w-full items-center gap-4">
-          <div className="flex flex-col space-y-1.5">
-            <Label htmlFor="agency">Agency</Label>
-            <Select onValueChange={handleValueChange} disabled={disabled || loading}>
-              <SelectTrigger id="agency">
-                <SelectValue placeholder="Select" />
-              </SelectTrigger>
-              <SelectContent position="popper">
-                {loading ? (
-                  <SelectItem value="loading" disabled>
-                    Loading agencies...
-                  </SelectItem>
-                ) : agencies.length === 0 ? (
-                  <SelectItem value="no-agencies" disabled>
-                    No agencies available
-                  </SelectItem>
-                ) : (
-                  agencies.map((agency) => (
-                    <SelectItem key={agency.id} value={agency.id}>
-                      {agency.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </CardContent>
-      <CardFooter className="flex justify-end">
-        <Button onClick={handleLinkAgency} disabled={disabled || !selectedAgency}>
+    <>
+      <Label htmlFor="agency" className="mb-2">
+        Agency Link
+      </Label>
+      <label className="text-xs text-muted-foreground leading-tight mb-5">
+        All partnered agencies available on the platform. By linking your
+        account to a verified agency, you can access exclusive admin features.
+      </label>
+      <Select onValueChange={handleValueChange} disabled={disabled || loading}>
+        <SelectTrigger id="agency" className="flex w-full">
+          <SelectValue placeholder="Select" />
+        </SelectTrigger>
+        <SelectContent position="popper">
+          {loading ? (
+            <SelectItem value="loading" disabled>
+              Loading agencies...
+            </SelectItem>
+          ) : agencies.length === 0 ? (
+            <SelectItem value="no-agencies" disabled>
+              No agencies available
+            </SelectItem>
+          ) : (
+            agencies.map((agency) => (
+              <SelectItem key={agency.id} value={agency.id}>
+                {agency.name}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
+
+      {/* Add agreement checkbox */}
+      <div className="flex items-start space-x-2 pt-2">
+        <Checkbox
+          id="agreement"
+          checked={agreed}
+          onCheckedChange={(checked) => setAgreed(checked as boolean)}
+          disabled={disabled}
+          className="mt-1"
+        />
+        <label
+          htmlFor="agreement"
+          className="text-xs text-muted-foreground leading-tight"
+        >
+          I understand this is a demo environment. Actions here reflect on the
+          linked agency. I will use features responsibly and avoid reckless
+          tampering.
+        </label>
+      </div>
+
+      <CardFooter className="flex p-0 justify-end pt-4">
+        <Button
+          onClick={handleLinkAgency}
+          disabled={disabled || !selectedAgency || !agreed}
+        >
           Link Agency
         </Button>
       </CardFooter>
-    </Card>
+    </>
   );
 }
