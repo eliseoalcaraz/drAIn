@@ -779,7 +779,7 @@ export default function SimulationPage() {
       easing: CAMERA_ANIMATION.easing,
     });
 
-    // Show toast notification
+    // Show toast notifications
     toast.info(
       <div>
         <strong>{pipe.id}</strong> is selected. Go{" "}
