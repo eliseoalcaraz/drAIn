@@ -33,38 +33,21 @@ const data = {
       title: "Home",
       url: "/",
       icon: HomeIcon,
-      items: [
-        { title: "Welcome", url: "/" },
-        { title: "Overlays", url: "/map?activetab=overlays" },
-        { title: "Inventory", url: "/map?activetab=stats" },
-        { title: "Report", url: "/map?activetab=report" },
-        { title: "Profile", url: "/map?activetab=profile" },
-      ],
     },
     {
       title: "Map",
       url: "/map",
       icon: MapIcon,
-      items: [
-        { title: "Simulation", url: "/simulation?active=true" },
-        { title: "View", url: "/map" },
-      ],
     },
     {
       title: "Documentation",
       url: "/docs",
       icon: BookOpenIcon,
-      items: [
-        { title: "Introduction", url: "/docs/introduction" },
-        { title: "Tutorials", url: "/docs/tutorials" },
-        { title: "Changelog", url: "/docs/changelog" },
-      ],
     },
     {
       title: "About",
       url: "/about",
       icon: IconArticleFilled,
-      items: [{ title: "Project", url: "/about/project" }],
     },
   ],
 };
@@ -129,14 +112,18 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       };
 
   return (
-    <Sidebar className="border" collapsible="icon" {...props}>
+    <Sidebar
+      className="border-r border-[#2a2a2a]/25"
+      collapsible="icon"
+      {...props}
+    >
       <SidebarHeader className="border-b">
         <TeamSwitcher team={data.team} />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />
       </SidebarContent>
-      <div className="border-t px-3 py-2 flex justify-center">
+      <div className="px-3 py-2 flex justify-center">
         <NotificationBell />
       </div>
       <SidebarFooter className="border-t">

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Bell } from "lucide-react";
+import { IconBellFilled } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -45,7 +45,7 @@ export default function NotificationBell() {
   return (
     <Popover onOpenChange={(open) => open && handleOpen()}>
       <PopoverTrigger className="relative p-2 hover:bg-gray-100 rounded-full transition">
-        <Bell className="w-5 h-5 text-gray-700" />
+        <IconBellFilled className="w-4.5 h-4.5 text-[#b2adab]" />
         {unreadCount > 0 && (
           <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">
             {unreadCount}
@@ -53,8 +53,8 @@ export default function NotificationBell() {
         )}
       </PopoverTrigger>
 
-      <PopoverContent className="w-72 p-2">
-        <h4 className="font-semibold mb-2">Notifications</h4>
+      <PopoverContent className="w-72 p-4" side="right" align="end">
+        <h4 className="text-sm font-semibold mb-3">Notifications</h4>
 
         {notifications.length === 0 ? (
           <p className="text-sm text-gray-500">No new notifications.</p>
@@ -65,18 +65,25 @@ export default function NotificationBell() {
                 key={n.id}
                 className="border rounded-lg p-3 hover:bg-gray-50 transition flex flex-col gap-1"
               >
-                <p className="font-medium text-sm text-gray-800">
-                  {n.status === "pending"
-                    ? "New Report Added"
-                    : `Report Updated (${n.status})`}{" "}
-                  — {n.category || "report"} from {n.reporter_name || "Unknown"}
+                <p className="text-sm text-gray-800">
+                  <span className=" w-full">
+                    <span className="font-medium">
+                      {n.status === "pending"
+                        ? "New Report Added"
+                        : `Report Updated`}
+                    </span>
+                    <span className="font-normal text-xs"> ({n.status})</span>
+                  </span>
                 </p>
+                <span className="font-normal text-xs mb-2">
+                  {n.category || "report"} from {n.reporter_name || "Unknown"}
+                </span>
 
                 <p className="text-sm text-gray-600">
                   {n.address || "No address provided"}
                 </p>
 
-                {n.description && (
+                {/* {n.description && (
                   <p className="text-xs text-gray-500 italic">
                     “
                     {n.description.length > 60
@@ -84,12 +91,13 @@ export default function NotificationBell() {
                       : n.description}
                     ”
                   </p>
-                )}
+                )} */}
 
-                <div className="flex justify-between items-center text-xs text-gray-400 mt-1">
-                  <span>Status: {n.status || "pending"}</span>
+                <div className="flex mt-2 justify-between items-center text-xs text-gray-400">
                   <span>
-                    {new Date(n.updated_at || n.created_at || Date.now()).toLocaleString()}
+                    {new Date(
+                      n.updated_at || n.created_at || Date.now()
+                    ).toLocaleString()}
                   </span>
                 </div>
               </li>
