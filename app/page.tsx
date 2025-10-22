@@ -90,10 +90,17 @@ export default function WelcomePage() {
   }
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-white">
+    <main className="relative min-h-screen overflow-hidden bg-[#e8e8e8]/50">
       {/* Background pipeline with map SVG — absolute and full-size of main */}
       {/* Adjust mapOpacity (0-1) to control background visibility */}
       {/* enableHover makes map paths interactive - entire shape area is hoverable, fills with color on hover */}
+      {/* <div
+        className="absolute inset-0 z-0"
+        style={{
+          background: "linear-gradient(to left, #ffffff 40%, #c0ecff 100%)",
+        }}
+      /> */}
+
       <DataFlowPipeline
         background
         cover
@@ -110,7 +117,7 @@ export default function WelcomePage() {
       />
 
       {/* Foreground Content  */}
-      <div className="relative z-10 flex flex-1 h-full flex-col items-center justify-center text-center px-4 pointer-events-none">
+      {/* <div className="relative z-10 flex flex-1 h-full flex-col items-center justify-center text-center px-4 pointer-events-none">
         <div className="flex flex-col items-center gap-3 mb-6">
           <div className="relative w-32 h-32 pointer-events-auto rounded-2xl border border-[#7b7d7c]/50 p-4 overflow-hidden">
             <Image
@@ -138,7 +145,7 @@ export default function WelcomePage() {
         >
           Explore Map
         </Button>
-      </div>
+      </div> */}
     </main>
   );
 }

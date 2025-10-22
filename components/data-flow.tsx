@@ -283,7 +283,7 @@ export default function DataFlowPipeline({
                 x2="0"
                 y2="6"
                 stroke="black"
-                strokeWidth="1"
+                strokeWidth="1.3"
                 opacity="0.3"
               />
             </pattern>
@@ -296,7 +296,7 @@ export default function DataFlowPipeline({
               transform="translate(23, 3) scale(1.0)"
               className=" text-[#d6d6d6] dark:text-blue-600"
               stroke="currentColor"
-              strokeWidth="0.5"
+              strokeWidth="0.3"
               strokeLinecap="round"
               strokeLinejoin="round"
               onClick={handleGroupClick}
@@ -1502,7 +1502,7 @@ export default function DataFlowPipeline({
           <motion.path
             d="M952 401 952 218.6736Q952 162 1009 161.7552L1735.3472 162.0016Q1792.0192 161.7552 1792.0192 218.4272L1792.0192 429Q1792.0192 485 1848.6912 485L1990 485Q1990 581 1990 625L1990 1090 1255.36 1090 1255.36 1007Q1255.36 951 1198.688 951L169 951Q112 951 112 895L112 332.5104Q112 275.592 169 275.592L460 276Q516 276 516 220L516-9"
             fill="none"
-            stroke="#d1d5db"
+            stroke="#949b9f"
             strokeWidth="20"
             strokeLinecap="round"
             initial={{ pathLength: 0, opacity: 0 }}
@@ -1518,7 +1518,7 @@ export default function DataFlowPipeline({
           <motion.path
             d="M952 401 952 218.6736Q952 162 1009 161.7552L1735.3472 162.0016Q1792.0192 161.7552 1792.0192 218.4272L1792.0192 429Q1792.0192 485 1848.6912 485L1990 485Q1990 581 1990 625L1990 1090 1255.36 1090 1255.36 1007Q1255.36 951 1198.688 951L169 951Q112 951 112 895L112 332.5104Q112 275.592 169 275.592L460 276Q516 276 516 220L516-9"
             fill="none"
-            stroke="#3b82f6"
+            stroke="#8fc5dd"
             strokeWidth="18"
             strokeLinecap="round"
             initial={{ pathLength: 0 }}

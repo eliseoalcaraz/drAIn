@@ -22,7 +22,7 @@ export function TeamSwitcher({
   const { state } = useSidebar();
 
   return (
-    <SidebarMenu className="bg-[#fafafa] border border-[#dbdbdb] rounded-md p-1">
+    <SidebarMenu className="rounded-md">
       <SidebarMenuItem>
         <SidebarMenuButton
           size="lg"
@@ -30,7 +30,7 @@ export function TeamSwitcher({
           tooltip={state === "collapsed" ? team.name : undefined}
         >
           <div className="flex flex-row gap-4">
-            <div className="flex size-8 items-center justify-center rounded-lg text-primary-foreground">
+            <div className="flex size-12 items-center justify-center rounded-lg text-primary-foreground">
               <SidebarTrigger />
             </div>
             <div className="flex flex-col gap-0.5 leading-none pt-1 group-data-[collapsible=icon]:hidden">
