@@ -62,6 +62,17 @@ interface NodeDetails {
   Total_Flood_Volume: number;
 }
 
+interface RainfallParams {
+  total_precip: number;
+  duration_hr: number;
+}
+
+// Use default rainfall params or get from somewhere
+const rainfallVal = {
+  total_precip: 140,
+  duration_hr: 1,
+};
+
 export default function SimulationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -151,6 +162,7 @@ export default function SimulationPage() {
     new Map()
   );
   const [pipeParams, setPipeParams] = useState<Map<string, any>>(new Map());
+  const [rainfallParams, setRainfallParams] = useState<RainfallParams>(rainfallVal)
 
   // Panel visibility - mutual exclusivity
   const [activePanel, setActivePanel] = useState<"node" | "link" | null>(null);
@@ -1022,11 +1034,7 @@ export default function SimulationPage() {
         links[id] = params;
       });
 
-      // Use default rainfall params or get from somewhere
-      const rainfallParams = {
-        total_precip: 140,
-        duration_hr: 1,
-      };
+      
 
       // Enforce minimum 2-second loading time for better UX
       const [response] = await Promise.all([
@@ -1285,6 +1293,8 @@ export default function SimulationPage() {
           onComponentParamsChange={setComponentParams}
           pipeParams={pipeParams}
           onPipeParamsChange={setPipeParams}
+          rainfallParams={rainfallParams}
+          onRainfallParamsChange={setRainfallParams}
           showNodePanel={activePanel === "node"}
           onToggleNodePanel={handleToggleNodePanel}
           showLinkPanel={activePanel === "link"}

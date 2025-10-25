@@ -60,6 +60,10 @@ export interface FieldConfig {
   label: string;
   key: string;
 }
+interface RainfallParams {
+  total_precip: number;
+  duration_hr: number;
+}
 
 export interface ControlPanelProps {
   // Control panel state
@@ -120,6 +124,8 @@ export interface ControlPanelProps {
   pipeParams?: Map<string, any>;
   onPipeParamsChange?: (params: Map<string, any>) => void;
   showNodePanel?: boolean;
+  rainfallParams: RainfallParams,
+  onRainfallParamsChange: (params: RainfallParams) => void;
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
   onToggleLinkPanel?: () => void;

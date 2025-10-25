@@ -63,6 +63,8 @@ interface Model3Props {
   onComponentParamsChange: (params: Map<string, NodeParams>) => void;
   pipeParams: Map<string, LinkParams>;
   onPipeParamsChange: (params: Map<string, LinkParams>) => void;
+  rainfallParams: RainfallParams,
+  onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel: boolean;
   onToggleNodePanel: () => void;
   showLinkPanel: boolean;
@@ -110,6 +112,8 @@ export default function Model3({
   onComponentParamsChange,
   pipeParams,
   onPipeParamsChange,
+  rainfallParams,
+  onRainfallParamsChange,
   showNodePanel,
   onToggleNodePanel,
   showLinkPanel,
@@ -121,9 +125,9 @@ export default function Model3({
   isTableMinimized = false,
   onToggleMinimize,
 }: Model3Props) {
-  const [rainfallParams, setRainfallParams] = useState<RainfallParams>(
-    DEFAULT_RAINFALL_PARAMS
-  );
+  //const [rainfallParams, setRainfallParams] = useState<RainfallParams>(
+  //  DEFAULT_RAINFALL_PARAMS
+  //);
   const [error, setError] = useState<string | null>(null);
 
   // Load data from hooks
@@ -229,7 +233,7 @@ export default function Model3({
     onPipeIdsChange([]);
     onComponentParamsChange(new Map());
     onPipeParamsChange(new Map());
-    setRainfallParams(DEFAULT_RAINFALL_PARAMS);
+    onRainfallParamsChange(DEFAULT_RAINFALL_PARAMS);
     setError(null);
   };
 
@@ -384,7 +388,7 @@ export default function Model3({
               <Slider
                 value={[rainfallParams.total_precip]}
                 onValueChange={(value) =>
-                  setRainfallParams({
+                  onRainfallParamsChange({
                     ...rainfallParams,
                     total_precip: value[0],
                   })
@@ -411,7 +415,7 @@ export default function Model3({
               <Slider
                 value={[rainfallParams.duration_hr]}
                 onValueChange={(value) =>
-                  setRainfallParams({
+                  onRainfallParamsChange({
                     ...rainfallParams,
                     duration_hr: value[0],
                   })

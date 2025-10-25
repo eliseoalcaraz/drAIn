@@ -20,6 +20,17 @@ import ProfileContent from "@/components/control-panel/tabs/profile-content";
 import HistoryContent from "@/components/control-panel/tabs/history-content";
 import type { ProfileView } from "../hooks/use-control-panel-state";
 
+
+interface RainfallParams {
+  total_precip: number;
+  duration_hr: number;
+}
+
+const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
+  total_precip: 140,
+  duration_hr: 1,
+};
+
 interface ContentRendererProps {
   activeTab: string;
   dataset: DatasetType;
@@ -118,6 +129,8 @@ interface ContentRendererProps {
   onComponentParamsChange?: (params: Map<string, any>) => void;
   pipeParams?: Map<string, any>;
   onPipeParamsChange?: (params: Map<string, any>) => void;
+  rainfallParams: RainfallParams,
+  onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel?: boolean;
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
@@ -192,6 +205,8 @@ export function ContentRenderer({
   onComponentParamsChange = () => {},
   pipeParams = new Map(),
   onPipeParamsChange = () => {},
+  rainfallParams = DEFAULT_RAINFALL_PARAMS,
+  onRainfallParamsChange = () => {},
   showNodePanel = false,
   onToggleNodePanel = () => {},
   showLinkPanel = false,
@@ -258,6 +273,8 @@ export function ContentRenderer({
           onComponentParamsChange={onComponentParamsChange}
           pipeParams={pipeParams}
           onPipeParamsChange={onPipeParamsChange}
+          rainfallParams={rainfallParams}
+          onRainfallParamsChange={onRainfallParamsChange}
           showNodePanel={showNodePanel}
           onToggleNodePanel={onToggleNodePanel}
           showLinkPanel={showLinkPanel}
