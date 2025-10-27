@@ -21,6 +21,7 @@ interface Report {
   category: string;
   description: string;
   image?: string | null;
+  address: string
 }
 
 interface Props {
@@ -262,6 +263,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             description={report.description}
             coordinates={coordinates}
             componentId={report.componentId}
+            address={report.address}
             onClose={() => setShowImageViewer(false)}
           />
         )}

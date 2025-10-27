@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ImageUploader from "./image-uploader";
 import { Button } from "./ui/button";
 import {
@@ -24,12 +24,15 @@ import { SpinnerEmpty } from "./spinner-empty";
 import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { AlertCircle } from "lucide-react";
 import { clear } from "console";
+import { set } from "zod";
+import { Combobox, ComboboxOption } from "./ui/combobox";
+import client from "@/app/api/client";
 
 interface CategoryData {
   name: string;
   lat: number;
   long: number;
-  distance: number;
+  distance?: number;
 }
 
 export default function SubmitTab() {
@@ -38,13 +41,18 @@ export default function SubmitTab() {
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [manualAccepted, setManualAccepted] = useState(false);
   const [categoryLabel, setCategoryLabel] = useState("");
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+  const [comboOption, setComboOptions] = useState<ComboboxOption[]>([]);
   const [category, setCategory] = useState("");
-  const [categoryIndex, setCategoryIndex] = useState(0);
+  const [categoryIndex, setCategoryIndex] = useState(-1);
   const [errorCode, setErrorCode] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isManual, setIsManual] = useState(false);
+  
+  const isDisabled = isManual ? !manualAccepted || !termsAccepted || categoryIndex<0 : !termsAccepted || categoryIndex<0;
 
   const handleCategory = (value: string) => {
     setCategory(value);
@@ -74,8 +82,10 @@ export default function SubmitTab() {
     setIsSubmitting(true);
 
     if (!image) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsSubmitting(false);
       setIsErrorModalOpen(true);
-      setErrorCode("No valid image");
+      setErrorCode("Not a valid image");
     } else {
 
       const location = await extractExifLocation(image);
@@ -86,6 +96,8 @@ export default function SubmitTab() {
       //need to fix bug
       console.log("Extracted Location:", location);
       if (!location.latitude || !location.longitude) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setIsSubmitting(false);
         setIsErrorModalOpen(true);
         setErrorCode("No GPS data found in image");
         return;
@@ -99,6 +111,21 @@ export default function SubmitTab() {
           { lat: location.latitude, lon: location.longitude },
           category
         );
+
+        if (Pipedata.length === 0){
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setIsSubmitting(false);
+          setIsErrorModalOpen(true);
+          setErrorCode("No component found within your location!");
+          return;
+        }
+
+        const options : ComboboxOption[]= Pipedata.map((item, index) => ({
+          value: index.toString(),
+          label: index === 0? item.name + "    - " + item.distance.toFixed(0) + "m away (BEST MATCH)" : item.name + "    - " + item.distance.toFixed(0) + "m away"
+        }));
+        setComboOptions(options);
+
         console.log("Closest Pipes:", Pipedata);
         setCategoryData(Pipedata);
         setIsModalOpen(true);
@@ -136,9 +163,32 @@ export default function SubmitTab() {
     clearInputs();
   };
 
+  const handleManual = async () => {
+    const { data, error } = await client.rpc('get_component_by_category', { category_name: category });
+
+    if (error) { 
+      console.log(error);
+      return;
+    }
+
+    const options : ComboboxOption[]= data.map((item: any, index: any) => ({
+      value: index.toString(),
+      label: item.name
+    }));
+
+    setComboOptions(options);
+    setCategoryData(data)
+    setIsErrorModalOpen(false);
+    setIsModalOpen(true);
+    setIsManual(true);
+  }
+
   const handleCancelModal = () => {
     setIsModalOpen(false);
     setTermsAccepted(false);
+    setManualAccepted(false);
+    setIsManual(false);
+    setCategoryIndex(-1);
   };
 
   const handleCancel = () => {
@@ -148,7 +198,11 @@ export default function SubmitTab() {
   if (isSubmitting) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <SpinnerEmpty />
+        <SpinnerEmpty 
+          onCancel={() => {
+            setIsSubmitting(false); setIsModalOpen(false);
+            }}
+        />
       </div>
     );
   }
@@ -174,7 +228,7 @@ export default function SubmitTab() {
 
         {/* Image Uploader */}
         <div className="w-full">
-          <ImageUploader onImageChange={setImage} />
+          <ImageUploader onImageChange={setImage} image={image} />
         </div>
 
         {/* Description Input */}
@@ -234,13 +288,18 @@ export default function SubmitTab() {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Category ID
               </label>
-              <select
+              <Combobox 
+                value={categoryIndex.toString()}
+                options={comboOption} 
+                onValueChange={(value) => setCategoryIndex(parseInt(value))}
+              />
+              {/* <select
                 value={categoryIndex}
                 onChange={(e) => setCategoryIndex(parseInt(e.target.value))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 required
               >
-                <option value="">Please select the correct ID</option>
+                <option value="-1">Please select the correct ID</option>
 
                 {categoryData.map((pipe, index) => (
                   <option key={index} value={index}>
@@ -248,7 +307,7 @@ export default function SubmitTab() {
                     {index === 0 && " (Best Match)"}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
 
             {/* Description Display */}
@@ -277,6 +336,26 @@ export default function SubmitTab() {
               </div>
             </div>
 
+            {/* Manual Acceptance Checkbox */}
+            {isManual && ( 
+            <div className="flex items-start space-x-2 pt-2">
+              <Checkbox
+                id="terms"
+                checked={manualAccepted}
+                onCheckedChange={(checked) =>
+                  setManualAccepted(checked as boolean)
+                }
+              />
+              <label
+                htmlFor="terms"
+                className="text-sm leading-relaxed cursor-pointer"
+              >
+                I acknowledge that I am submitting this report without GPS
+                verification and confirm that the information provided is
+                accurate
+              </label>
+            </div>
+            )}
             {/* Terms Acceptance Checkbox */}
             <div className="flex items-start space-x-2 pt-2">
               <Checkbox
@@ -308,7 +387,7 @@ export default function SubmitTab() {
             <Button
               type="button"
               onClick={handleConfirmSubmit}
-              disabled={!termsAccepted && !categoryIndex}
+              disabled={isDisabled}
               className="w-full sm:w-auto bg-[#4b72f3] border border-[#2b3ea7] text-white hover:bg-blue-600"
             >
               Confirm
@@ -322,7 +401,7 @@ export default function SubmitTab() {
           <div className="max-w-md mx-4 space-y-4">
             <Alert variant="destructive" className="p-5">
               <AlertCircle />
-              <AlertTitle>Unable to process location</AlertTitle>
+              <AlertTitle>{errorCode}</AlertTitle>
               <AlertDescription>
                 Please ensure your photo was taken at the issue site.
                 <ul className="mt-3 space-y-1.5 list-disc list-inside">
@@ -332,7 +411,13 @@ export default function SubmitTab() {
                 </ul>
               </AlertDescription>
             </Alert>
-
+            <Button
+              type="button"
+              onClick={handleManual}
+              className="w-full"
+            >
+              Enter manually
+            </Button>
             <Button
               type="button"
               onClick={() => setIsErrorModalOpen(false)}

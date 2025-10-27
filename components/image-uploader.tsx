@@ -1,16 +1,18 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { AddIcon } from "./add-icon";
 
 interface ImageUploaderProps {
   onImageChange?: (file: File | null) => void;
+  image?: File | null;
   placeholder?: string;
   disabled?: boolean;
 }
 
 export default function ImageUploader({
   onImageChange,
+  image,
   placeholder = "Drag Your Files Here",
   disabled = false
 }: ImageUploaderProps) {
@@ -21,6 +23,20 @@ export default function ImageUploader({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+  useEffect(() => {
+    if (image) {
+      setFileName(image.name);
+      setFileUrl(URL.createObjectURL(image));
+    } else {
+      setFileName(null);
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+      setFileUrl(null);
+    }
+    return () => {
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+    };
+  }, [image]);
 
   const handleFile = (file: File | undefined) => {
     if (!file || disabled) return;
