@@ -62,6 +62,17 @@ interface NodeDetails {
   Total_Flood_Volume: number;
 }
 
+interface RainfallParams {
+  total_precip: number;
+  duration_hr: number;
+}
+
+// Use default rainfall params or get from somewhere
+const rainfallVal = {
+  total_precip: 140,
+  duration_hr: 1,
+};
+
 export default function SimulationPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -151,6 +162,7 @@ export default function SimulationPage() {
     new Map()
   );
   const [pipeParams, setPipeParams] = useState<Map<string, any>>(new Map());
+  const [rainfallParams, setRainfallParams] = useState<RainfallParams>(rainfallVal)
 
   // Panel visibility - mutual exclusivity
   const [activePanel, setActivePanel] = useState<"node" | "link" | null>(null);
@@ -272,7 +284,7 @@ export default function SimulationPage() {
     } else if (selectedComponentIds.length === 0 && activePanel === "node") {
       setActivePanel(null);
     }
-  }, [selectedComponentIds.length]);
+  }, [selectedComponentIds.length, activePanel]);
 
   // Auto-open link panel when pipes selected
   useEffect(() => {
@@ -281,7 +293,7 @@ export default function SimulationPage() {
     } else if (selectedPipeIds.length === 0 && activePanel === "link") {
       setActivePanel(null);
     }
-  }, [selectedPipeIds.length]);
+  }, [selectedPipeIds.length, activePanel]);
 
   // Auto-close sidebar when simulation page loads (only once on mount)
   useEffect(() => {
@@ -779,7 +791,7 @@ export default function SimulationPage() {
       easing: CAMERA_ANIMATION.easing,
     });
 
-    // Show toast notification
+    // Show toast notifications
     toast.info(
       <div>
         <strong>{pipe.id}</strong> is selected. Go{" "}
@@ -1022,11 +1034,7 @@ export default function SimulationPage() {
         links[id] = params;
       });
 
-      // Use default rainfall params or get from somewhere
-      const rainfallParams = {
-        total_precip: 140,
-        duration_hr: 1,
-      };
+      
 
       // Enforce minimum 2-second loading time for better UX
       const [response] = await Promise.all([
@@ -1285,6 +1293,8 @@ export default function SimulationPage() {
           onComponentParamsChange={setComponentParams}
           pipeParams={pipeParams}
           onPipeParamsChange={setPipeParams}
+          rainfallParams={rainfallParams}
+          onRainfallParamsChange={setRainfallParams}
           showNodePanel={activePanel === "node"}
           onToggleNodePanel={handleToggleNodePanel}
           showLinkPanel={activePanel === "link"}

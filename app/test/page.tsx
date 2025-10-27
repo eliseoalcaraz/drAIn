@@ -17,20 +17,16 @@ export default function TestSimulation() {
 
     // Sample data
     const nodes = {
-      'I-0': { inv_elev: 0, init_depth: 0, ponding_area: 0, surcharge_depth: 0 },
-      'I-1': { inv_elev: 16, init_depth: 2, ponding_area: 1, surcharge_depth: 0 },
-      'I-2': { inv_elev: 30, init_depth: 0, ponding_area: 0, surcharge_depth: 0 },
-      'I-4': { inv_elev: 30, init_depth: 0, ponding_area: 0, surcharge_depth: 2 },
+      
+      'I-4': { inv_elev: 16.10, init_depth: 0, ponding_area: 0, surcharge_depth: 0},
     };
 
     const links = {
-      'C-37': { init_flow: 0.5, upstrm_offset_depth: 5, downstrm_offset_depth: 5, avg_conduit_loss: 0 },
-      'C-2': { init_flow: 0, upstrm_offset_depth: 10, downstrm_offset_depth: 2, avg_conduit_loss: 0.5 },
-      'C-112': { init_flow: 1.5, upstrm_offset_depth: 0, downstrm_offset_depth: 0, avg_conduit_loss: 100 },
+      
     };
 
     const rainfall = {
-      total_precip: 140,
+      total_precip: 104.9,
       duration_hr: 1,
     };
 

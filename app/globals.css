@@ -183,3 +183,17 @@
 .control-panel-scroll::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
+
+.maintenance-scroll-hidden {
+  scrollbar-width: none; /* For Firefox */
+}
+
+.maintenance-scroll-hidden::-webkit-scrollbar {
+  width: 0px; /* For Chrome, Safari, and Opera */
+  background: transparent; /* Optional: Make the scrollbar track transparent */
+}
+
+/* For Edge, IE */
+.maintenance-scroll-hidden {
+  -ms-overflow-style: none;
+}
