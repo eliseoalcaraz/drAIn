@@ -13,6 +13,18 @@ import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
 import client from "@/app/api/client";
 import type { DateFilterValue } from "../date-sort";
 
+
+interface RainfallParams {
+  total_precip: number;
+  duration_hr: number;
+}
+
+const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
+  total_precip: 140,
+  duration_hr: 1,
+};
+
+
 export function ControlPanel({
   reports,
   activeTab,
@@ -58,6 +70,8 @@ export function ControlPanel({
   onComponentParamsChange = () => {},
   pipeParams = new Map(),
   onPipeParamsChange = () => {},
+  rainfallParams = DEFAULT_RAINFALL_PARAMS,
+  onRainfallParamsChange = () => {},
   showNodePanel = false,
   onToggleNodePanel = () => {},
   showLinkPanel = false,
@@ -264,6 +278,8 @@ export function ControlPanel({
             onComponentParamsChange={onComponentParamsChange}
             pipeParams={pipeParams}
             onPipeParamsChange={onPipeParamsChange}
+            rainfallParams={rainfallParams}
+            onRainfallParamsChange={onRainfallParamsChange}
             showNodePanel={showNodePanel}
             onToggleNodePanel={onToggleNodePanel}
             showLinkPanel={showLinkPanel}

@@ -51,7 +51,6 @@ export function MultiSelect({
     } else {
       onChange([...selected, value]);
     }
-    setOpen(false);
   };
 
   return (
