@@ -124,8 +124,8 @@ export interface ControlPanelProps {
   pipeParams?: Map<string, any>;
   onPipeParamsChange?: (params: Map<string, any>) => void;
   showNodePanel?: boolean;
-  rainfallParams: RainfallParams,
-  onRainfallParamsChange: (params: RainfallParams) => void;
+  rainfallParams?: RainfallParams,
+  onRainfallParamsChange?: (params: RainfallParams) => void;
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
   onToggleLinkPanel?: () => void;

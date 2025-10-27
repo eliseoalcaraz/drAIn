@@ -143,7 +143,7 @@ export default function Model3({
     ) {
       onComponentIdsChange([...selectedComponentIds, externalSelectedPointId]);
     }
-  }, [externalSelectedPointId]);
+  }, [externalSelectedPointId, selectedComponentIds, onComponentIdsChange]);
 
   // Handle component selection changes - auto-populate params
   useEffect(() => {
@@ -189,7 +189,7 @@ export default function Model3({
     if (paramsChanged) {
       onComponentParamsChange(newParams);
     }
-  }, [selectedComponentIds, inlets, drains]);
+  }, [selectedComponentIds, inlets, drains, componentParams, onComponentParamsChange]);
 
   // Handle pipe selection changes
   useEffect(() => {
@@ -215,7 +215,7 @@ export default function Model3({
     if (paramsChanged) {
       onPipeParamsChange(newParams);
     }
-  }, [selectedPipeIds]);
+  }, [selectedPipeIds, pipeParams, onPipeParamsChange]);
 
   const handleGenerateTableClick = () => {
     if (selectedComponentIds.length === 0) {

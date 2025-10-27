@@ -113,8 +113,9 @@ export default function DataFlowPipeline({
 
   // Cleanup timeouts on unmount
   useEffect(() => {
+    const timeouts = hoverTimeoutRef.current;
     return () => {
-      hoverTimeoutRef.current.forEach((timeout) => clearTimeout(timeout));
+      timeouts.forEach((timeout) => clearTimeout(timeout));
     };
   }, []);
 

@@ -284,7 +284,7 @@ export default function SimulationPage() {
     } else if (selectedComponentIds.length === 0 && activePanel === "node") {
       setActivePanel(null);
     }
-  }, [selectedComponentIds.length]);
+  }, [selectedComponentIds.length, activePanel]);
 
   // Auto-open link panel when pipes selected
   useEffect(() => {
@@ -293,7 +293,7 @@ export default function SimulationPage() {
     } else if (selectedPipeIds.length === 0 && activePanel === "link") {
       setActivePanel(null);
     }
-  }, [selectedPipeIds.length]);
+  }, [selectedPipeIds.length, activePanel]);
 
   // Auto-close sidebar when simulation page loads (only once on mount)
   useEffect(() => {

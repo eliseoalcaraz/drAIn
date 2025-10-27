@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -85,7 +85,7 @@ export function NodeParametersPanel({
     e.preventDefault();
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !dragRef.current) return;
 
     const deltaX = e.clientX - dragRef.current.startX;
@@ -95,7 +95,7 @@ export function NodeParametersPanel({
       x: dragRef.current.startPosX + deltaX,
       y: dragRef.current.startPosY + deltaY,
     });
-  };
+  }, [isDragging, onPositionChange]);
 
   const handleMouseUp = () => {
     setIsDragging(false);
@@ -125,7 +125,7 @@ export function NodeParametersPanel({
     };
   };
 
-  const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging || !dragRef.current) return;
 
     const touch = e.touches[0];
@@ -136,7 +136,7 @@ export function NodeParametersPanel({
       x: dragRef.current.startPosX + deltaX,
       y: dragRef.current.startPosY + deltaY,
     });
-  };
+  }, [isDragging, onPositionChange]);
 
   const handleTouchEnd = () => {
     setIsDragging(false);
@@ -158,7 +158,7 @@ export function NodeParametersPanel({
         document.removeEventListener("touchend", handleTouchEnd);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove, handleTouchMove]);
 
   // Prevent scrolling while dragging
   useEffect(() => {
