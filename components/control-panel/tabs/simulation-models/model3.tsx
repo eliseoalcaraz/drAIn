@@ -159,7 +159,7 @@ export default function Model3({
         if (inlet) {
           newParams.set(id, {
             inv_elev: inlet.Inv_Elev || 0,
-            init_depth: inlet.MaxDepth || 0,
+            init_depth: 0,
             ponding_area: 0,
             surcharge_depth: 0,
           });
@@ -168,7 +168,7 @@ export default function Model3({
         } else if (drain) {
           newParams.set(id, {
             inv_elev: drain.InvElev || 0,
-            init_depth: drain.Max_Depth || 0,
+            init_depth: 0,
             ponding_area: 0,
             surcharge_depth: 0,
           });
