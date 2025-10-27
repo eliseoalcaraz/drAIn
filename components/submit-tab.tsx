@@ -22,7 +22,8 @@ import { Field, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
 import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SpinnerEmpty } from "./spinner-empty";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2Icon } from "lucide-react";
+import { AlertTitle } from "@/components/ui/alert";
 import client from "@/app/api/client";
 
 interface CategoryData {
@@ -47,8 +48,9 @@ export default function SubmitTab() {
   const [errorCode, setErrorCode] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const [isManual, setIsManual] = useState(false);
-
+  const [alertNow, setAlertNow] = useState(false);
   const isDisabled = isManual
     ? !manualAccepted || !termsAccepted || categoryIndex < 0
     : !termsAccepted || categoryIndex < 0;
@@ -145,26 +147,46 @@ export default function SubmitTab() {
   };
 
   const handleConfirmSubmit = async () => {
-    const userID = user?.id ?? null;
-    const profileName = profile?.full_name ?? "Anonymous";
+    setIsConfirming(true);
 
-    const long = categoryData[categoryIndex].long;
-    const lat = categoryData[categoryIndex].lat;
-    const component_id = categoryData[categoryIndex].name;
-    await uploadReport(
-      image!,
-      category,
-      description,
-      component_id,
-      long,
-      lat,
-      userID,
-      profileName
-    );
+    try {
+      const userID = user?.id ?? null;
+      const profileName = profile?.full_name ?? "Anonymous";
 
-    setIsModalOpen(false);
-    setTermsAccepted(false);
-    clearInputs();
+      const long = categoryData[categoryIndex].long;
+      const lat = categoryData[categoryIndex].lat;
+      const component_id = categoryData[categoryIndex].name;
+
+      await uploadReport(
+        image!,
+        category,
+        description,
+        component_id,
+        long,
+        lat,
+        userID,
+        profileName
+      );
+
+      // Show alert
+      setAlertNow(true);
+
+      // Wait 1 second before closing everything
+      setTimeout(() => {
+        setAlertNow(false);
+        setIsModalOpen(false);
+        setIsConfirming(false);
+        setTermsAccepted(false);
+        setManualAccepted(false);
+        setIsManual(false);
+        setCategoryIndex(-1);
+        clearInputs();
+      }, 1000);
+    } catch (error) {
+      // Handle error
+      setIsConfirming(false);
+      console.error("Upload failed:", error);
+    }
   };
 
   const handleManual = async () => {
@@ -177,10 +199,12 @@ export default function SubmitTab() {
       return;
     }
 
-    const options: ComboboxOption[] = data.map((item: Record<string, unknown>, index: number) => ({
-      value: index.toString(),
-      label: item.name as string,
-    }));
+    const options: ComboboxOption[] = data.map(
+      (item: Record<string, unknown>, index: number) => ({
+        value: index.toString(),
+        label: item.name as string,
+      })
+    );
 
     setComboOptions(options);
     setCategoryData(data);
@@ -265,7 +289,7 @@ export default function SubmitTab() {
             disabled={!category.trim() || !description.trim() || !image}
             className="flex-1"
           >
-            Submit
+            {isSubmitting ? "Submitting..." : "Submit"}
           </Button>
         </div>
       </form>
@@ -390,10 +414,10 @@ export default function SubmitTab() {
             <Button
               type="button"
               onClick={handleConfirmSubmit}
-              disabled={isDisabled}
+              disabled={isDisabled || isConfirming}
               className="w-full sm:w-auto bg-[#4b72f3] border border-[#2b3ea7] text-white hover:bg-blue-600"
             >
-              Confirm
+              {isConfirming ? "Confirming..." : "Confirm"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -436,6 +460,12 @@ export default function SubmitTab() {
           </Button>
         </DialogContent>
       </Dialog>
+      {alertNow && (
+        <div className="flex items-start gap-2 fixed top-4 right-4 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-[9999]">
+          <CheckCircle2Icon />
+          <AlertTitle>Success! Your report has been submitted.</AlertTitle>
+        </div>
+      )}
     </>
   );
 }
