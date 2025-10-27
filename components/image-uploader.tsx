@@ -1,18 +1,21 @@
 "use client";
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { Trash, X } from "lucide-react";
 import Image from "next/image";
 import { AddIcon } from "./add-icon";
 
 interface ImageUploaderProps {
   onImageChange?: (file: File | null) => void;
+  image?: File | null;
   placeholder?: string;
   disabled?: boolean;
 }
 
 export default function ImageUploader({
   onImageChange,
+  image,
   placeholder = "Drag Your Files Here",
-  disabled = false
+  disabled = false,
 }: ImageUploaderProps) {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileUrl, setFileUrl] = useState<string | null>(null);
@@ -21,6 +24,20 @@ export default function ImageUploader({
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
+  useEffect(() => {
+    if (image) {
+      setFileName(image.name);
+      setFileUrl(URL.createObjectURL(image));
+    } else {
+      setFileName(null);
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+      setFileUrl(null);
+    }
+    return () => {
+      if (fileUrl) URL.revokeObjectURL(fileUrl);
+    };
+  }, [image, fileUrl]);
 
   const handleFile = (file: File | undefined) => {
     if (!file || disabled) return;
@@ -71,23 +88,6 @@ export default function ImageUploader({
     onImageChange?.(null);
   };
 
-  const XCircleIcon = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      className="w-5 h-5"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="15" y1="9" x2="9" y2="15" />
-      <line x1="9" y1="9" x2="15" y2="15" />
-    </svg>
-  );
-
   return (
     <div className="flex flex-col items-center rounded-lg w-full max-w-xs font-sans">
       <div
@@ -111,9 +111,13 @@ export default function ImageUploader({
       >
         {!fileName ? (
           <div className="flex flex-col gap-3 items-center text-center p-6">
-            <label className={`w-12 h-12 flex items-center justify-center bg-[#4b72f3] border border-[#2b3ea7] text-white rounded-full transition-colors ${
-              disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-blue-600 cursor-pointer"
-            }`}>
+            <label
+              className={`w-12 h-12 flex items-center justify-center bg-[#4b72f3] border border-[#2b3ea7] text-white rounded-full transition-colors ${
+                disabled
+                  ? "opacity-50 cursor-not-allowed"
+                  : "hover:bg-blue-600 cursor-pointer"
+              }`}
+            >
               <AddIcon className="w-5 h-5" />
               <input
                 type="file"
@@ -145,17 +149,19 @@ export default function ImageUploader({
               />
             )}
             <div className="absolute inset-0 flex items-end justify-between p-2">
-              <span className="bg-white bg-opacity-70 text-gray-800 text-xs font-medium px-2 py-1 rounded-lg max-w-[80%] truncate">
+              <span className="bg-white bg-opacity-70 text-muted-foreground text-[11px] px-3 py-1.5 rounded-md max-w-[80%] truncate">
                 {fileName}
               </span>
               <button
                 onClick={handleReset}
                 disabled={disabled}
-                className={`p-1 text-white bg-red-500 rounded-full shadow-lg transition-colors duration-200 ${
-                  disabled ? "opacity-50 cursor-not-allowed" : "hover:bg-red-600"
+                className={`p-1.5 text-white bg-[#f34445] border border-[#cd152b] rounded-full shadow-lg transition-colors duration-200 ${
+                  disabled
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#dc2b35]"
                 }`}
               >
-                <XCircleIcon />
+                <X className="w-3.5 h-3.5 text-white" />
               </button>
             </div>
           </div>

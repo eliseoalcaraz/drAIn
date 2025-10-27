@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ImageUploader from "./image-uploader";
 import { Button } from "./ui/button";
 import {
@@ -17,19 +17,19 @@ import { extractExifLocation } from "@/lib/report/extractEXIF";
 import { getClosestPipes } from "@/lib/report/getClosestPipe";
 import { useAuth } from "@/components/context/AuthProvider";
 import { ComboboxForm } from "./combobox-form";
+import type { ComboboxOption } from "./combobox-form";
 import { Field, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
 import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SpinnerEmpty } from "./spinner-empty";
-import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
 import { AlertCircle } from "lucide-react";
-import { clear } from "console";
+import client from "@/app/api/client";
 
 interface CategoryData {
   name: string;
   lat: number;
   long: number;
-  distance: number;
+  distance?: number;
 }
 
 export default function SubmitTab() {
@@ -38,13 +38,20 @@ export default function SubmitTab() {
   const [image, setImage] = useState<File | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [manualAccepted, setManualAccepted] = useState(false);
   const [categoryLabel, setCategoryLabel] = useState("");
   const [categoryData, setCategoryData] = useState<CategoryData[]>([]);
+  const [comboOption, setComboOptions] = useState<ComboboxOption[]>([]);
   const [category, setCategory] = useState("");
-  const [categoryIndex, setCategoryIndex] = useState(0);
+  const [categoryIndex, setCategoryIndex] = useState(-1);
   const [errorCode, setErrorCode] = useState("");
   const [isErrorModalOpen, setIsErrorModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isManual, setIsManual] = useState(false);
+
+  const isDisabled = isManual
+    ? !manualAccepted || !termsAccepted || categoryIndex < 0
+    : !termsAccepted || categoryIndex < 0;
 
   const handleCategory = (value: string) => {
     setCategory(value);
@@ -67,17 +74,18 @@ export default function SubmitTab() {
     setCategoryLabel("");
     setCategoryData([]);
     setCategoryIndex(0);
-  }
+  };
 
   const handlePreSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
 
     if (!image) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsSubmitting(false);
       setIsErrorModalOpen(true);
-      setErrorCode("No valid image");
+      setErrorCode("Not a valid image");
     } else {
-
       const location = await extractExifLocation(image);
       // const location = {
       //   latitude: 10.360832542295604,
@@ -86,6 +94,8 @@ export default function SubmitTab() {
       //need to fix bug
       console.log("Extracted Location:", location);
       if (!location.latitude || !location.longitude) {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setIsSubmitting(false);
         setIsErrorModalOpen(true);
         setErrorCode("No GPS data found in image");
         return;
@@ -99,6 +109,27 @@ export default function SubmitTab() {
           { lat: location.latitude, lon: location.longitude },
           category
         );
+
+        if (Pipedata.length === 0) {
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          setIsSubmitting(false);
+          setIsErrorModalOpen(true);
+          setErrorCode("No component found within your location!");
+          return;
+        }
+
+        const options: ComboboxOption[] = Pipedata.map((item, index) => ({
+          value: index.toString(),
+          label:
+            index === 0
+              ? item.name +
+                "    - " +
+                item.distance.toFixed(0) +
+                "m away (BEST MATCH)"
+              : item.name + "    - " + item.distance.toFixed(0) + "m away",
+        }));
+        setComboOptions(options);
+
         console.log("Closest Pipes:", Pipedata);
         setCategoryData(Pipedata);
         setIsModalOpen(true);
@@ -136,9 +167,34 @@ export default function SubmitTab() {
     clearInputs();
   };
 
+  const handleManual = async () => {
+    const { data, error } = await client.rpc("get_component_by_category", {
+      category_name: category,
+    });
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    const options: ComboboxOption[] = data.map((item: any, index: any) => ({
+      value: index.toString(),
+      label: item.name,
+    }));
+
+    setComboOptions(options);
+    setCategoryData(data);
+    setIsErrorModalOpen(false);
+    setIsModalOpen(true);
+    setIsManual(true);
+  };
+
   const handleCancelModal = () => {
     setIsModalOpen(false);
     setTermsAccepted(false);
+    setManualAccepted(false);
+    setIsManual(false);
+    setCategoryIndex(-1);
   };
 
   const handleCancel = () => {
@@ -148,7 +204,12 @@ export default function SubmitTab() {
   if (isSubmitting) {
     return (
       <div className="w-full h-full flex items-center justify-center">
-        <SpinnerEmpty />
+        <SpinnerEmpty
+          onCancel={() => {
+            setIsSubmitting(false);
+            setIsModalOpen(false);
+          }}
+        />
       </div>
     );
   }
@@ -174,7 +235,7 @@ export default function SubmitTab() {
 
         {/* Image Uploader */}
         <div className="w-full">
-          <ImageUploader onImageChange={setImage} />
+          <ImageUploader onImageChange={setImage} image={image} />
         </div>
 
         {/* Description Input */}
@@ -211,7 +272,7 @@ export default function SubmitTab() {
 
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader>
+          <DialogHeader className="flex flex-col gap-1">
             <DialogTitle>Confirm Report Submission</DialogTitle>
             <DialogDescription>
               Please review your report details before submitting
@@ -221,26 +282,31 @@ export default function SubmitTab() {
           <div className="space-y-4">
             {/* Category Display */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category
-              </label>
+              <label className="block text-sm mb-2">Category</label>
               <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50">
                 {categoryLabel}
               </div>
             </div>
 
             {/*  Category ID  Display */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Category ID
-              </label>
-              <select
+            <div className="w-full">
+              <label className="block text-sm mb-2">Category ID</label>
+              <ComboboxForm
+                value={categoryIndex >= 0 ? categoryIndex.toString() : ""}
+                options={comboOption}
+                onSelect={(value) => setCategoryIndex(parseInt(value))}
+                placeholder="Please select the correct ID"
+                searchPlaceholder="Search..."
+                emptyText="No options found"
+                showSearch={true}
+              />
+              {/* <select
                 value={categoryIndex}
                 onChange={(e) => setCategoryIndex(parseInt(e.target.value))}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
                 required
               >
-                <option value="">Please select the correct ID</option>
+                <option value="-1">Please select the correct ID</option>
 
                 {categoryData.map((pipe, index) => (
                   <option key={index} value={index}>
@@ -248,14 +314,12 @@ export default function SubmitTab() {
                     {index === 0 && " (Best Match)"}
                   </option>
                 ))}
-              </select>
+              </select> */}
             </div>
 
             {/* Description Display */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Description
-              </label>
+              <label className="block text-sm mb-2">Description</label>
               <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50 min-h-[100px]">
                 {description || (
                   <span className="text-gray-400">No description entered</span>
@@ -264,19 +328,36 @@ export default function SubmitTab() {
             </div>
 
             {/* Image Display */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Image
-              </label>
-              <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50">
-                {image ? (
-                  <span className="text-green-600">Image attached</span>
-                ) : (
-                  <span className="text-gray-400">No image uploaded</span>
-                )}
-              </div>
+
+            <div className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-gray-50">
+              {image ? (
+                <span className="text-green-600">Image attached</span>
+              ) : (
+                <span className="text-gray-400">No image uploaded</span>
+              )}
             </div>
 
+            {/* Manual Acceptance Checkbox */}
+            {isManual && (
+              <div className="flex items-start space-x-2 pt-2">
+                <Checkbox
+                  id="manual-terms"
+                  checked={manualAccepted}
+                  onCheckedChange={(checked) =>
+                    setManualAccepted(checked as boolean)
+                  }
+                  className="mt-1"
+                />
+                <label
+                  htmlFor="manual-terms"
+                  className="text-sm leading-relaxed cursor-pointer"
+                >
+                  I acknowledge that I am submitting this report without GPS
+                  verification and confirm that the information provided is
+                  accurate
+                </label>
+              </div>
+            )}
             {/* Terms Acceptance Checkbox */}
             <div className="flex items-start space-x-2 pt-2">
               <Checkbox
@@ -285,6 +366,7 @@ export default function SubmitTab() {
                 onCheckedChange={(checked) =>
                   setTermsAccepted(checked as boolean)
                 }
+                className="mt-1"
               />
               <label
                 htmlFor="terms"
@@ -308,7 +390,7 @@ export default function SubmitTab() {
             <Button
               type="button"
               onClick={handleConfirmSubmit}
-              disabled={!termsAccepted && !categoryIndex}
+              disabled={isDisabled}
               className="w-full sm:w-auto bg-[#4b72f3] border border-[#2b3ea7] text-white hover:bg-blue-600"
             >
               Confirm
@@ -317,32 +399,43 @@ export default function SubmitTab() {
         </DialogContent>
       </Dialog>
 
-      {isErrorModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="max-w-md mx-4 space-y-4">
-            <Alert variant="destructive" className="p-5">
-              <AlertCircle />
-              <AlertTitle>Unable to process location</AlertTitle>
-              <AlertDescription>
-                Please ensure your photo was taken at the issue site.
-                <ul className="mt-3 space-y-1.5 list-disc list-inside">
-                  <li>Enable location services</li>
-                  <li>Capture the photo directly from your camera</li>
-                  <li>Ensure your device embeds location data in the image</li>
-                </ul>
-              </AlertDescription>
-            </Alert>
+      <Dialog open={isErrorModalOpen} onOpenChange={setIsErrorModalOpen}>
+        <DialogContent className="flex flex-col gap-2">
+          <DialogHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <AlertCircle className="w-5 h-5 text-red-500" />
+              <DialogTitle className="text-lg">{errorCode}</DialogTitle>
+            </div>
+            <DialogDescription className="text-muted-foreground">
+              Please ensure your photo was taken at the issue site and includes
+              location sufficient data.
+            </DialogDescription>
+          </DialogHeader>
 
-            <Button
-              type="button"
-              onClick={() => setIsErrorModalOpen(false)}
-              className="w-full"
-            >
-              Go Back
-            </Button>
+          <div className="space-y-4 py-2">
+            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+              <ul className="space-y-2.5">
+                <li className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#4b72f3] mt-2"></span>
+                  <span>Enable location services on your device</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#4b72f3] mt-2"></span>
+                  <span>Capture the photo directly from your camera app</span>
+                </li>
+                <li className="flex items-start gap-2 text-sm text-gray-700">
+                  <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-[#4b72f3] mt-2"></span>
+                  <span>Ensure your device embeds location data in images</span>
+                </li>
+              </ul>
+            </div>
           </div>
-        </div>
-      )}
+
+          <Button onClick={handleManual} className="!h-11">
+            Enter Manually Instead
+          </Button>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

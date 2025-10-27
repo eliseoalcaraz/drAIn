@@ -12,11 +12,13 @@ import { Spinner } from "@/components/ui/spinner";
 interface SpinnerEmptyProps {
   emptyTitle?: string;
   emptyDescription?: string;
+  onCancel?: () => void;  
 }
 
 export function SpinnerEmpty({
   emptyTitle = "Processing your image",
   emptyDescription = "Please wait while we locate your issue. Do not refresh the page.",
+  onCancel
 }: SpinnerEmptyProps) {
   return (
     <Empty className="w-full">
@@ -28,7 +30,12 @@ export function SpinnerEmpty({
         <EmptyDescription>{emptyDescription}</EmptyDescription>
       </EmptyHeader>
       <EmptyContent>
-        <Button variant="outline" size="sm">
+        <Button 
+          type="button"
+          onClick={onCancel}
+          variant="outline" 
+          size="sm"
+        >
           Cancel
         </Button>
       </EmptyContent>

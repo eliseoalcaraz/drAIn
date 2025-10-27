@@ -39,7 +39,7 @@ const FormSchema = z.object({
   language: z.string().nonempty("Choose"),
 });
 
-interface ComboboxOption {
+export interface ComboboxOption {
   label: string;
   value: string;
 }
