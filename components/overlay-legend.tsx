@@ -73,7 +73,7 @@ export function OverlayLegend({
         </Toggle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        {overlays.map((overlay, index) => (
+        {overlays.map((overlay, _index) => (
           <div key={overlay.id}>
             <div
               className={`

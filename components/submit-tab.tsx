@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import ImageUploader from "./image-uploader";
 import { Button } from "./ui/button";
 import {
@@ -177,9 +177,9 @@ export default function SubmitTab() {
       return;
     }
 
-    const options: ComboboxOption[] = data.map((item: any, index: any) => ({
+    const options: ComboboxOption[] = data.map((item: Record<string, unknown>, index: number) => ({
       value: index.toString(),
-      label: item.name,
+      label: item.name as string,
     }));
 
     setComboOptions(options);

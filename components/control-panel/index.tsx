@@ -12,6 +12,7 @@ import { ContentRenderer } from "./components/content-renderer";
 import { usePipes, useInlets, useOutlets, useDrain } from "@/hooks";
 import client from "@/app/api/client";
 import type { DateFilterValue } from "../date-sort";
+import type { Report } from "@/lib/supabase/report";
 
 
 interface RainfallParams {
@@ -77,12 +78,12 @@ export function ControlPanel({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
-}: ControlPanelProps & { reports: any[] }) {
+}: ControlPanelProps & { reports: Report[] }) {
   const router = useRouter();
   const supabase = client;
   const authContext = useContext(AuthContext);
   const session = authContext?.session;
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {

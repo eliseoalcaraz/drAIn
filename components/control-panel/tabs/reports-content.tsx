@@ -4,11 +4,12 @@ import SubmitTab from "../../submit-tab";
 import AllReportsList from "../../all-reports-list";
 import type { DateFilterValue } from "../../date-sort";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
+import type { Report } from "@/lib/supabase/report";
 
 interface ReportsTabProps {
   activeReportTab?: "submission" | "reports";
   dateFilter?: DateFilterValue;
-  reports?: any[];
+  reports?: Report[];
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
   isSimulationMode?: boolean;

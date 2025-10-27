@@ -4,20 +4,18 @@ import { useAuth } from "@/components/context/AuthProvider";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { useSidebar } from "@/components/ui/sidebar";
-import Image from "next/image";
 import client from "@/app/api/client";
 import { Spinner } from "@/components/ui/spinner";
-import { Button } from "@/components/ui/button";
 import DataFlowPipeline from "@/components/data-flow";
 
 export default function WelcomePage() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const { setOpen, isMobile, setOpenMobile } = useSidebar();
   const supabase = client;
-  const [_profile, setProfile] = useState<any>(null);
-  const [profileLoading, setProfileLoading] = useState(true);
-  const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
+  const [_profile, setProfile] = useState<Record<string, unknown> | null>(null);
+  const [_profileLoading, setProfileLoading] = useState(true);
+  const [_publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
   const [isNavigatingToMap, setIsNavigatingToMap] = useState(false);
 
   useEffect(() => {
@@ -60,7 +58,7 @@ export default function WelcomePage() {
     }
   }, [user, supabase]);
 
-  const handleNavigateToMap = () => {
+  const _handleNavigateToMap = () => {
     // Close sidebar for smooth transition
     if (isMobile) {
       setOpenMobile(false);

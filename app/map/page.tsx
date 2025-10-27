@@ -29,6 +29,7 @@ import type {
   Pipe,
   DatasetType,
 } from "@/components/control-panel/types";
+import type { Report } from "@/lib/supabase/report";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -44,7 +45,7 @@ export default function MapPage() {
   const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [isRefreshingReports, setIsRefreshingReports] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 

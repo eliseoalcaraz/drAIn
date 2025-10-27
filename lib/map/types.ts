@@ -1,4 +1,4 @@
-interface InletProperties {
+interface _InletProperties {
   X: number;
   Y: number;
   Inv_Elev: number;
@@ -11,20 +11,4 @@ interface InletProperties {
   ClogFac: number;
   ClogTime: number;
   FPLAIN_080: number;
-}
-
-interface InletFeature {
-  type: "Feature";
-  properties: InletProperties;
-  geometry: {
-    type: "Point";
-    coordinates: [number, number]; // [lng, lat]
-  };
-}
-
-interface InletGeoJSON {
-  type: "FeatureCollection";
-  name: string;
-  crs: { type: string; properties: { name: string } };
-  features: InletFeature[];
 }
