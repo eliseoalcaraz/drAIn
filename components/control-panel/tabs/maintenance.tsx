@@ -35,7 +35,11 @@ import { Separator } from "@/components/ui/separator";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldContent } from "@/components/ui/field";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 type HistoryItem = {
   last_cleaned_at: string;
@@ -240,12 +244,16 @@ export default function Maintenance({
     const mostRecentReport =
       sortedReports.length > 0 ? sortedReports[0] : undefined;
 
-    const commentsToSubmit = agencyComments.trim() === "" ? "No Comments" : agencyComments;
-
+    const commentsToSubmit = agencyComments.trim() === "" ? "" : agencyComments;
     let result;
     switch (type) {
       case "inlets":
-        result = await recordInletMaintenance(id, mostRecentReport?.id, status, commentsToSubmit);
+        result = await recordInletMaintenance(
+          id,
+          mostRecentReport?.id,
+          status,
+          commentsToSubmit
+        );
         break;
       case "man_pipes":
         result = await recordManPipeMaintenance(
@@ -293,8 +301,8 @@ export default function Maintenance({
   // If not admin, show admin privileges message
   if (!isAdmin) {
     return (
-    <div className="flex flex-col pl-5 pr-2.5 h-full overflow-y-auto maintenance-scroll-hidden">
-      <div className="flex-1 overflow-y-auto pt-3 px-3 maintenance-scroll-hidden">
+      <div className="flex flex-col pl-5 pr-2.5 h-full overflow-y-auto maintenance-scroll-hidden">
+        <div className="flex-1 overflow-y-auto pt-3 px-3 maintenance-scroll-hidden">
           <CardHeader className="py-0 flex px-1 mb-6 items-center justify-between">
             <div className="flex flex-col gap-1.5">
               <CardTitle>Maintenance History</CardTitle>
@@ -424,7 +432,13 @@ export default function Maintenance({
                         </span>
                       </div>
 
-                      <span className="text-gray-900 text-xs font-medium pl-1">
+                      {record.description && (
+                        <p className="text-xs text-gray-700 mt-1 p-2 pb-0  rounded-md">
+                          {record.description}
+                        </p>
+                      )}
+
+                      <span className="text-muted-foreground text-xs font-medium pl-1">
                         {record.profiles?.[0]?.full_name || "N/A"}
                       </span>
 
@@ -434,19 +448,6 @@ export default function Maintenance({
                           {record.agencies?.[0]?.name || "N/A"}
                         </span>
                       </div>
-                      {record.description && (
-                        <Collapsible className="mt-2 pl-6">
-                          <CollapsibleTrigger className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1">
-                            <ChevronDown className="h-3 w-3" />
-                            Agency Comments
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <p className="text-xs text-gray-700 mt-1 bg-gray-50 p-2 rounded-md">
-                              {record.description}
-                            </p>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      )}
                     </div>
                   </div>
                 ))}
@@ -480,7 +481,9 @@ export default function Maintenance({
                 value={agencyComments}
                 onChange={(e) => setAgencyComments(e.target.value)}
                 placeholder="Agency Comments Here"
-                rows={3}
+                rows={1}
+                style={{ height: '56px', minHeight: '56px', maxHeight: '56px' }}
+                className="resize-none bg-transparent !h-14"
               />
             </FieldContent>
           </Field>
