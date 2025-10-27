@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
+import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -43,8 +43,6 @@ export function NodeParametersPanel({
     selectedComponentIds[0] || ""
   );
   const [isDragging, setIsDragging] = useState(false);
-  const [showLeftScroll, setShowLeftScroll] = useState(false);
-  const [showRightScroll, setShowRightScroll] = useState(false);
   const dragRef = useRef<{
     startX: number;
     startY: number;
@@ -63,27 +61,6 @@ export function NodeParametersPanel({
       setActiveTab(selectedComponentIds[0]);
     }
   }, [selectedComponentIds, activeTab]);
-
-  // Check scroll buttons visibility
-  useEffect(() => {
-    const checkScroll = () => {
-      if (tabsListRef.current) {
-        const { scrollLeft, scrollWidth, clientWidth } = tabsListRef.current;
-        setShowLeftScroll(scrollLeft > 0);
-        setShowRightScroll(scrollLeft < scrollWidth - clientWidth - 1);
-      }
-    };
-
-    checkScroll();
-    const tabsList = tabsListRef.current;
-    tabsList?.addEventListener("scroll", checkScroll);
-    window.addEventListener("resize", checkScroll);
-
-    return () => {
-      tabsList?.removeEventListener("scroll", checkScroll);
-      window.removeEventListener("resize", checkScroll);
-    };
-  }, [selectedComponentIds]);
 
   // Drag handlers
   const handleMouseDown = (e: React.MouseEvent) => {
@@ -108,7 +85,7 @@ export function NodeParametersPanel({
     e.preventDefault();
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !dragRef.current) return;
 
     const deltaX = e.clientX - dragRef.current.startX;
@@ -118,7 +95,7 @@ export function NodeParametersPanel({
       x: dragRef.current.startPosX + deltaX,
       y: dragRef.current.startPosY + deltaY,
     });
-  };
+  }, [isDragging, onPositionChange]);
 
   const handleMouseUp = () => {
     setIsDragging(false);
@@ -148,7 +125,7 @@ export function NodeParametersPanel({
     };
   };
 
-  const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging || !dragRef.current) return;
 
     const touch = e.touches[0];
@@ -159,7 +136,7 @@ export function NodeParametersPanel({
       x: dragRef.current.startPosX + deltaX,
       y: dragRef.current.startPosY + deltaY,
     });
-  };
+  }, [isDragging, onPositionChange]);
 
   const handleTouchEnd = () => {
     setIsDragging(false);
@@ -181,7 +158,7 @@ export function NodeParametersPanel({
         document.removeEventListener("touchend", handleTouchEnd);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove, handleTouchMove]);
 
   // Prevent scrolling while dragging
   useEffect(() => {
@@ -201,16 +178,6 @@ export function NodeParametersPanel({
       document.documentElement.style.touchAction = prevHtmlTouch;
     };
   }, [isDragging]);
-
-  const scrollTabs = (direction: "left" | "right") => {
-    if (tabsListRef.current) {
-      const scrollAmount = 200;
-      tabsListRef.current.scrollBy({
-        left: direction === "left" ? -scrollAmount : scrollAmount,
-        behavior: "smooth",
-      });
-    }
-  };
 
   const DEFAULT_NODE_PARAMS: NodeParams = {
     inv_elev: 0,
@@ -264,50 +231,19 @@ export function NodeParametersPanel({
           </div>
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            {/* Tab List with Scroll Buttons */}
-            <div className="relative mb-4">
-              {showLeftScroll && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute left-0 top-0 z-10 h-10 w-8 rounded-none bg-background/80 hover:bg-background no-drag"
-                  onClick={() => scrollTabs("left")}
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
-              )}
-
-              <div
-                ref={tabsListRef}
-                className="overflow-x-auto scrollbar-hide"
-                style={{
-                  scrollbarWidth: "none",
-                  msOverflowStyle: "none",
-                }}
-              >
-                <TabsList className="w-full justify-start">
-                  {selectedComponentIds.map((id) => (
-                    <TabsTrigger
-                      key={id}
-                      value={id}
-                      className="min-w-[80px] flex-shrink-0"
-                    >
-                      {id}
-                    </TabsTrigger>
-                  ))}
-                </TabsList>
-              </div>
-
-              {showRightScroll && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="absolute right-0 top-0 z-10 h-10 w-8 rounded-none bg-background/80 hover:bg-background no-drag"
-                  onClick={() => scrollTabs("right")}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              )}
+            {/* Tab List with Horizontal Scrollbar */}
+            <div className="mb-4 tabs-scroll-container" ref={tabsListRef}>
+              <TabsList className="w-fit min-w-full justify-start inline-flex">
+                {selectedComponentIds.map((id) => (
+                  <TabsTrigger
+                    key={id}
+                    value={id}
+                    className="min-w-[80px] flex-shrink-0"
+                  >
+                    {id}
+                  </TabsTrigger>
+                ))}
+              </TabsList>
             </div>
 
             {/* Tab Content */}
@@ -429,10 +365,40 @@ export function NodeParametersPanel({
         )}
       </div>
 
-      {/* Hide scrollbar CSS */}
+      {/* Tabs scrollbar CSS */}
       <style jsx>{`
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
+        .tabs-scroll-container {
+          /* Always show scrollbar space to prevent layout shift */
+          overflow-x: auto;
+          overflow-y: visible;
+          padding-bottom: 4px;
+        }
+
+        /* Webkit browsers (Chrome, Safari, Edge) */
+        .tabs-scroll-container::-webkit-scrollbar {
+          height: 10px;
+          display: block;
+        }
+
+        .tabs-scroll-container::-webkit-scrollbar-track {
+          background: hsl(var(--muted) / 0.3);
+          border-radius: 5px;
+        }
+
+        .tabs-scroll-container::-webkit-scrollbar-thumb {
+          background: hsl(var(--muted-foreground) / 0.4);
+          border-radius: 5px;
+        }
+
+        .tabs-scroll-container::-webkit-scrollbar-thumb:hover {
+          background: hsl(var(--muted-foreground) / 0.6);
+        }
+
+        /* Firefox */
+        .tabs-scroll-container {
+          scrollbar-width: thin;
+          scrollbar-color: hsl(var(--muted-foreground) / 0.4)
+            hsl(var(--muted) / 0.3);
         }
       `}</style>
     </div>

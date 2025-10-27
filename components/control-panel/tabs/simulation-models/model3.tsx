@@ -63,6 +63,8 @@ interface Model3Props {
   onComponentParamsChange: (params: Map<string, NodeParams>) => void;
   pipeParams: Map<string, LinkParams>;
   onPipeParamsChange: (params: Map<string, LinkParams>) => void;
+  rainfallParams: RainfallParams,
+  onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel: boolean;
   onToggleNodePanel: () => void;
   showLinkPanel: boolean;
@@ -110,6 +112,8 @@ export default function Model3({
   onComponentParamsChange,
   pipeParams,
   onPipeParamsChange,
+  rainfallParams,
+  onRainfallParamsChange,
   showNodePanel,
   onToggleNodePanel,
   showLinkPanel,
@@ -121,9 +125,9 @@ export default function Model3({
   isTableMinimized = false,
   onToggleMinimize,
 }: Model3Props) {
-  const [rainfallParams, setRainfallParams] = useState<RainfallParams>(
-    DEFAULT_RAINFALL_PARAMS
-  );
+  //const [rainfallParams, setRainfallParams] = useState<RainfallParams>(
+  //  DEFAULT_RAINFALL_PARAMS
+  //);
   const [error, setError] = useState<string | null>(null);
 
   // Load data from hooks
@@ -139,7 +143,7 @@ export default function Model3({
     ) {
       onComponentIdsChange([...selectedComponentIds, externalSelectedPointId]);
     }
-  }, [externalSelectedPointId]);
+  }, [externalSelectedPointId, selectedComponentIds, onComponentIdsChange]);
 
   // Handle component selection changes - auto-populate params
   useEffect(() => {
@@ -155,7 +159,7 @@ export default function Model3({
         if (inlet) {
           newParams.set(id, {
             inv_elev: inlet.Inv_Elev || 0,
-            init_depth: inlet.MaxDepth || 0,
+            init_depth: 0,
             ponding_area: 0,
             surcharge_depth: 0,
           });
@@ -164,7 +168,7 @@ export default function Model3({
         } else if (drain) {
           newParams.set(id, {
             inv_elev: drain.InvElev || 0,
-            init_depth: drain.Max_Depth || 0,
+            init_depth: 0,
             ponding_area: 0,
             surcharge_depth: 0,
           });
@@ -185,7 +189,7 @@ export default function Model3({
     if (paramsChanged) {
       onComponentParamsChange(newParams);
     }
-  }, [selectedComponentIds, inlets, drains]);
+  }, [selectedComponentIds, inlets, drains, componentParams, onComponentParamsChange]);
 
   // Handle pipe selection changes
   useEffect(() => {
@@ -211,7 +215,7 @@ export default function Model3({
     if (paramsChanged) {
       onPipeParamsChange(newParams);
     }
-  }, [selectedPipeIds]);
+  }, [selectedPipeIds, pipeParams, onPipeParamsChange]);
 
   const handleGenerateTableClick = () => {
     if (selectedComponentIds.length === 0) {
@@ -229,7 +233,7 @@ export default function Model3({
     onPipeIdsChange([]);
     onComponentParamsChange(new Map());
     onPipeParamsChange(new Map());
-    setRainfallParams(DEFAULT_RAINFALL_PARAMS);
+    onRainfallParamsChange(DEFAULT_RAINFALL_PARAMS);
     setError(null);
   };
 
@@ -384,7 +388,7 @@ export default function Model3({
               <Slider
                 value={[rainfallParams.total_precip]}
                 onValueChange={(value) =>
-                  setRainfallParams({
+                  onRainfallParamsChange({
                     ...rainfallParams,
                     total_precip: value[0],
                   })
@@ -411,7 +415,7 @@ export default function Model3({
               <Slider
                 value={[rainfallParams.duration_hr]}
                 onValueChange={(value) =>
-                  setRainfallParams({
+                  onRainfallParamsChange({
                     ...rainfallParams,
                     duration_hr: value[0],
                   })

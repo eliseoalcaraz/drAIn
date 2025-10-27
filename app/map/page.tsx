@@ -46,6 +46,7 @@ export default function MapPage() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [reports, setReports] = useState<any[]>([]);
   const [isRefreshingReports, setIsRefreshingReports] = useState(false);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
@@ -210,210 +211,222 @@ export default function MapPage() {
 
     // Only initialize map after sidebar is closed to ensure proper sizing
     if (mapContainerRef.current && !mapRef.current && !open) {
-      const map = new mapboxgl.Map({
-        container: mapContainerRef.current,
-        style: DEFAULT_STYLE,
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
-        maxBounds: MAP_BOUNDS,
-        pitch: 60,
-        bearing: -17.6,
-        attributionControl: false, // Disable default attribution
-      });
-
-      mapRef.current = map;
-
-      const addCustomLayers = () => {
-        if (!map.getSource("mapbox-dem")) {
-          map.addSource("mapbox-dem", {
-            type: "raster-dem",
-            url: "mapbox://mapbox.mapbox-terrain-dem-v1",
-            tileSize: 512,
-            maxzoom: 14,
-          });
-          map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
+      try {
+        // Check WebGL support before initializing map
+        if (!mapboxgl.supported()) {
+          setMapError("WebGL is not supported on this browser. Please use a modern browser with WebGL support.");
+          return;
         }
 
-        if (!map.getLayer("3d-buildings")) {
-          map.addLayer(
-            {
-              id: "3d-buildings",
-              source: "composite",
-              "source-layer": "building",
-              filter: ["==", "extrude", "true"],
-              type: "fill-extrusion",
-              minzoom: 15,
-              paint: {
-                "fill-extrusion-color": "#aaa",
-                "fill-extrusion-height": [
-                  "interpolate",
-                  ["linear"],
-                  ["zoom"],
-                  15,
-                  0,
-                  15.05,
-                  ["get", "height"],
-                ],
-                "fill-extrusion-base": ["get", "min_height"],
-                "fill-extrusion-opacity": 0.6,
+        const map = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: DEFAULT_STYLE,
+          center: DEFAULT_CENTER,
+          zoom: DEFAULT_ZOOM,
+          maxBounds: MAP_BOUNDS,
+          pitch: 60,
+          bearing: -17.6,
+          attributionControl: false, // Disable default attribution
+        });
+
+        mapRef.current = map;
+
+        const addCustomLayers = () => {
+          if (!map.getSource("mapbox-dem")) {
+            map.addSource("mapbox-dem", {
+              type: "raster-dem",
+              url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+              tileSize: 512,
+              maxzoom: 14,
+            });
+            map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
+          }
+
+          if (!map.getLayer("3d-buildings")) {
+            map.addLayer(
+              {
+                id: "3d-buildings",
+                source: "composite",
+                "source-layer": "building",
+                filter: ["==", "extrude", "true"],
+                type: "fill-extrusion",
+                minzoom: 15,
+                paint: {
+                  "fill-extrusion-color": "#aaa",
+                  "fill-extrusion-height": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    15,
+                    0,
+                    15.05,
+                    ["get", "height"],
+                  ],
+                  "fill-extrusion-base": ["get", "min_height"],
+                  "fill-extrusion-opacity": 0.6,
+                },
               },
-            },
-            "waterway-label"
-          );
-        }
-
-        if (!map.getSource("man_pipes")) {
-          map.addSource("man_pipes", {
-            type: "geojson",
-            data: "/drainage/man_pipes.geojson",
-            promoteId: "Name",
-          });
-          map.addLayer({
-            id: "man_pipes-layer",
-            type: "line",
-            source: "man_pipes",
-            paint: getLinePaintConfig("man_pipes"),
-          });
-        }
-
-        if (!map.getSource("storm_drains")) {
-          map.addSource("storm_drains", {
-            type: "geojson",
-            data: "/drainage/storm_drains.geojson",
-            promoteId: "In_Name",
-          });
-          map.addLayer({
-            id: "storm_drains-layer",
-            type: "circle",
-            source: "storm_drains",
-            paint: getCirclePaintConfig("storm_drains"),
-          });
-        }
-
-        if (!map.getSource("inlets")) {
-          map.addSource("inlets", {
-            type: "geojson",
-            data: "/drainage/inlets.geojson",
-            promoteId: "In_Name",
-          });
-          map.addLayer({
-            id: "inlets-layer",
-            type: "circle",
-            source: "inlets",
-            paint: getCirclePaintConfig("inlets"),
-          });
-        }
-
-        if (!map.getSource("outlets")) {
-          map.addSource("outlets", {
-            type: "geojson",
-            data: "/drainage/outlets.geojson",
-            promoteId: "Out_Name",
-          });
-          map.addLayer({
-            id: "outlets-layer",
-            type: "circle",
-            source: "outlets",
-            paint: getCirclePaintConfig("outlets"),
-          });
-        }
-      };
-
-      map.on("load", addCustomLayers);
-      map.on("style.load", addCustomLayers);
-
-      // Move click handler inside here where map is defined
-      map.on("click", (e) => {
-        //console.log("=== Map Click Debug ===");
-        //console.log("Current tab from ref:", currentTabRef.current);
-        //console.log("Data consumer tabs:", dataConsumerTabs);
-
-        const validLayers = [
-          "inlets-layer",
-          "outlets-layer",
-          "storm_drains-layer",
-          "man_pipes-layer",
-        ].filter((id) => map.getLayer(id));
-
-        if (!validLayers.length) {
-          console.log("No valid layers found");
-          return;
-        }
-
-        const features = map.queryRenderedFeatures(e.point, {
-          layers: validLayers,
-        });
-
-        if (!features.length) {
-          //console.log("No features found at click point");
-          clearSelections();
-          return;
-        }
-
-        const feature = features[0];
-        const props = feature.properties || {};
-        if (!feature.layer) return;
-
-        // Use currentTabRef instead of controlPanelTab
-        const shouldKeepTab = dataConsumerTabs.includes(currentTabRef.current);
-        //console.log("Should keep current tab?", shouldKeepTab);
-
-        switch (feature.layer.id) {
-          case "man_pipes-layer": {
-            const pipe = pipesRef.current.find((p) => p.id === props.Name);
-            if (pipe) {
-              //console.log("Selected pipe:", pipe.id);
-              handleSelectPipe(pipe);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
-          }
-          case "inlets-layer": {
-            const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
-            if (inlet) {
-              handleSelectInlet(inlet);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
-          }
-          case "outlets-layer": {
-            const outlet = outletsRef.current.find(
-              (o) => o.id === props.Out_Name
+              "waterway-label"
             );
-            if (outlet) {
-              handleSelectOutlet(outlet);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
           }
-          case "storm_drains-layer": {
-            const drain = drainsRef.current.find((d) => d.id === props.In_Name);
-            if (drain) {
-              handleSelectDrain(drain);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
-          }
-        }
-      });
 
-      // Cursor style
-      layerIds.forEach((layerId) => {
-        map.on("mouseenter", layerId, () => {
-          map.getCanvas().style.cursor = "pointer";
+          if (!map.getSource("man_pipes")) {
+            map.addSource("man_pipes", {
+              type: "geojson",
+              data: "/drainage/man_pipes.geojson",
+              promoteId: "Name",
+            });
+            map.addLayer({
+              id: "man_pipes-layer",
+              type: "line",
+              source: "man_pipes",
+              paint: getLinePaintConfig("man_pipes"),
+            });
+          }
+
+          if (!map.getSource("storm_drains")) {
+            map.addSource("storm_drains", {
+              type: "geojson",
+              data: "/drainage/storm_drains.geojson",
+              promoteId: "In_Name",
+            });
+            map.addLayer({
+              id: "storm_drains-layer",
+              type: "circle",
+              source: "storm_drains",
+              paint: getCirclePaintConfig("storm_drains"),
+            });
+          }
+
+          if (!map.getSource("inlets")) {
+            map.addSource("inlets", {
+              type: "geojson",
+              data: "/drainage/inlets.geojson",
+              promoteId: "In_Name",
+            });
+            map.addLayer({
+              id: "inlets-layer",
+              type: "circle",
+              source: "inlets",
+              paint: getCirclePaintConfig("inlets"),
+            });
+          }
+
+          if (!map.getSource("outlets")) {
+            map.addSource("outlets", {
+              type: "geojson",
+              data: "/drainage/outlets.geojson",
+              promoteId: "Out_Name",
+            });
+            map.addLayer({
+              id: "outlets-layer",
+              type: "circle",
+              source: "outlets",
+              paint: getCirclePaintConfig("outlets"),
+            });
+          }
+        };
+
+        map.on("load", addCustomLayers);
+        map.on("style.load", addCustomLayers);
+
+        // Move click handler inside here where map is defined
+        map.on("click", (e) => {
+          //console.log("=== Map Click Debug ===");
+          //console.log("Current tab from ref:", currentTabRef.current);
+          //console.log("Data consumer tabs:", dataConsumerTabs);
+
+          const validLayers = [
+            "inlets-layer",
+            "outlets-layer",
+            "storm_drains-layer",
+            "man_pipes-layer",
+          ].filter((id) => map.getLayer(id));
+
+          if (!validLayers.length) {
+            console.log("No valid layers found");
+            return;
+          }
+
+          const features = map.queryRenderedFeatures(e.point, {
+            layers: validLayers,
+          });
+
+          if (!features.length) {
+            //console.log("No features found at click point");
+            clearSelections();
+            return;
+          }
+
+          const feature = features[0];
+          const props = feature.properties || {};
+          if (!feature.layer) return;
+
+          // Use currentTabRef instead of controlPanelTab
+          const shouldKeepTab = dataConsumerTabs.includes(currentTabRef.current);
+          //console.log("Should keep current tab?", shouldKeepTab);
+
+          switch (feature.layer.id) {
+            case "man_pipes-layer": {
+              const pipe = pipesRef.current.find((p) => p.id === props.Name);
+              if (pipe) {
+                //console.log("Selected pipe:", pipe.id);
+                handleSelectPipe(pipe);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+            case "inlets-layer": {
+              const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
+              if (inlet) {
+                handleSelectInlet(inlet);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+            case "outlets-layer": {
+              const outlet = outletsRef.current.find(
+                (o) => o.id === props.Out_Name
+              );
+              if (outlet) {
+                handleSelectOutlet(outlet);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+            case "storm_drains-layer": {
+              const drain = drainsRef.current.find((d) => d.id === props.In_Name);
+              if (drain) {
+                handleSelectDrain(drain);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+          }
         });
-        map.on("mouseleave", layerId, () => {
-          map.getCanvas().style.cursor = "";
+
+        // Cursor style
+        layerIds.forEach((layerId) => {
+          map.on("mouseenter", layerId, () => {
+            map.getCanvas().style.cursor = "pointer";
+          });
+          map.on("mouseleave", layerId, () => {
+            map.getCanvas().style.cursor = "";
+          });
         });
-      });
+      } catch (error) {
+        console.error("Failed to initialize map:", error);
+        setMapError("Failed to initialize map. Please refresh the page or try a different browser.");
+        return;
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layerIds, open]);
@@ -778,7 +791,22 @@ export default function MapPage() {
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-blue-200">
-        <div className="w-full h-screen" ref={mapContainerRef} />
+        <div className="w-full h-screen" ref={mapContainerRef}>
+          {mapError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/95 z-50">
+              <div className="text-center p-8 max-w-md">
+                <h2 className="text-2xl font-bold mb-4">Map Initialization Error</h2>
+                <p className="text-muted-foreground mb-4">{mapError}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                >
+                  Reload Page
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         <ControlPanel
           activeTab={controlPanelTab}
           dataset={controlPanelDataset}

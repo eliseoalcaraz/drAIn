@@ -8,6 +8,16 @@ import Model2 from "./simulation-models/model2";
 import Model3 from "./simulation-models/model3";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 
+interface RainfallParams {
+  total_precip: number;
+  duration_hr: number;
+}
+
+const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
+  total_precip: 140,
+  duration_hr: 1,
+};
+
 interface SimulationsContentProps {
   isSimulationMode?: boolean;
   selectedPointId?: string | null;
@@ -40,6 +50,8 @@ interface SimulationsContentProps {
   onComponentParamsChange?: (params: Map<string, any>) => void;
   pipeParams?: Map<string, any>;
   onPipeParamsChange?: (params: Map<string, any>) => void;
+  rainfallParams: RainfallParams,
+  onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel?: boolean;
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
@@ -77,6 +89,8 @@ export default function SimulationsContent({
   onComponentParamsChange = () => {},
   pipeParams = new Map(),
   onPipeParamsChange = () => {},
+  rainfallParams = DEFAULT_RAINFALL_PARAMS,
+  onRainfallParamsChange = () => {},
   showNodePanel = false,
   onToggleNodePanel = () => {},
   showLinkPanel = false,
@@ -168,6 +182,8 @@ export default function SimulationsContent({
       onComponentParamsChange,
       pipeParams,
       onPipeParamsChange,
+      rainfallParams,
+      onRainfallParamsChange,
       showNodePanel,
       onToggleNodePanel,
       showLinkPanel,
