@@ -37,7 +37,7 @@ export default function ImageUploader({
     return () => {
       if (fileUrl) URL.revokeObjectURL(fileUrl);
     };
-  }, [image, fileUrl]);
+  }, [image]);
 
   const handleFile = (file: File | undefined) => {
     if (!file || disabled) return;
