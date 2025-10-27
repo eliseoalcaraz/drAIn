@@ -5,7 +5,7 @@ import { SideNavigation } from "@/components/side-navigation";
 interface SidebarProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  profile: any;
+  profile: Record<string, unknown> | null;
 }
 
 export function Sidebar({ activeTab, onTabChange, profile }: SidebarProps) {

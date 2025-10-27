@@ -8,10 +8,10 @@ import { updateReportStatus } from "@/lib/supabase/report";
 // returns a single object if there's a one-to-one relationship, but TypeScript
 // infers it as an array due to potential one-to-many. This function ensures
 // it's always an array for type consistency if needed.
-const normalizeJoinedData = (data: any) => {
+const normalizeJoinedData = (data: unknown) => {
   if (!data) return data;
 
-  return data.map((record: any) => {
+  return (data as Array<Record<string, unknown>>).map((record: Record<string, unknown>) => {
     const newRecord = { ...record };
     if (newRecord.agencies && !Array.isArray(newRecord.agencies)) {
       newRecord.agencies = [newRecord.agencies];

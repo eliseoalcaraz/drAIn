@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
 
 interface EditProfileProps {
-  profile: any;
+  profile: Record<string, unknown> | null;
   session: Session | null | undefined;
   onSave: (fullName: string, avatarFile: File | null) => Promise<void>;
   onCancel: () => void;
@@ -22,7 +22,7 @@ export default function EditProfile({
   onSave,
   onCancel,
 }: EditProfileProps) {
-  const [fullName, setFullName] = useState(profile?.full_name || "");
+  const [fullName, setFullName] = useState(String(profile?.full_name || ""));
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -38,8 +38,9 @@ export default function EditProfile({
       await onSave(fullName, avatarFile);
       setAvatarFile(null);
       setErrorMessage(null);
-    } catch (error: any) {
-      setErrorMessage(error.message || "Failed to update profile.");
+    } catch (error) {
+      const err = error as Error;
+      setErrorMessage(err.message || "Failed to update profile.");
       console.error("Failed to update profile:", error);
     } finally {
       setIsSaving(false);
@@ -48,14 +49,14 @@ export default function EditProfile({
 
   const handleCancel = () => {
     setAvatarFile(null);
-    setFullName(profile?.full_name || "");
+    setFullName(String(profile?.full_name || ""));
     setErrorMessage(null);
     onCancel();
   };
 
   // Check if there are any changes
   const hasChanges =
-    fullName !== (profile?.full_name || "") || avatarFile !== null;
+    fullName !== String(profile?.full_name || "") || avatarFile !== null;
 
   return (
     <Card className="rounded-none border-none h-full">

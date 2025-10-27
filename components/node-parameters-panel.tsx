@@ -27,7 +27,7 @@ interface NodeParametersPanelProps {
   drains: Drain[];
 }
 
-const MAX_VISIBLE_TABS = 5;
+const _MAX_VISIBLE_TABS = 5;
 
 export function NodeParametersPanel({
   selectedComponentIds,
@@ -36,8 +36,8 @@ export function NodeParametersPanel({
   onClose,
   position,
   onPositionChange,
-  inlets,
-  drains,
+  inlets: _inlets,
+  drains: _drains,
 }: NodeParametersPanelProps) {
   const [activeTab, setActiveTab] = useState<string>(
     selectedComponentIds[0] || ""

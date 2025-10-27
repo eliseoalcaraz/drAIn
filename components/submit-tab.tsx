@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState } from "react";
 import ImageUploader from "./image-uploader";
 import { Button } from "./ui/button";
 import {
@@ -22,11 +22,8 @@ import { Field, FieldContent } from "./ui/field";
 import { Textarea } from "./ui/textarea";
 import { CardDescription, CardHeader, CardTitle } from "./ui/card";
 import { SpinnerEmpty } from "./spinner-empty";
-import { AlertCircle, CheckCircle2Icon} from "lucide-react";
-import {
-  Alert,
-  AlertTitle,
-} from "@/components/ui/alert";
+import { AlertCircle, CheckCircle2Icon } from "lucide-react";
+import { AlertTitle } from "@/components/ui/alert";
 import client from "@/app/api/client";
 
 interface CategoryData {
@@ -159,7 +156,7 @@ export default function SubmitTab() {
       const long = categoryData[categoryIndex].long;
       const lat = categoryData[categoryIndex].lat;
       const component_id = categoryData[categoryIndex].name;
-      
+
       await uploadReport(
         image!,
         category,
@@ -170,10 +167,10 @@ export default function SubmitTab() {
         userID,
         profileName
       );
-      
+
       // Show alert
       setAlertNow(true);
-      
+
       // Wait 1 second before closing everything
       setTimeout(() => {
         setAlertNow(false);
@@ -185,7 +182,6 @@ export default function SubmitTab() {
         setCategoryIndex(-1);
         clearInputs();
       }, 1000);
-      
     } catch (error) {
       // Handle error
       setIsConfirming(false);
@@ -203,10 +199,12 @@ export default function SubmitTab() {
       return;
     }
 
-    const options: ComboboxOption[] = data.map((item: any, index: any) => ({
-      value: index.toString(),
-      label: item.name,
-    }));
+    const options: ComboboxOption[] = data.map(
+      (item: Record<string, unknown>, index: number) => ({
+        value: index.toString(),
+        label: item.name as string,
+      })
+    );
 
     setComboOptions(options);
     setCategoryData(data);
@@ -464,8 +462,8 @@ export default function SubmitTab() {
       </Dialog>
       {alertNow && (
         <div className="flex items-start gap-2 fixed top-4 right-4 bg-green-600 text-white px-4 py-3 rounded-lg shadow-lg z-[9999]">
-            <CheckCircle2Icon />
-            <AlertTitle>Success! Your report has been submitted.</AlertTitle>
+          <CheckCircle2Icon />
+          <AlertTitle>Success! Your report has been submitted.</AlertTitle>
         </div>
       )}
     </>

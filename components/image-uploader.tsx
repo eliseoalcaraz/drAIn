@@ -1,6 +1,6 @@
 "use client";
 import React, { useState, useRef, useEffect } from "react";
-import { Trash, X } from "lucide-react";
+import { X } from "lucide-react";
 import Image from "next/image";
 import { AddIcon } from "./add-icon";
 
@@ -27,16 +27,17 @@ export default function ImageUploader({
 
   useEffect(() => {
     if (image) {
+      const newUrl = URL.createObjectURL(image);
       setFileName(image.name);
-      setFileUrl(URL.createObjectURL(image));
+      setFileUrl(newUrl);
+
+      return () => {
+        URL.revokeObjectURL(newUrl);
+      };
     } else {
       setFileName(null);
-      if (fileUrl) URL.revokeObjectURL(fileUrl);
       setFileUrl(null);
     }
-    return () => {
-      if (fileUrl) URL.revokeObjectURL(fileUrl);
-    };
   }, [image]);
 
   const handleFile = (file: File | undefined) => {

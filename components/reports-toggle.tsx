@@ -18,12 +18,13 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { IconRepeat } from "@tabler/icons-react";
+import type { Report } from "@/lib/supabase/report";
 
 interface ReportsToggleProps {
   isVisible: boolean;
   onToggle: () => void;
   onNavigateToReportForm?: () => void;
-  reports: any[];
+  reports: Report[];
   isSimulationMode?: boolean;
 }
 
@@ -85,7 +86,7 @@ export function ReportsToggle({
                 onToggle();
                 setVisible(!visible);
               }}
-              onClick={(e: any) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
               variant="outline"
               size="sm"
               aria-label="Toggle reports visibility"

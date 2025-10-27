@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useContext } from "react";
 import { Card } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
@@ -26,9 +26,9 @@ import Image from "next/image";
 interface ProfileContentProps {
   profileView: ProfileView;
   onProfileViewChange: (view: ProfileView) => void;
-  profile: any;
+  profile: Record<string, unknown> | null;
   publicAvatarUrl: string | null;
-  setProfile: (profile: any) => void;
+  setProfile: (profile: Record<string, unknown>) => void;
   setPublicAvatarUrl: (url: string | null) => void;
 }
 
@@ -98,6 +98,7 @@ export default function ProfileContent({
   const handleUnlinkAgency = async () => {
     if (!profile || !session) return;
     await unlinkAgencyFromProfile(session.user.id); // Persist to Supabase
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { agency_id, agency_name, ...rest } = profile;
     const updatedProfile = { ...rest };
     setProfile(updatedProfile);
@@ -146,7 +147,7 @@ export default function ProfileContent({
                   {/* Profile Info */}
                   <div className="flex-1 flex-col self-center min-w-0">
                     <h1 className="text-base font-semibold text-black truncate">
-                      {profile?.full_name || "No name set"}
+                      {(profile?.full_name as string) || "No name set"}
                     </h1>
 
                     <div className="flex flex-col">

@@ -56,7 +56,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const { user } = useAuth();
   const supabase = client;
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -101,7 +101,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const userData = user
     ? {
-        name: profile?.full_name || user.email?.split("@")[0] || "User",
+        name: String(profile?.full_name || user.email?.split("@")[0] || "User"),
         email: user.email || "No email",
         avatar: publicAvatarUrl || undefined,
       }

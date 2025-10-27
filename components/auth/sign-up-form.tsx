@@ -33,7 +33,7 @@ export default function SignUpForm() {
       setLoading(false);
     } else if (data.session) {
       // After successful sign-up, create the profile
-      await updateUserProfile(data.session, fullName, null, null);
+      await updateUserProfile(data.session, fullName, null, {});
       // ✅ Success — redirect to root
       router.push("/");
     }

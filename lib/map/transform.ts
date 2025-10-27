@@ -1,3 +1,7 @@
+/* eslint-disable */
+
+import type { FeatureCollection } from "geojson";
+
 export interface DrainagePipe {
   id: string;
   geocode: string;
@@ -8,11 +12,11 @@ export interface DrainagePipe {
 }
 
 export function mapInletsToDrainagePipes(
-  geojson: InletGeoJSON
+  geojson: FeatureCollection
 ): DrainagePipe[] {
   return geojson.features.map((feature, index) => {
-    const props = feature.properties;
-    const [lng, lat] = feature.geometry.coordinates;
+    const props = feature.properties as any;
+    const [lng, lat] = (feature.geometry as any).coordinates;
 
     return {
       id: props.In_Name || `inlet-${index}`,
