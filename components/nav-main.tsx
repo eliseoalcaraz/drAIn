@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Collapsible } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
@@ -17,16 +17,15 @@ export function NavMain({
   items: {
     title: string;
     url?: string;
-    icon?: React.ComponentType<any>;
+    icon?: React.ComponentType<{ className?: string }>;
     isActive?: boolean;
     items?: {
       title: string;
       url: string;
-      icon?: React.ComponentType<any>;
+      icon?: React.ComponentType<{ className?: string }>;
     }[];
   }[];
 }) {
-  const pathname = usePathname();
   const router = useRouter();
   const { setOpen, isMobile, setOpenMobile } = useSidebar();
 

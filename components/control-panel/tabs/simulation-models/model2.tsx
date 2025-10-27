@@ -42,16 +42,16 @@ type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
 const YEAR_OPTIONS: YearOption[] = [2, 5, 10, 15, 20, 25, 50, 100];
 
 export default function Model2({
-  selectedPointId = null,
-  selectedInlet = null,
-  selectedOutlet = null,
-  selectedPipe = null,
-  selectedDrain = null,
+  selectedPointId: _selectedPointId = null,
+  selectedInlet: _selectedInlet = null,
+  selectedOutlet: _selectedOutlet = null,
+  selectedPipe: _selectedPipe = null,
+  selectedDrain: _selectedDrain = null,
   selectedYear,
   onYearChange,
   onGenerateTable,
   isLoading,
-  onCloseTable,
+  onCloseTable: _onCloseTable,
   hasTable = false,
   isTableMinimized = false,
   onToggleMinimize,

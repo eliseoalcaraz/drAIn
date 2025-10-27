@@ -79,14 +79,14 @@ interface Model3Props {
   onOpenNodeSimulation?: (nodeId: string) => void;
 }
 
-const DEFAULT_NODE_PARAMS: NodeParams = {
+export const DEFAULT_NODE_PARAMS: NodeParams = {
   inv_elev: 0,
   init_depth: 0,
   ponding_area: 0,
   surcharge_depth: 0,
 };
 
-const DEFAULT_LINK_PARAMS: LinkParams = {
+export const DEFAULT_LINK_PARAMS: LinkParams = {
   init_flow: 0,
   upstrm_offset_depth: 0,
   downstrm_offset_depth: 0,
@@ -100,10 +100,10 @@ const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
 
 export default function Model3({
   selectedPointId: externalSelectedPointId = null,
-  selectedInlet = null,
-  selectedOutlet = null,
-  selectedPipe = null,
-  selectedDrain = null,
+  selectedInlet: _selectedInlet = null,
+  selectedOutlet: _selectedOutlet = null,
+  selectedPipe: _selectedPipe = null,
+  selectedDrain: _selectedDrain = null,
   selectedComponentIds,
   onComponentIdsChange,
   selectedPipeIds,
@@ -120,7 +120,7 @@ export default function Model3({
   onToggleLinkPanel,
   onGenerateTable,
   isLoadingTable,
-  onCloseTable,
+  onCloseTable: _onCloseTable,
   hasTable = false,
   isTableMinimized = false,
   onToggleMinimize,

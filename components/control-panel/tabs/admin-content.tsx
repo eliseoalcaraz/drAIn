@@ -4,6 +4,7 @@ import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import ReportHistoryList from "../../report-history-list";
 import type { DateFilterValue } from "../../date-sort";
 import Maintenance from "./maintenance";
+import type { Report } from "@/lib/supabase/report";
 
 export type AdminContentProps = {
   activeAdminTab?: "maintenance" | "reports";
@@ -12,7 +13,7 @@ export type AdminContentProps = {
   selectedOutlet?: Outlet | null;
   selectedPipe?: Pipe | null;
   selectedDrain?: Drain | null;
-  reports?: any[];
+  reports?: Report[];
   onRefreshReports?: () => Promise<void>;
   isRefreshingReports?: boolean;
   isSimulationMode?: boolean;

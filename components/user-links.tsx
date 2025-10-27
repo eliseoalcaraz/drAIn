@@ -6,7 +6,7 @@ import AgencyLink from "@/components/agency-link";
 
 interface UserLinksProps {
   isGuest?: boolean;
-  profile?: any;
+  profile?: Record<string, unknown> | null;
   onLink?: (agencyId: string, agencyName: string) => Promise<void>;
   onUnlink?: () => Promise<void>;
 }
@@ -23,7 +23,7 @@ export default function UserLinks({
         {profile?.agency_id ? (
           <div className="space-y-6 flex flex-col justify-center text-center">
             <div className="text-sm text-muted-foreground">
-              You are linked to {profile.agency_name}. You can now respond to
+              You are linked to {(profile.agency_name as string) || "an agency"}. You can now respond to
               reports.
             </div>
             <Button

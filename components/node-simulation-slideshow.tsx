@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { X, ChevronLeft, ChevronRight } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NodeMetricComparisonChart } from "@/components/node-metric-comparison-chart";
 

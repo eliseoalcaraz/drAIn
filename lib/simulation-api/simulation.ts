@@ -55,7 +55,7 @@ export interface NodeSimulationResult {
 
 export interface SimulationResponse {
   nodes_list: NodeSimulationResult[];
-  [key: string]: any; // Additional fields
+  [key: string]: unknown; // Additional fields
 }
 
 // API configuration

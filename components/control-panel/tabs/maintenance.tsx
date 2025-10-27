@@ -12,6 +12,7 @@ import {
   getStormDrainMaintenanceHistory,
 } from "@/app/actions/clientMaintenanceActions";
 import { fetchReports } from "@/lib/supabase/report";
+import type { Report } from "@/lib/supabase/report";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
   CornerDownRight,
@@ -29,17 +30,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
 import { RefreshCw } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Field, FieldContent } from "@/components/ui/field";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 
 type HistoryItem = {
   last_cleaned_at: string;
@@ -55,7 +49,7 @@ export type MaintenanceProps = {
   selectedOutlet?: Outlet | null;
   selectedPipe?: Pipe | null;
   selectedDrain?: Drain | null;
-  profile?: any;
+  profile?: Record<string, unknown> | null;
 };
 
 const getStatusStyles = (status: string | null) => {
@@ -81,13 +75,13 @@ export default function Maintenance({
     id: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
+  const [_message, setMessage] = useState<string>("");
   const [history, setHistory] = useState<HistoryItem[] | null>(null);
   const [maintenanceStatus, setMaintenanceStatus] = useState<
     "in-progress" | "resolved"
   >("in-progress");
   const [agencyComments, setAgencyComments] = useState<string>("");
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     let assetType = "";
@@ -132,19 +126,19 @@ export default function Maintenance({
     setMessage("");
     setHistory(null);
 
-    let result;
+    let result: { error?: string; data?: HistoryItem[] };
     switch (assetType) {
       case "inlets":
-        result = await getInletMaintenanceHistory(assetId);
+        result = await getInletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       case "man_pipes":
-        result = await getManPipeMaintenanceHistory(assetId);
+        result = await getManPipeMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       case "outlets":
-        result = await getOutletMaintenanceHistory(assetId);
+        result = await getOutletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       case "storm_drains":
-        result = await getStormDrainMaintenanceHistory(assetId);
+        result = await getStormDrainMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -155,13 +149,13 @@ export default function Maintenance({
     if (result.error) {
       setMessage(`Error fetching history: ${result.error}`);
     } else if (result.data && result.data.length > 0) {
-      setHistory(result.data as HistoryItem[]);
+      setHistory(result.data);
     } else {
       setMessage("No maintenance history found for this asset.");
     }
   };
 
-  const handleRecordMaintenance = async () => {
+  const _handleRecordMaintenance = async () => {
     if (!selectedAsset) {
       setMessage("No asset selected.");
       return;

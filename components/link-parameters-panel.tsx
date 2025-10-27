@@ -24,7 +24,7 @@ interface LinkParametersPanelProps {
   onPositionChange: (position: { x: number; y: number }) => void;
 }
 
-const MAX_VISIBLE_TABS = 5;
+const _MAX_VISIBLE_TABS = 5;
 
 export function LinkParametersPanel({
   selectedPipeIds,
