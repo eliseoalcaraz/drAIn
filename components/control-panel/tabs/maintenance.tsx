@@ -81,7 +81,7 @@ export default function Maintenance({
     "in-progress" | "resolved"
   >("in-progress");
   const [agencyComments, setAgencyComments] = useState<string>("");
-  const [reports, setReports] = useState<Report[]>([]);
+  const [_reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     let assetType = "";
@@ -129,16 +129,28 @@ export default function Maintenance({
     let result: { error?: string; data?: HistoryItem[] };
     switch (assetType) {
       case "inlets":
-        result = await getInletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getInletMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       case "man_pipes":
-        result = await getManPipeMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getManPipeMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       case "outlets":
-        result = await getOutletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getOutletMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       case "storm_drains":
-        result = await getStormDrainMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getStormDrainMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -218,7 +230,11 @@ export default function Maintenance({
         result = await recordOutletMaintenance(id, status, commentsToSubmit);
         break;
       case "storm_drains":
-        result = await recordStormDrainMaintenance(id, status, commentsToSubmit);
+        result = await recordStormDrainMaintenance(
+          id,
+          status,
+          commentsToSubmit
+        );
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -423,7 +439,7 @@ export default function Maintenance({
                 onChange={(e) => setAgencyComments(e.target.value)}
                 placeholder="Agency Comments Here"
                 rows={1}
-                style={{ height: '56px', minHeight: '56px', maxHeight: '56px' }}
+                style={{ height: "56px", minHeight: "56px", maxHeight: "56px" }}
                 className="resize-none bg-transparent !h-14"
               />
             </FieldContent>

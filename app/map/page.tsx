@@ -2,7 +2,7 @@
 
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
-import { useRef, useEffect, useState, useMemo, useCallback } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback, Suspense } from "react";
 import {
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
@@ -41,7 +41,7 @@ import {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useReports } from "@/components/context/ReportProvider";
 
-export default function MapPage() {
+function MapPageContent() {
   const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
   const {
     latestReports: reports, // Use latestReports from context for map bubbles
@@ -924,5 +924,13 @@ export default function MapPage() {
         />
       </main>
     </>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<div className="w-full h-screen bg-blue-200" />}>
+      <MapPageContent />
+    </Suspense>
   );
 }
