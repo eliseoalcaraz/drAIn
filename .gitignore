@@ -46,6 +46,8 @@ next-env.d.ts
 .CLAUDE.md
 CLAUDE.md
 *.claude.md
+CLAUDE.
+playwright.config.ts
 
 # copilot-instructions.md
 .github/copilot-instructions.md
