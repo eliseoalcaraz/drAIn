@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { ChevronsUpDown, Check } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -51,7 +51,6 @@ export function MultiSelect({
     } else {
       onChange([...selected, value]);
     }
-    setOpen(false);
   };
 
   return (

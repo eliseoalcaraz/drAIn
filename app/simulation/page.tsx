@@ -11,7 +11,9 @@ import {
   MAPBOX_ACCESS_TOKEN,
 } from "@/lib/map/config";
 
-import { runSimulation, transformToNodeDetails } from  "@/lib/simulation-api/simulation";
+import { runSimulation, transformToNodeDetails, type NodeData, type LinkData } from  "@/lib/simulation-api/simulation";
+import type { NodeParams, LinkParams } from "@/components/control-panel/tabs/simulation-models/model3";
+import { DEFAULT_NODE_PARAMS, DEFAULT_LINK_PARAMS } from "@/components/control-panel/tabs/simulation-models/model3";
 
 
 import {
@@ -38,7 +40,7 @@ import type {
 } from "@/components/control-panel/types";
 
 import "mapbox-gl/dist/mapbox-gl.css";
-import { SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
+import { useSidebar } from "@/components/ui/sidebar";
 import { toast } from "sonner";
 import { VulnerabilityDataTable } from "@/components/vulnerability-data-table";
 import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
@@ -135,7 +137,7 @@ export default function SimulationPage() {
   const [highlightedNodes, setHighlightedNodes] = useState<Set<string>>(
     new Set()
   );
-  const [vulnerabilityMap, setVulnerabilityMap] = useState<Map<string, string>>(
+  const [_vulnerabilityMap, setVulnerabilityMap] = useState<Map<string, string>>(
     new Map()
   );
 
@@ -158,10 +160,10 @@ export default function SimulationPage() {
     []
   );
   const [selectedPipeIds, setSelectedPipeIds] = useState<string[]>([]);
-  const [componentParams, setComponentParams] = useState<Map<string, any>>(
+  const [componentParams, setComponentParams] = useState<Map<string, NodeParams>>(
     new Map()
   );
-  const [pipeParams, setPipeParams] = useState<Map<string, any>>(new Map());
+  const [pipeParams, setPipeParams] = useState<Map<string, LinkParams>>(new Map());
   const [rainfallParams, setRainfallParams] = useState<RainfallParams>(rainfallVal)
 
   // Panel visibility - mutual exclusivity
@@ -284,7 +286,7 @@ export default function SimulationPage() {
     } else if (selectedComponentIds.length === 0 && activePanel === "node") {
       setActivePanel(null);
     }
-  }, [selectedComponentIds.length]);
+  }, [selectedComponentIds.length, activePanel]);
 
   // Auto-open link panel when pipes selected
   useEffect(() => {
@@ -293,7 +295,7 @@ export default function SimulationPage() {
     } else if (selectedPipeIds.length === 0 && activePanel === "link") {
       setActivePanel(null);
     }
-  }, [selectedPipeIds.length]);
+  }, [selectedPipeIds.length, activePanel]);
 
   // Auto-close sidebar when simulation page loads (only once on mount)
   useEffect(() => {
@@ -584,14 +586,14 @@ export default function SimulationPage() {
   // Update param handlers
   const updateComponentParam = (id: string, key: string, value: number) => {
     const newParams = new Map(componentParams);
-    const current = newParams.get(id) || {};
+    const current = newParams.get(id) || DEFAULT_NODE_PARAMS;
     newParams.set(id, { ...current, [key]: value });
     setComponentParams(newParams);
   };
 
   const updatePipeParam = (id: string, key: string, value: number) => {
     const newParams = new Map(pipeParams);
-    const current = newParams.get(id) || {};
+    const current = newParams.get(id) || DEFAULT_LINK_PARAMS;
     newParams.set(id, { ...current, [key]: value });
     setPipeParams(newParams);
   };
@@ -897,8 +899,8 @@ export default function SimulationPage() {
 
     // Build match expression for Mapbox for inlets
     // Format: ["match", ["get", "In_Name"], node1, color1, node2, color2, ..., defaultColor]
-    const inletsMatchExpression: any[] = ["match", ["get", "In_Name"]];
-    const inletsStrokeMatchExpression: any[] = ["match", ["get", "In_Name"]];
+    const inletsMatchExpression: unknown[] = ["match", ["get", "In_Name"]];
+    const inletsStrokeMatchExpression: unknown[] = ["match", ["get", "In_Name"]];
 
     vulnerabilityData.forEach((node) => {
       const color = getColorForCategory(node.Vulnerability_Category);
@@ -917,8 +919,8 @@ export default function SimulationPage() {
     inletsStrokeMatchExpression.push("#005400"); // Original inlets stroke color
 
     // Build match expression for storm drains
-    const drainsMatchExpression: any[] = ["match", ["get", "In_Name"]];
-    const drainsStrokeMatchExpression: any[] = ["match", ["get", "In_Name"]];
+    const drainsMatchExpression: unknown[] = ["match", ["get", "In_Name"]];
+    const drainsStrokeMatchExpression: unknown[] = ["match", ["get", "In_Name"]];
 
     vulnerabilityData.forEach((node) => {
       const color = getColorForCategory(node.Vulnerability_Category);
@@ -1023,15 +1025,15 @@ export default function SimulationPage() {
     setIsLoadingTable3(true);
     try {
       // Build nodes object from componentParams
-      const nodes: Record<string, any> = {};
+      const nodes: Record<string, NodeData> = {};
       componentParams.forEach((params, id) => {
-        nodes[id] = params;
+        nodes[id] = params as unknown as NodeData;
       });
 
       // Build links object from pipeParams
-      const links: Record<string, any> = {};
+      const links: Record<string, LinkData> = {};
       pipeParams.forEach((params, id) => {
-        links[id] = params;
+        links[id] = params as unknown as LinkData;
       });
 
       
@@ -1392,7 +1394,7 @@ export default function SimulationPage() {
           >
             <NodeParametersPanel
               selectedComponentIds={selectedComponentIds}
-              componentParams={componentParams}
+              componentParams={componentParams as Map<string, { inv_elev: number; init_depth: number; ponding_area: number; surcharge_depth: number }>}
               onUpdateParam={updateComponentParam}
               onClose={() => setActivePanel(null)}
               position={nodePanelPosition}
@@ -1415,7 +1417,7 @@ export default function SimulationPage() {
           >
             <LinkParametersPanel
               selectedPipeIds={selectedPipeIds}
-              pipeParams={pipeParams}
+              pipeParams={pipeParams as Map<string, { init_flow: number; upstrm_offset_depth: number; downstrm_offset_depth: number; avg_conduit_loss: number }>}
               onUpdateParam={updatePipeParam}
               onClose={() => setActivePanel(null)}
               position={linkPanelPosition}

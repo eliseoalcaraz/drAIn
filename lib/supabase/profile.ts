@@ -33,7 +33,7 @@ export const updateUserProfile = async (
   session: Session,
   fullName: string,
   avatarFile: File | null,
-  currentProfile: any
+  currentProfile: Record<string, unknown> | null
 ) => {
   try {
     const user = session.user;
@@ -107,8 +107,9 @@ export const updateUserProfile = async (
     }
 
     return data;
-  } catch (error: any) {
-    const errorMessage = error.message || "An unknown error occurred.";
+  } catch (error) {
+    const err = error as Error;
+    const errorMessage = err.message || "An unknown error occurred.";
     console.error("Error in updateUserProfile:", errorMessage, error);
     throw new Error(errorMessage);
   }
@@ -126,8 +127,9 @@ export const getAgencies = async () => {
     }
 
     return data;
-  } catch (error: any) {
-    const errorMessage = error.message || "An unknown error occurred.";
+  } catch (error) {
+    const err = error as Error;
+    const errorMessage = err.message || "An unknown error occurred.";
     console.error("Error in getAgencies:", errorMessage, error);
     throw new Error(errorMessage);
   }
@@ -148,8 +150,9 @@ export const linkAgencyToProfile = async (userId: string, agencyId: string) => {
     }
 
     return data;
-  } catch (error: any) {
-    const errorMessage = error.message || "An unknown error occurred.";
+  } catch (error) {
+    const err = error as Error;
+    const errorMessage = err.message || "An unknown error occurred.";
     console.error("Error in linkAgencyToProfile:", errorMessage, error);
     throw new Error(errorMessage);
   }
@@ -170,8 +173,9 @@ export const unlinkAgencyFromProfile = async (userId: string) => {
     }
 
     return data;
-  } catch (error: any) {
-    const errorMessage = error.message || "An unknown error occurred.";
+  } catch (error) {
+    const err = error as Error;
+    const errorMessage = err.message || "An unknown error occurred.";
     console.error("Error in unlinkAgencyFromProfile:", errorMessage, error);
     throw new Error(errorMessage);
   }

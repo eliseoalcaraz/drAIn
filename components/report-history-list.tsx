@@ -3,7 +3,6 @@
 import { useMemo } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import type { Report } from "@/lib/supabase/report";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";

@@ -1,5 +1,3 @@
-import { SidebarTrigger } from "@/components/ui/sidebar";
-
 export default function Timeline() {
   return (
     <div className="min-h-screen flex flex-col">

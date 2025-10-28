@@ -1,3 +1,5 @@
+import type { NodeParams, LinkParams } from "./tabs/simulation-models/model3";
+
 export interface Pipe {
   id: string;
   TYPE: string;
@@ -121,10 +123,10 @@ export interface ControlPanelProps {
   onComponentIdsChange?: (ids: string[]) => void;
   selectedPipeIds?: string[];
   onPipeIdsChange?: (ids: string[]) => void;
-  componentParams?: Map<string, any>;
-  onComponentParamsChange?: (params: Map<string, any>) => void;
-  pipeParams?: Map<string, any>;
-  onPipeParamsChange?: (params: Map<string, any>) => void;
+  componentParams?: Map<string, NodeParams>;
+  onComponentParamsChange?: (params: Map<string, NodeParams>) => void;
+  pipeParams?: Map<string, LinkParams>;
+  onPipeParamsChange?: (params: Map<string, LinkParams>) => void;
   showNodePanel?: boolean;
   rainfallParams?: RainfallParams,
   onRainfallParamsChange?: (params: RainfallParams) => void;

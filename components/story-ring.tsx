@@ -21,7 +21,7 @@ export function StoryRingAvatar({
   isSignedIn = false,
 }: StoryRingAvatarProps) {
   const router = useRouter();
-  const [isHovered, setIsHovered] = useState(false);
+  const [_isHovered, _setIsHovered] = useState(false);
 
   const sizeClasses = {
     sm: "w-10 h-10",

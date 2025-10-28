@@ -1,6 +1,5 @@
 "use client";
 
-import { Bot } from "lucide-react";
 import Person from "@/public/icons/person.svg";
 import Play from "@/public/icons/play.svg";
 import {
@@ -14,13 +13,13 @@ import {
 interface SideNavigationProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
-  profile: any;
+  profile: Record<string, unknown> | null;
 }
 
 export function SideNavigation({
   activeTab,
   onTabChange,
-  profile,
+  profile: _profile,
 }: SideNavigationProps) {
   const baseTabs = [
     { id: "chatbot", label: "Chatbot", icon: IconAnalyzeFilled },

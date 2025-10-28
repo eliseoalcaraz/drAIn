@@ -1,4 +1,5 @@
 import type { DatasetType, Pipe, Inlet, Outlet, Drain } from "../types";
+import type { Report } from "@/lib/supabase/report";
 import { FIELD_CONFIGS, MODEL_URLS } from "../constants";
 import { DetailView } from "./detail-view";
 import OverlaysContent from "../tabs/overlays-content";
@@ -16,10 +17,13 @@ import {
   DrainSortField,
 } from "@/components/control-panel/tabs/tables-content";
 import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
+import {
+  type NodeParams,
+  type LinkParams,
+} from "@/components/control-panel/tabs/simulation-models/model3";
 import ProfileContent from "@/components/control-panel/tabs/profile-content";
 import HistoryContent from "@/components/control-panel/tabs/history-content";
 import type { ProfileView } from "../hooks/use-control-panel-state";
-
 
 interface RainfallParams {
   total_precip: number;
@@ -69,10 +73,8 @@ interface ContentRendererProps {
     visible: boolean;
   }>;
   onToggleOverlay: (id: string) => void;
-  selectedFloodScenario?: string,
+  selectedFloodScenario?: string;
   onChangeFloodScenario?: (id: string) => void;
-
-
 
   // Navigation props
   onNavigateToTable?: (
@@ -89,7 +91,7 @@ interface ContentRendererProps {
   selectedPointForSimulation?: string | null;
 
   // Reports
-  reports: any[];
+  reports: Report[];
   activeReportTab?: "submission" | "reports";
   activeAdminTab?: "maintenance" | "reports";
   dateFilter?: DateFilterValue;
@@ -101,9 +103,9 @@ interface ContentRendererProps {
   onProfileViewChange?: (view: ProfileView) => void;
 
   // Profile data
-  profile: any;
+  profile: Record<string, unknown> | null;
   publicAvatarUrl: string | null;
-  setProfile: (profile: any) => void;
+  setProfile: (profile: Record<string, unknown>) => void;
   setPublicAvatarUrl: (url: string | null) => void;
 
   // Vulnerability table props (Model 2)
@@ -129,12 +131,12 @@ interface ContentRendererProps {
   onComponentIdsChange?: (ids: string[]) => void;
   selectedPipeIds?: string[];
   onPipeIdsChange?: (ids: string[]) => void;
-  componentParams?: Map<string, any>;
-  onComponentParamsChange?: (params: Map<string, any>) => void;
-  pipeParams?: Map<string, any>;
-  onPipeParamsChange?: (params: Map<string, any>) => void;
-  rainfallParams?: RainfallParams,
-  onRainfallParamsChange?: (params: RainfallParams) => void;
+  componentParams?: Map<string, NodeParams>;
+  onComponentParamsChange?: (params: Map<string, NodeParams>) => void;
+  pipeParams?: Map<string, LinkParams>;
+  onPipeParamsChange?: (params: Map<string, LinkParams>) => void;
+  rainfallParams: RainfallParams;
+  onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel?: boolean;
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;

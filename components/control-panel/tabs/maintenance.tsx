@@ -12,6 +12,7 @@ import {
   getStormDrainMaintenanceHistory,
 } from "@/app/actions/clientMaintenanceActions";
 import { fetchReports } from "@/lib/supabase/report";
+import type { Report } from "@/lib/supabase/report";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
   CornerDownRight,
@@ -29,10 +30,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
 import { RefreshCw } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Field, FieldContent } from "@/components/ui/field";
 
 type HistoryItem = {
   last_cleaned_at: string;
@@ -40,6 +41,7 @@ type HistoryItem = {
   profiles: { full_name: string }[] | null;
   status: string | null;
   addressed_report_id: string | null;
+  description: string | null;
 };
 
 export type MaintenanceProps = {
@@ -47,7 +49,7 @@ export type MaintenanceProps = {
   selectedOutlet?: Outlet | null;
   selectedPipe?: Pipe | null;
   selectedDrain?: Drain | null;
-  profile?: any;
+  profile?: Record<string, unknown> | null;
 };
 
 const getStatusStyles = (status: string | null) => {
@@ -73,12 +75,13 @@ export default function Maintenance({
     id: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [message, setMessage] = useState<string>("");
+  const [_message, setMessage] = useState<string>("");
   const [history, setHistory] = useState<HistoryItem[] | null>(null);
   const [maintenanceStatus, setMaintenanceStatus] = useState<
     "in-progress" | "resolved"
   >("in-progress");
-  const [reports, setReports] = useState<any[]>([]);
+  const [agencyComments, setAgencyComments] = useState<string>("");
+  const [reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     let assetType = "";
@@ -123,19 +126,19 @@ export default function Maintenance({
     setMessage("");
     setHistory(null);
 
-    let result;
+    let result: { error?: string; data?: HistoryItem[] };
     switch (assetType) {
       case "inlets":
-        result = await getInletMaintenanceHistory(assetId);
+        result = await getInletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       case "man_pipes":
-        result = await getManPipeMaintenanceHistory(assetId);
+        result = await getManPipeMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       case "outlets":
-        result = await getOutletMaintenanceHistory(assetId);
+        result = await getOutletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       case "storm_drains":
-        result = await getStormDrainMaintenanceHistory(assetId);
+        result = await getStormDrainMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -146,13 +149,13 @@ export default function Maintenance({
     if (result.error) {
       setMessage(`Error fetching history: ${result.error}`);
     } else if (result.data && result.data.length > 0) {
-      setHistory(result.data as HistoryItem[]);
+      setHistory(result.data);
     } else {
       setMessage("No maintenance history found for this asset.");
     }
   };
 
-  const handleRecordMaintenance = async () => {
+  const _handleRecordMaintenance = async () => {
     if (!selectedAsset) {
       setMessage("No asset selected.");
       return;
@@ -235,30 +238,39 @@ export default function Maintenance({
     const mostRecentReport =
       sortedReports.length > 0 ? sortedReports[0] : undefined;
 
+    const commentsToSubmit = agencyComments.trim() === "" ? "" : agencyComments;
     let result;
     switch (type) {
       case "inlets":
-        result = await recordInletMaintenance(id, mostRecentReport?.id, status);
+        result = await recordInletMaintenance(
+          id,
+          mostRecentReport?.id,
+          status,
+          commentsToSubmit
+        );
         break;
       case "man_pipes":
         result = await recordManPipeMaintenance(
           id,
           mostRecentReport?.id,
-          status
+          status,
+          commentsToSubmit
         );
         break;
       case "outlets":
         result = await recordOutletMaintenance(
           id,
           mostRecentReport?.id,
-          status
+          status,
+          commentsToSubmit
         );
         break;
       case "storm_drains":
         result = await recordStormDrainMaintenance(
           id,
           mostRecentReport?.id,
-          status
+          status,
+          commentsToSubmit
         );
         break;
       default:
@@ -283,8 +295,8 @@ export default function Maintenance({
   // If not admin, show admin privileges message
   if (!isAdmin) {
     return (
-      <div className="flex flex-col h-full relative">
-        <div className="flex-1 overflow-y-auto pt-3 pb-20 pl-5 pr-3">
+      <div className="flex flex-col pl-5 pr-2.5 h-full overflow-y-auto maintenance-scroll-hidden">
+        <div className="flex-1 overflow-y-auto pt-3 px-3 maintenance-scroll-hidden">
           <CardHeader className="py-0 flex px-1 mb-6 items-center justify-between">
             <div className="flex flex-col gap-1.5">
               <CardTitle>Maintenance History</CardTitle>
@@ -330,8 +342,8 @@ export default function Maintenance({
   }
 
   return (
-    <div className="flex flex-col h-full relative">
-      <div className="flex-1 overflow-y-auto pt-3 pb-20 pl-5 pr-3">
+    <div className="flex flex-col pl-2 h-full overflow-y-auto maintenance-scroll-hidden">
+      <div className="flex-1 overflow-y-auto pt-3 pb-20 px-3 maintenance-scroll-hidden">
         <CardHeader className="py-0 flex px-1 mb-6 items-center justify-between">
           <div className="flex flex-col gap-1.5">
             <CardTitle>Maintenance History</CardTitle>
@@ -414,7 +426,13 @@ export default function Maintenance({
                         </span>
                       </div>
 
-                      <span className="text-gray-900 text-xs font-medium pl-1">
+                      {record.description && (
+                        <p className="text-xs text-gray-700 mt-1 p-2 pb-0  rounded-md">
+                          {record.description}
+                        </p>
+                      )}
+
+                      <span className="text-muted-foreground text-xs font-medium pl-1">
                         {record.profiles?.[0]?.full_name || "N/A"}
                       </span>
 
@@ -450,7 +468,19 @@ export default function Maintenance({
 
       {/* Sticky bottom section - updated positioning */}
       {selectedAsset && (
-        <div className="absolute bottom-0 left-0 right-0 p-4">
+        <div className="px-3 pb-5 pt-0">
+          <Field className="mb-4">
+            <FieldContent>
+              <Textarea
+                value={agencyComments}
+                onChange={(e) => setAgencyComments(e.target.value)}
+                placeholder="Agency Comments Here"
+                rows={1}
+                style={{ height: '56px', minHeight: '56px', maxHeight: '56px' }}
+                className="resize-none bg-transparent !h-14"
+              />
+            </FieldContent>
+          </Field>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button

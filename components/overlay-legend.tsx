@@ -78,7 +78,7 @@ export function OverlayLegend({
         </Toggle>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
-        {overlays.map((overlay, index) => (
+        {overlays.map((overlay, _index) => (
           <div key={overlay.id}>
             <div
               className={`
@@ -120,11 +120,18 @@ export function OverlayLegend({
                   {overlay.name}
                 </Label>
               </div>
-              <Switch
-                checked={overlay.visible}
-                onCheckedChange={() => onToggleOverlay(overlay.id)}
-                className="ml-auto"
-              />
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleOverlay(overlay.id);
+                }}
+              >
+                <Switch
+                  checked={overlay.visible}
+                  onCheckedChange={() => {}}
+                  className="ml-auto"
+                />
+              </div>
             </div>
           </div>
         ))}

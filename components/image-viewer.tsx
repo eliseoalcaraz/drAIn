@@ -13,6 +13,7 @@ interface ImageViewerProps {
   description: string;
   coordinates: [number, number];
   componentId: string;
+  address: string;
   onClose: () => void;
 }
 
@@ -24,6 +25,7 @@ export function ImageViewer({
   description,
   coordinates,
   componentId,
+  address,
   onClose,
 }: ImageViewerProps) {
   // Close on Escape key
@@ -124,6 +126,16 @@ export function ImageViewer({
             <p className="text-sm text-gray-900">
               {category.charAt(0).toUpperCase() + category.slice(1)} -{" "}
               {componentId}
+            </p>
+          </div>
+          
+          {/* Component Address */}
+          <div className="mb-4">
+            <h3 className="text-xs font-semibold text-gray-500 uppercase mb-1">
+              Address
+            </h3>
+            <p className="text-xs text-gray-900">
+              {address}
             </p>
           </div>
 

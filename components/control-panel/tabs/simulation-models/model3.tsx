@@ -79,14 +79,14 @@ interface Model3Props {
   onOpenNodeSimulation?: (nodeId: string) => void;
 }
 
-const DEFAULT_NODE_PARAMS: NodeParams = {
+export const DEFAULT_NODE_PARAMS: NodeParams = {
   inv_elev: 0,
   init_depth: 0,
   ponding_area: 0,
   surcharge_depth: 0,
 };
 
-const DEFAULT_LINK_PARAMS: LinkParams = {
+export const DEFAULT_LINK_PARAMS: LinkParams = {
   init_flow: 0,
   upstrm_offset_depth: 0,
   downstrm_offset_depth: 0,
@@ -100,10 +100,10 @@ const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
 
 export default function Model3({
   selectedPointId: externalSelectedPointId = null,
-  selectedInlet = null,
-  selectedOutlet = null,
-  selectedPipe = null,
-  selectedDrain = null,
+  selectedInlet: _selectedInlet = null,
+  selectedOutlet: _selectedOutlet = null,
+  selectedPipe: _selectedPipe = null,
+  selectedDrain: _selectedDrain = null,
   selectedComponentIds,
   onComponentIdsChange,
   selectedPipeIds,
@@ -120,7 +120,7 @@ export default function Model3({
   onToggleLinkPanel,
   onGenerateTable,
   isLoadingTable,
-  onCloseTable,
+  onCloseTable: _onCloseTable,
   hasTable = false,
   isTableMinimized = false,
   onToggleMinimize,
@@ -143,7 +143,7 @@ export default function Model3({
     ) {
       onComponentIdsChange([...selectedComponentIds, externalSelectedPointId]);
     }
-  }, [externalSelectedPointId]);
+  }, [externalSelectedPointId, selectedComponentIds, onComponentIdsChange]);
 
   // Handle component selection changes - auto-populate params
   useEffect(() => {
@@ -159,7 +159,7 @@ export default function Model3({
         if (inlet) {
           newParams.set(id, {
             inv_elev: inlet.Inv_Elev || 0,
-            init_depth: inlet.MaxDepth || 0,
+            init_depth: 0,
             ponding_area: 0,
             surcharge_depth: 0,
           });
@@ -168,7 +168,7 @@ export default function Model3({
         } else if (drain) {
           newParams.set(id, {
             inv_elev: drain.InvElev || 0,
-            init_depth: drain.Max_Depth || 0,
+            init_depth: 0,
             ponding_area: 0,
             surcharge_depth: 0,
           });
@@ -189,7 +189,7 @@ export default function Model3({
     if (paramsChanged) {
       onComponentParamsChange(newParams);
     }
-  }, [selectedComponentIds, inlets, drains]);
+  }, [selectedComponentIds, inlets, drains, componentParams, onComponentParamsChange]);
 
   // Handle pipe selection changes
   useEffect(() => {
@@ -215,7 +215,7 @@ export default function Model3({
     if (paramsChanged) {
       onPipeParamsChange(newParams);
     }
-  }, [selectedPipeIds]);
+  }, [selectedPipeIds, pipeParams, onPipeParamsChange]);
 
   const handleGenerateTableClick = () => {
     if (selectedComponentIds.length === 0) {

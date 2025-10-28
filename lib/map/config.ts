@@ -48,6 +48,7 @@ export const LAYER_COLORS = {
     selectedColor: "#dc2eef", // Cyan when selected
     width: 2.5, // Normal line width
     selectedWidth: 6, // Selected line width
+    hitAreaWidth: 50, // Invisible hit area width for easier clicking (2x from 25px)
   },
   storm_drains: {
     color: "#5687ca", // Blue for storm drains
@@ -58,6 +59,7 @@ export const LAYER_COLORS = {
     selectedRadius: 10, // Selected circle radius
     strokeWidth: 0.5, // Normal border width
     selectedStrokeWidth: 1, // Selected border width
+    hitAreaRadius: 50, // Invisible hit area radius for easier clicking (2x from 25px)
   },
   inlets: {
     color: "#00ca67", // Green for inlets
@@ -68,6 +70,7 @@ export const LAYER_COLORS = {
     selectedRadius: 12, // Selected circle radius
     strokeWidth: 0.5, // Normal border width
     selectedStrokeWidth: 1.2, // Selected border width
+    hitAreaRadius: 50, // Invisible hit area radius for easier clicking (2x from 25px)
   },
   outlets: {
     color: "#dd4337", // Red for outlets
@@ -78,6 +81,7 @@ export const LAYER_COLORS = {
     selectedRadius: 12, // Selected circle radius
     strokeWidth: 0.5, // Normal border width
     selectedStrokeWidth: 1.2, // Selected border width
+    hitAreaRadius: 50, // Invisible hit area radius for easier clicking (2x from 25px)
   },
   flood_hazard: {
     icon: "#8d8a89ff",
@@ -115,6 +119,14 @@ export const LAYER_IDS: string[] = [
   "flood_hazard-layer",
 ];
 
+// Hit area layer IDs for click detection and cursor feedback
+export const HIT_AREA_LAYER_IDS: string[] = [
+  "man_pipes-hit-layer",
+  "storm_drains-hit-layer",
+  "inlets-hit-layer",
+  "outlets-hit-layer",
+];
+
 export const MAP_STYLES = {
   STREETS: "mapbox://styles/mapbox/streets-v11",
   SATELLITE: "mapbox://styles/mapbox/satellite-streets-v11",
@@ -139,13 +151,13 @@ export function getLinePaintConfig(layerType: keyof typeof LAYER_COLORS) {
       ["boolean", ["feature-state", "selected"], false],
       config.selectedColor,
       config.color,
-    ] as any,
+    ] as unknown as string,
     "line-width": [
       "case",
       ["boolean", ["feature-state", "selected"], false],
       config.selectedWidth,
       config.width,
-    ] as any,
+    ] as unknown as number,
     "line-color-transition": {
       duration: TRANSITION_CONFIG.duration,
       delay: TRANSITION_CONFIG.delay,
@@ -172,25 +184,25 @@ export function getCirclePaintConfig(layerType: keyof typeof LAYER_COLORS) {
       ["boolean", ["feature-state", "selected"], false],
       config.selectedRadius,
       config.radius,
-    ] as any,
+    ] as unknown as number,
     "circle-color": [
       "case",
       ["boolean", ["feature-state", "selected"], false],
       config.selectedColor,
       config.color,
-    ] as any,
+    ] as unknown as string,
     "circle-stroke-color": [
       "case",
       ["boolean", ["feature-state", "selected"], false],
       config.selectedStrokeColor,
       config.strokeColor,
-    ] as any,
+    ] as unknown as string,
     "circle-stroke-width": [
       "case",
       ["boolean", ["feature-state", "selected"], false],
       config.selectedStrokeWidth,
       config.strokeWidth,
-    ] as any,
+    ] as unknown as number,
     "circle-radius-transition": {
       duration: TRANSITION_CONFIG.duration,
       delay: TRANSITION_CONFIG.delay,
@@ -210,18 +222,51 @@ export function getCirclePaintConfig(layerType: keyof typeof LAYER_COLORS) {
   };
 }
 
-
 export function getFloodHazardPaintConfig() {
   const config = LAYER_COLORS.flood_hazard;
   return {
     "fill-color": [
       "match",
-      ["get", "Var"], 
+      ["get", "Var"],
       3, config.high,
       2, config.medium,
       1, config.low,
       config.default,
-    ] as any,
+    ] as unknown as string,
     "fill-opacity": config.opacity,
+  };
+}
+
+/**
+ * Get paint configuration for invisible hit area line layers
+ * These are larger, transparent layers for better click detection
+ */
+export function getLineHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) {
+  const config = LAYER_COLORS[layerType];
+  if (!("hitAreaWidth" in config)) {
+    throw new Error(`Layer type ${layerType} does not have hit area configuration`);
+  }
+
+  return {
+    "line-color": "rgba(0, 0, 0, 0)", // Fully transparent
+    "line-width": config.hitAreaWidth,
+    "line-opacity": 0, // Invisible but still interactive
+  };
+}
+
+/**
+ * Get paint configuration for invisible hit area circle layers
+ * These are larger, transparent layers for better click detection
+ */
+export function getCircleHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) {
+  const config = LAYER_COLORS[layerType];
+  if (!("hitAreaRadius" in config)) {
+    throw new Error(`Layer type ${layerType} does not have hit area configuration`);
+  }
+
+  return {
+    "circle-radius": config.hitAreaRadius,
+    "circle-color": "rgba(0, 0, 0, 0)", // Fully transparent
+    "circle-opacity": 0, // Invisible but still interactive
   };
 }

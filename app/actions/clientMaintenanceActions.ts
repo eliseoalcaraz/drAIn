@@ -8,10 +8,10 @@ import { updateReportStatus } from "@/lib/supabase/report";
 // returns a single object if there's a one-to-one relationship, but TypeScript
 // infers it as an array due to potential one-to-many. This function ensures
 // it's always an array for type consistency if needed.
-const normalizeJoinedData = (data: any) => {
+const normalizeJoinedData = (data: unknown) => {
   if (!data) return data;
 
-  return data.map((record: any) => {
+  return (data as Array<Record<string, unknown>>).map((record: Record<string, unknown>) => {
     const newRecord = { ...record };
     if (newRecord.agencies && !Array.isArray(newRecord.agencies)) {
       newRecord.agencies = [newRecord.agencies];
@@ -24,7 +24,7 @@ const normalizeJoinedData = (data: any) => {
 };
 
 // Inlet Maintenance Functions
-export async function recordInletMaintenance(inletId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
+export async function recordInletMaintenance(inletId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -52,6 +52,7 @@ export async function recordInletMaintenance(inletId: string, reportId?: string,
         represented_by: user.id,
         addressed_report_id: reportId,
         status: status,
+        description: description,
       },
     ])
     .select();
@@ -77,7 +78,8 @@ export async function getInletMaintenanceHistory(inletId: string) {
       agencies ( name ),
       profiles ( full_name ),
       status,
-      addressed_report_id
+      addressed_report_id,
+      description
     `
     )
     .eq("in_name", inletId) // Using 'in_name' as the column for string identifier
@@ -92,7 +94,7 @@ export async function getInletMaintenanceHistory(inletId: string) {
 }
 
 // Man Pipe Maintenance Functions
-export async function recordManPipeMaintenance(manPipeId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
+export async function recordManPipeMaintenance(manPipeId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -120,6 +122,7 @@ export async function recordManPipeMaintenance(manPipeId: string, reportId?: str
         represented_by: user.id,
         addressed_report_id: reportId,
         status: status,
+        description: description,
       },
     ])
     .select();
@@ -145,7 +148,8 @@ export async function getManPipeMaintenanceHistory(manPipeId: string) {
       agencies ( name ),
       profiles ( full_name ),
       status,
-      addressed_report_id
+      addressed_report_id,
+      description
     `
     )
     .eq("name", manPipeId) // Using 'name' as the column for string identifier
@@ -160,7 +164,7 @@ export async function getManPipeMaintenanceHistory(manPipeId: string) {
 }
 
 // Outlet Maintenance Functions
-export async function recordOutletMaintenance(outletId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
+export async function recordOutletMaintenance(outletId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -188,6 +192,7 @@ export async function recordOutletMaintenance(outletId: string, reportId?: strin
         represented_by: user.id,
         addressed_report_id: reportId,
         status: status,
+        description: description,
       },
     ])
     .select();
@@ -213,7 +218,8 @@ export async function getOutletMaintenanceHistory(outletId: string) {
       agencies ( name ),
       profiles ( full_name ),
       status,
-      addressed_report_id
+      addressed_report_id,
+      description
     `
     )
     .eq("out_name", outletId) // Using 'out_name' as the column for string identifier
@@ -228,7 +234,7 @@ export async function getOutletMaintenanceHistory(outletId: string) {
 }
 
 // Storm Drain Maintenance Functions
-export async function recordStormDrainMaintenance(stormDrainId: string, reportId?: string, status?: 'in-progress' | 'resolved') {
+export async function recordStormDrainMaintenance(stormDrainId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -256,6 +262,7 @@ export async function recordStormDrainMaintenance(stormDrainId: string, reportId
         represented_by: user.id,
         addressed_report_id: reportId,
         status: status,
+        description: description,
       },
     ])
     .select();
@@ -281,7 +288,8 @@ export async function getStormDrainMaintenanceHistory(stormDrainId: string) {
       agencies ( name ),
       profiles ( full_name ),
       status,
-      addressed_report_id
+      addressed_report_id,
+      description
     `
     )
     .eq("in_name", stormDrainId) // Using 'in_name' as the column for string identifier for storm drains

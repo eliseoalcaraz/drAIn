@@ -113,8 +113,9 @@ export default function DataFlowPipeline({
 
   // Cleanup timeouts on unmount
   useEffect(() => {
+    const timeouts = hoverTimeoutRef.current;
     return () => {
-      hoverTimeoutRef.current.forEach((timeout) => clearTimeout(timeout));
+      timeouts.forEach((timeout) => clearTimeout(timeout));
     };
   }, []);
 
@@ -287,6 +288,26 @@ export default function DataFlowPipeline({
                 opacity="0.3"
               />
             </pattern>
+
+            {/* Gradient for flowing stroke */}
+            <linearGradient id="flowGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stopColor="#a0a6f0" />
+              <stop offset="50%" stopColor="#8fc5dd" />
+              <stop offset="100%" stopColor="#a0a6f0" />
+            </linearGradient>
+
+            {/* Glow filter */}
+            <filter id="flowGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur
+                in="SourceGraphic"
+                stdDeviation="4"
+                result="blur"
+              />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
           </defs>
 
           {/* Map SVG Background Layer */}
@@ -1514,11 +1535,11 @@ export default function DataFlowPipeline({
             transition={{ duration: 1.6, ease: "easeInOut" }}
           />
 
-          {/* blue flowing stroke */}
+          {/* blue flowing stroke with gradient and glow */}
           <motion.path
             d="M952 401 952 218.6736Q952 162 1009 161.7552L1735.3472 162.0016Q1792.0192 161.7552 1792.0192 218.4272L1792.0192 429Q1792.0192 485 1848.6912 485L1990 485Q1990 581 1990 625L1990 1090 1255.36 1090 1255.36 1007Q1255.36 951 1198.688 951L169 951Q112 951 112 895L112 332.5104Q112 275.592 169 275.592L460 276Q516 276 516 220L516-9"
             fill="none"
-            stroke="#8fc5dd"
+            stroke="url(#flowGradient)"
             strokeWidth="18"
             strokeLinecap="round"
             initial={{ pathLength: 0 }}

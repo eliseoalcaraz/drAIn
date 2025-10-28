@@ -5,7 +5,7 @@ import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { SimulationGateway } from "@/components/simulation-gateway";
 import { ModelSelector, type ModelType } from "./model-selector";
 import Model2 from "./simulation-models/model2";
-import Model3 from "./simulation-models/model3";
+import Model3, { type NodeParams, type LinkParams } from "./simulation-models/model3";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 
 interface RainfallParams {
@@ -46,10 +46,10 @@ interface SimulationsContentProps {
   onComponentIdsChange?: (ids: string[]) => void;
   selectedPipeIds?: string[];
   onPipeIdsChange?: (ids: string[]) => void;
-  componentParams?: Map<string, any>;
-  onComponentParamsChange?: (params: Map<string, any>) => void;
-  pipeParams?: Map<string, any>;
-  onPipeParamsChange?: (params: Map<string, any>) => void;
+  componentParams?: Map<string, NodeParams>;
+  onComponentParamsChange?: (params: Map<string, NodeParams>) => void;
+  pipeParams?: Map<string, LinkParams>;
+  onPipeParamsChange?: (params: Map<string, LinkParams>) => void;
   rainfallParams: RainfallParams,
   onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel?: boolean;
@@ -117,7 +117,7 @@ export default function SimulationsContent({
   // Sync local selectedModel with simModel query param so external clears work
   useEffect(() => {
     const sm = searchParams?.get("simModel");
-    setSelectedModel((prev) => {
+    setSelectedModel(() => {
       // Avoid unnecessary state updates if same
       return sm ? (sm as ModelType) : null;
     });

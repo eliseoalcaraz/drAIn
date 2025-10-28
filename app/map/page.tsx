@@ -14,6 +14,8 @@ import {
   MAP_STYLES,
   getLinePaintConfig,
   getCirclePaintConfig,
+  getLineHitAreaPaintConfig,
+  getCircleHitAreaPaintConfig,
   getFloodHazardPaintConfig,
   CAMERA_ANIMATION,
 } from "@/lib/map/config";
@@ -30,6 +32,7 @@ import type {
   Pipe,
   DatasetType,
 } from "@/components/control-panel/types";
+import type { Report } from "@/lib/supabase/report";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -45,16 +48,18 @@ export default function MapPage() {
   const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [reports, setReports] = useState<any[]>([]);
+  const [reports, setReports] = useState<Report[]>([]);
   const [isRefreshingReports, setIsRefreshingReports] = useState(false);
-  const [selectedFloodScenario, setSelectedFloodScenario] = useState<string>("5YR");
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [selectedFloodScenario, setSelectedFloodScenario] =
+    useState<string>("5YR");
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
     "storm_drains-layer": true,
     "inlets-layer": true,
     "outlets-layer": true,
     "reports-layer": true,
-    "flood_hazard-layer": true
+    "flood_hazard-layer": true,
   });
 
   const [selectedFeature, setSelectedFeature] = useState<{
@@ -133,35 +138,42 @@ export default function MapPage() {
   };
 
   const handleFloodScenarioChange = (scenarioId: string) => {
-  console.log(`Switching to ${scenarioId} flood hazard...`);
-  
-  if (!mapRef.current) {
-    console.error("Map not ready");
-    return;
-  }
-  
-  setSelectedFloodScenario(scenarioId);
-  
-  const source = mapRef.current.getSource("flood_hazard") as mapboxgl.GeoJSONSource;
-  
-  if (source) {
-    const dataUrl = `/flood-hazard/${scenarioId} Flood Hazard.json`;
-    console.log(`Loading: ${dataUrl}`);
-    
-    source.setData(dataUrl);
-    
-    // Verify the switch worked
-    mapRef.current.once('sourcedata', (e) => {
-      if (e.sourceId === 'flood_hazard' && e.isSourceLoaded) {
-        const features = mapRef.current?.querySourceFeatures('flood_hazard');
-        console.log(`Loaded ${scenarioId}: ${features?.length || 0} features`);
-      }
-    });
-  } else {
-    console.error("flood_hazard source not found");
-    console.log("Available sources:", Object.keys(mapRef.current.getStyle().sources));
-  }
-};
+    console.log(`Switching to ${scenarioId} flood hazard...`);
+
+    if (!mapRef.current) {
+      console.error("Map not ready");
+      return;
+    }
+
+    setSelectedFloodScenario(scenarioId);
+
+    const source = mapRef.current.getSource(
+      "flood_hazard"
+    ) as mapboxgl.GeoJSONSource;
+
+    if (source) {
+      const dataUrl = `/flood-hazard/${scenarioId} Flood Hazard.json`;
+      console.log(`Loading: ${dataUrl}`);
+
+      source.setData(dataUrl);
+
+      // Verify the switch worked
+      mapRef.current.once("sourcedata", (e) => {
+        if (e.sourceId === "flood_hazard" && e.isSourceLoaded) {
+          const features = mapRef.current?.querySourceFeatures("flood_hazard");
+          console.log(
+            `Loaded ${scenarioId}: ${features?.length || 0} features`
+          );
+        }
+      });
+    } else {
+      console.error("flood_hazard source not found");
+      console.log(
+        "Available sources:",
+        Object.keys(mapRef.current.getStyle().sources)
+      );
+    }
+  };
 
   // Refs for data to avoid stale closures in map click handler
   const inletsRef = useRef<Inlet[]>([]);
@@ -180,7 +192,7 @@ export default function MapPage() {
       }
     };
     loadReports();
-      const unsubscribe = subscribeToReportChanges(
+    const unsubscribe = subscribeToReportChanges(
       (newReport) => {
         const formatted = formatReport(newReport);
         setReports((prev) => [...prev, formatted]);
@@ -243,227 +255,289 @@ export default function MapPage() {
 
     // Only initialize map after sidebar is closed to ensure proper sizing
     if (mapContainerRef.current && !mapRef.current && !open) {
-      const map = new mapboxgl.Map({
-        container: mapContainerRef.current,
-        style: DEFAULT_STYLE,
-        center: DEFAULT_CENTER,
-        zoom: DEFAULT_ZOOM,
-        maxBounds: MAP_BOUNDS,
-        pitch: 60,
-        bearing: -17.6,
-        attributionControl: false, // Disable default attribution
-      });
-
-      mapRef.current = map;
-
-      const addCustomLayers = () => {
-        if (!map.getSource("mapbox-dem")) {
-          map.addSource("mapbox-dem", {
-            type: "raster-dem",
-            url: "mapbox://mapbox.mapbox-terrain-dem-v1",
-            tileSize: 512,
-            maxzoom: 14,
-          });
-          map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
-        }
-
-        if (!map.getLayer("3d-buildings")) {
-          map.addLayer(
-            {
-              id: "3d-buildings",
-              source: "composite",
-              "source-layer": "building",
-              filter: ["==", "extrude", "true"],
-              type: "fill-extrusion",
-              minzoom: 15,
-              paint: {
-                "fill-extrusion-color": "#aaa",
-                "fill-extrusion-height": [
-                  "interpolate",
-                  ["linear"],
-                  ["zoom"],
-                  15,
-                  0,
-                  15.05,
-                  ["get", "height"],
-                ],
-                "fill-extrusion-base": ["get", "min_height"],
-                "fill-extrusion-opacity": 0.6,
-              },
-            },
-            "waterway-label"
+      try {
+        // Check WebGL support before initializing map
+        if (!mapboxgl.supported()) {
+          setMapError(
+            "WebGL is not supported on this browser. Please use a modern browser with WebGL support."
           );
-        }
-
-        if (!map.getSource("flood_hazard")) {
-          console.log("🔵 Adding flood_hazard source and layer...");
-          
-          map.addSource("flood_hazard", {
-            type: "geojson",
-            data: `/flood-hazard/${selectedFloodScenario} Flood Hazard.json`,
-          });
-
-          map.addLayer({
-            id: "flood_hazard-layer",
-            type: "fill",
-            source: "flood_hazard",
-            paint: getFloodHazardPaintConfig(),
-          });
-        }
-
-        if (!map.getSource("man_pipes")) {
-          map.addSource("man_pipes", {
-            type: "geojson",
-            data: "/drainage/man_pipes.geojson",
-            promoteId: "Name",
-          });
-          map.addLayer({
-            id: "man_pipes-layer",
-            type: "line",
-            source: "man_pipes",
-            paint: getLinePaintConfig("man_pipes"),
-          });
-        }
-
-        if (!map.getSource("storm_drains")) {
-          map.addSource("storm_drains", {
-            type: "geojson",
-            data: "/drainage/storm_drains.geojson",
-            promoteId: "In_Name",
-          });
-          map.addLayer({
-            id: "storm_drains-layer",
-            type: "circle",
-            source: "storm_drains",
-            paint: getCirclePaintConfig("storm_drains"),
-          });
-        }
-
-        if (!map.getSource("inlets")) {
-          map.addSource("inlets", {
-            type: "geojson",
-            data: "/drainage/inlets.geojson",
-            promoteId: "In_Name",
-          });
-          map.addLayer({
-            id: "inlets-layer",
-            type: "circle",
-            source: "inlets",
-            paint: getCirclePaintConfig("inlets"),
-          });
-        }
-
-        if (!map.getSource("outlets")) {
-          map.addSource("outlets", {
-            type: "geojson",
-            data: "/drainage/outlets.geojson",
-            promoteId: "Out_Name",
-          });
-          map.addLayer({
-            id: "outlets-layer",
-            type: "circle",
-            source: "outlets",
-            paint: getCirclePaintConfig("outlets"),
-          });
-        }
-        
-      };
-
-      map.on("load", addCustomLayers);
-      map.on("style.load", addCustomLayers);
-
-      // Move click handler inside here where map is defined
-      map.on("click", (e) => {
-        //console.log("=== Map Click Debug ===");
-        //console.log("Current tab from ref:", currentTabRef.current);
-        //console.log("Data consumer tabs:", dataConsumerTabs);
-
-        const validLayers = [
-          "inlets-layer",
-          "outlets-layer",
-          "storm_drains-layer",
-          "man_pipes-layer",
-        ].filter((id) => map.getLayer(id));
-
-        if (!validLayers.length) {
-          console.log("No valid layers found");
           return;
         }
 
-        const features = map.queryRenderedFeatures(e.point, {
-          layers: validLayers,
+        const map = new mapboxgl.Map({
+          container: mapContainerRef.current,
+          style: DEFAULT_STYLE,
+          center: DEFAULT_CENTER,
+          zoom: DEFAULT_ZOOM,
+          maxBounds: MAP_BOUNDS,
+          pitch: 60,
+          bearing: -17.6,
+          attributionControl: false, // Disable default attribution
         });
 
-        if (!features.length) {
-          //console.log("No features found at click point");
-          clearSelections();
-          return;
-        }
+        mapRef.current = map;
 
-        const feature = features[0];
-        const props = feature.properties || {};
-        if (!feature.layer) return;
-
-        // Use currentTabRef instead of controlPanelTab
-        const shouldKeepTab = dataConsumerTabs.includes(currentTabRef.current);
-        //console.log("Should keep current tab?", shouldKeepTab);
-
-        switch (feature.layer.id) {
-          case "man_pipes-layer": {
-            const pipe = pipesRef.current.find((p) => p.id === props.Name);
-            if (pipe) {
-              //console.log("Selected pipe:", pipe.id);
-              handleSelectPipe(pipe);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
+        const addCustomLayers = () => {
+          if (!map.getSource("mapbox-dem")) {
+            map.addSource("mapbox-dem", {
+              type: "raster-dem",
+              url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+              tileSize: 512,
+              maxzoom: 14,
+            });
+            map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
           }
-          case "inlets-layer": {
-            const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
-            if (inlet) {
-              handleSelectInlet(inlet);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
-          }
-          case "outlets-layer": {
-            const outlet = outletsRef.current.find(
-              (o) => o.id === props.Out_Name
+
+          if (!map.getLayer("3d-buildings")) {
+            map.addLayer(
+              {
+                id: "3d-buildings",
+                source: "composite",
+                "source-layer": "building",
+                filter: ["==", "extrude", "true"],
+                type: "fill-extrusion",
+                minzoom: 15,
+                paint: {
+                  "fill-extrusion-color": "#aaa",
+                  "fill-extrusion-height": [
+                    "interpolate",
+                    ["linear"],
+                    ["zoom"],
+                    15,
+                    0,
+                    15.05,
+                    ["get", "height"],
+                  ],
+                  "fill-extrusion-base": ["get", "min_height"],
+                  "fill-extrusion-opacity": 0.6,
+                },
+              },
+              "waterway-label"
             );
-            if (outlet) {
-              handleSelectOutlet(outlet);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
           }
-          case "storm_drains-layer": {
-            const drain = drainsRef.current.find((d) => d.id === props.In_Name);
-            if (drain) {
-              handleSelectDrain(drain);
-              if (!shouldKeepTab) {
-                handleTabChange("stats");
-              }
-            }
-            break;
-          }
-        }
-      });
 
-      // Cursor style
-      layerIds.forEach((layerId) => {
-        map.on("mouseenter", layerId, () => {
-          map.getCanvas().style.cursor = "pointer";
+          if (!map.getSource("flood_hazard")) {
+            console.log("🔵 Adding flood_hazard source and layer...");
+
+            map.addSource("flood_hazard", {
+              type: "geojson",
+              data: `/flood-hazard/${selectedFloodScenario} Flood Hazard.json`,
+            });
+
+            map.addLayer({
+              id: "flood_hazard-layer",
+              type: "fill",
+              source: "flood_hazard",
+              paint: getFloodHazardPaintConfig(),
+            });
+          }
+
+          if (!map.getSource("man_pipes")) {
+            map.addSource("man_pipes", {
+              type: "geojson",
+              data: "/drainage/man_pipes.geojson",
+              promoteId: "Name",
+            });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "man_pipes-hit-layer",
+              type: "line",
+              source: "man_pipes",
+              paint: getLineHitAreaPaintConfig("man_pipes"),
+            });
+            // Add visible layer on top
+            map.addLayer({
+              id: "man_pipes-layer",
+              type: "line",
+              source: "man_pipes",
+              paint: getLinePaintConfig("man_pipes"),
+            });
+          }
+
+          if (!map.getSource("storm_drains")) {
+            map.addSource("storm_drains", {
+              type: "geojson",
+              data: "/drainage/storm_drains.geojson",
+              promoteId: "In_Name",
+            });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "storm_drains-hit-layer",
+              type: "circle",
+              source: "storm_drains",
+              paint: getCircleHitAreaPaintConfig("storm_drains"),
+            });
+            // Add visible layer on top
+            map.addLayer({
+              id: "storm_drains-layer",
+              type: "circle",
+              source: "storm_drains",
+              paint: getCirclePaintConfig("storm_drains"),
+            });
+          }
+
+          if (!map.getSource("inlets")) {
+            map.addSource("inlets", {
+              type: "geojson",
+              data: "/drainage/inlets.geojson",
+              promoteId: "In_Name",
+            });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "inlets-hit-layer",
+              type: "circle",
+              source: "inlets",
+              paint: getCircleHitAreaPaintConfig("inlets"),
+            });
+            // Add visible layer on top
+            map.addLayer({
+              id: "inlets-layer",
+              type: "circle",
+              source: "inlets",
+              paint: getCirclePaintConfig("inlets"),
+            });
+          }
+
+          if (!map.getSource("outlets")) {
+            map.addSource("outlets", {
+              type: "geojson",
+              data: "/drainage/outlets.geojson",
+              promoteId: "Out_Name",
+            });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "outlets-hit-layer",
+              type: "circle",
+              source: "outlets",
+              paint: getCircleHitAreaPaintConfig("outlets"),
+            });
+            // Add visible layer on top
+            map.addLayer({
+              id: "outlets-layer",
+              type: "circle",
+              source: "outlets",
+              paint: getCirclePaintConfig("outlets"),
+            });
+          }
+        };
+
+        map.on("load", addCustomLayers);
+        map.on("style.load", addCustomLayers);
+
+        // Move click handler inside here where map is defined
+        map.on("click", (e) => {
+          //console.log("=== Map Click Debug ===");
+          //console.log("Current tab from ref:", currentTabRef.current);
+          //console.log("Data consumer tabs:", dataConsumerTabs);
+
+          // Query hit area layers for better click detection
+          const validHitLayers = [
+            "inlets-hit-layer",
+            "outlets-hit-layer",
+            "storm_drains-hit-layer",
+            "man_pipes-hit-layer",
+          ].filter((id) => map.getLayer(id));
+
+          if (!validHitLayers.length) {
+            console.log("No valid hit area layers found");
+            return;
+          }
+
+          const features = map.queryRenderedFeatures(e.point, {
+            layers: validHitLayers,
+          });
+
+          if (!features.length) {
+            //console.log("No features found at click point");
+            clearSelections();
+            return;
+          }
+
+          const feature = features[0];
+          const props = feature.properties || {};
+          if (!feature.layer) return;
+
+          // Use currentTabRef instead of controlPanelTab
+          const shouldKeepTab = dataConsumerTabs.includes(
+            currentTabRef.current
+          );
+          //console.log("Should keep current tab?", shouldKeepTab);
+
+          // Map hit layer IDs to their corresponding data
+          switch (feature.layer.id) {
+            case "man_pipes-hit-layer": {
+              const pipe = pipesRef.current.find((p) => p.id === props.Name);
+              if (pipe) {
+                //console.log("Selected pipe:", pipe.id);
+                handleSelectPipe(pipe);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+            case "inlets-hit-layer": {
+              const inlet = inletsRef.current.find(
+                (i) => i.id === props.In_Name
+              );
+              if (inlet) {
+                handleSelectInlet(inlet);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+            case "outlets-hit-layer": {
+              const outlet = outletsRef.current.find(
+                (o) => o.id === props.Out_Name
+              );
+              if (outlet) {
+                handleSelectOutlet(outlet);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+            case "storm_drains-hit-layer": {
+              const drain = drainsRef.current.find(
+                (d) => d.id === props.In_Name
+              );
+              if (drain) {
+                handleSelectDrain(drain);
+                if (!shouldKeepTab) {
+                  handleTabChange("stats");
+                }
+              }
+              break;
+            }
+          }
         });
-        map.on("mouseleave", layerId, () => {
-          map.getCanvas().style.cursor = "";
+
+        // Cursor style - use hit area layers for better cursor feedback
+        const hitAreaLayerIds = [
+          "inlets-hit-layer",
+          "outlets-hit-layer",
+          "storm_drains-hit-layer",
+          "man_pipes-hit-layer",
+        ];
+
+        hitAreaLayerIds.forEach((layerId) => {
+          map.on("mouseenter", layerId, () => {
+            map.getCanvas().style.cursor = "pointer";
+          });
+          map.on("mouseleave", layerId, () => {
+            map.getCanvas().style.cursor = "";
+          });
         });
-      });
+      } catch (error) {
+        console.error("Failed to initialize map:", error);
+        setMapError(
+          "Failed to initialize map. Please refresh the page or try a different browser."
+        );
+        return;
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [layerIds, open]);
@@ -585,13 +659,23 @@ export default function MapPage() {
     if (mapRef.current) {
       layerIds.forEach((layerId) => {
         if (mapRef.current?.getLayer(layerId)) {
+          const isVisible =
+            overlayVisibility[layerId as keyof typeof overlayVisibility];
           mapRef.current.setLayoutProperty(
             layerId,
             "visibility",
-            overlayVisibility[layerId as keyof typeof overlayVisibility]
-              ? "visible"
-              : "none"
+            isVisible ? "visible" : "none"
           );
+
+          // Also control the corresponding hit area layer visibility
+          const hitLayerId = layerId.replace("-layer", "-hit-layer");
+          if (mapRef.current?.getLayer(hitLayerId)) {
+            mapRef.current.setLayoutProperty(
+              hitLayerId,
+              "visibility",
+              isVisible ? "visible" : "none"
+            );
+          }
         }
       });
     }
@@ -638,7 +722,7 @@ export default function MapPage() {
       "inlets-layer": !someVisible,
       "outlets-layer": !someVisible,
       "reports-layer": !someVisible,
-      "flood_hazard-layer": !someVisible
+      "flood_hazard-layer": !someVisible,
     };
 
     setOverlayVisibility(updated);
@@ -829,7 +913,24 @@ export default function MapPage() {
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-blue-200">
-        <div className="w-full h-screen" ref={mapContainerRef} />
+        <div className="w-full h-screen" ref={mapContainerRef}>
+          {mapError && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background/95 z-50">
+              <div className="text-center p-8 max-w-md">
+                <h2 className="text-2xl font-bold mb-4">
+                  Map Initialization Error
+                </h2>
+                <p className="text-muted-foreground mb-4">{mapError}</p>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+                >
+                  Reload Page
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
         <ControlPanel
           activeTab={controlPanelTab}
           dataset={controlPanelDataset}

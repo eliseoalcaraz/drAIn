@@ -2,13 +2,17 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Map } from "lucide-react";
+import Logo from "@/public/icons/logo.svg";
 import { IconArticleFilled } from "@tabler/icons-react";
-import { HomeIcon, MapIcon, BookOpenIcon } from "@heroicons/react/24/solid";
+import {
+  HomeIcon,
+  MapIcon,
+  BookOpenIcon,
+  BeakerIcon,
+} from "@heroicons/react/24/solid";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -23,11 +27,6 @@ import NotificationBell from "@/components/report-notif";
 
 // This is the data structure for the sidebar
 const data = {
-  team: {
-    name: "Project Drain",
-    logo: Map,
-    plan: "Drainage Monitoring System",
-  },
   navMain: [
     {
       title: "Home",
@@ -38,6 +37,11 @@ const data = {
       title: "Map",
       url: "/map",
       icon: MapIcon,
+    },
+    {
+      title: "Simulation",
+      url: "/simulation?active=true",
+      icon: BeakerIcon,
     },
     {
       title: "Documentation",
@@ -56,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const router = useRouter();
   const { user } = useAuth();
   const supabase = client;
-  const [profile, setProfile] = useState<any>(null);
+  const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -101,7 +105,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const userData = user
     ? {
-        name: profile?.full_name || user.email?.split("@")[0] || "User",
+        name: String(profile?.full_name || user.email?.split("@")[0] || "User"),
         email: user.email || "No email",
         avatar: publicAvatarUrl || undefined,
       }
@@ -117,8 +121,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       collapsible="icon"
       {...props}
     >
-      <SidebarHeader className="border-b">
-        <TeamSwitcher team={data.team} />
+      <SidebarHeader
+        className="border-b flex items-center justify-center py-4 cursor-pointer"
+        onClick={() => router.push("/")}
+      >
+        <Logo className="h-7 w-auto text-[#5a87e7]" />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

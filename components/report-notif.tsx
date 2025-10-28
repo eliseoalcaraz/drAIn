@@ -8,10 +8,10 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { subscribeToReportChanges } from "@/lib/supabase/report";
+import { subscribeToReportChanges, type Report } from "@/lib/supabase/report";
 
 export default function NotificationBell() {
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Report[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function NotificationBell() {
                   </span>
                 </p>
                 <span className="font-normal text-xs mb-2">
-                  {n.category || "report"} from {n.reporter_name || "Unknown"}
+                  {n.category || "report"} from {n.reporterName || "Unknown"}
                 </span>
 
                 <p className="text-sm text-gray-600">
@@ -95,9 +95,7 @@ export default function NotificationBell() {
 
                 <div className="flex mt-2 justify-between items-center text-xs text-gray-400">
                   <span>
-                    {new Date(
-                      n.updated_at || n.created_at || Date.now()
-                    ).toLocaleString()}
+                    {new Date(n.date || Date.now()).toLocaleString()}
                   </span>
                 </div>
               </li>

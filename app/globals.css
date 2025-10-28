@@ -183,3 +183,90 @@
 .control-panel-scroll::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.3);
 }
+
+.maintenance-scroll-hidden {
+  scrollbar-width: none; /* For Firefox */
+}
+
+.maintenance-scroll-hidden::-webkit-scrollbar {
+  width: 0px; /* For Chrome, Safari, and Opera */
+  background: transparent; /* Optional: Make the scrollbar track transparent */
+}
+
+/* For Edge, IE */
+.maintenance-scroll-hidden {
+  -ms-overflow-style: none;
+}
+
+/* Custom rotateIn animation */
+@keyframes rotateIn {
+  from {
+    transform: rotate(-40deg);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-rotate-in {
+  animation: rotateIn 0.4s ease-out forwards;
+}
+
+/* Shimmer effect */
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 3s linear infinite;
+}
+
+/* Metallic Shine effect with text-shadow */
+@keyframes shineGlow {
+  0%,
+  100% {
+    filter: brightness(1);
+    text-shadow: 0 0 5px rgba(255, 255, 255, 0.3);
+  }
+  50% {
+    filter: brightness(1.5);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8),
+      0 0 30px rgba(255, 255, 255, 0.5);
+  }
+}
+
+.text-shine {
+  color: #7a7b7f;
+  animation: shineGlow 4s ease-in-out infinite;
+}
+
+/* Gradient animation for blueprint and efficient */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.text-gradient-animated {
+  background: linear-gradient(90deg, #7a80cc, #282d6f, #7a80cc);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradientShift 3s ease-in-out forwards;
+  transition: all 0.3s ease;
+}
+
+.text-gradient-animated:hover {
+  animation: gradientShift 2s ease-in-out infinite;
+}

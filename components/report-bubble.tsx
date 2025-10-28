@@ -8,7 +8,7 @@ import {
   forwardRef,
 } from "react";
 import { getInitials } from "@/lib/user-initials";
-import { X, Image as ImageIcon, History, Link } from "lucide-react";
+import { X, History, Link } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type mapboxgl from "mapbox-gl";
 import { ImageViewer } from "@/components/image-viewer";
@@ -21,6 +21,7 @@ interface Report {
   category: string;
   description: string;
   image?: string | null;
+  address: string
 }
 
 interface Props {
@@ -262,6 +263,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
             description={report.description}
             coordinates={coordinates}
             componentId={report.componentId}
+            address={report.address}
             onClose={() => setShowImageViewer(false)}
           />
         )}

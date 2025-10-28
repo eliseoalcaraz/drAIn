@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import type { Report } from "@/lib/supabase/report";
 import {
   DndContext,
   closestCenter,
@@ -39,7 +40,7 @@ interface OverlayContentProps {
   searchTerm?: string;
   isDragEnabled?: boolean;
   onToggleDrag?: (enabled: boolean) => void;
-  reports: any[];
+  reports: Report[];
   isSimulationMode?: boolean;
 }
 
@@ -109,7 +110,6 @@ export default function OverlaysContent({
   onNavigateToReportForm,
   searchTerm = "",
   isDragEnabled = true,
-  onToggleDrag,
   reports,
   isSimulationMode = false,
 }: OverlayContentProps) {

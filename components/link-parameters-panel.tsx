@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -24,7 +24,7 @@ interface LinkParametersPanelProps {
   onPositionChange: (position: { x: number; y: number }) => void;
 }
 
-const MAX_VISIBLE_TABS = 5;
+const _MAX_VISIBLE_TABS = 5;
 
 export function LinkParametersPanel({
   selectedPipeIds,
@@ -98,7 +98,7 @@ export function LinkParametersPanel({
     e.preventDefault();
   };
 
-  const handleMouseMove = (e: MouseEvent) => {
+  const handleMouseMove = useCallback((e: MouseEvent) => {
     if (!isDragging || !dragRef.current) return;
 
     const deltaX = e.clientX - dragRef.current.startX;
@@ -108,7 +108,7 @@ export function LinkParametersPanel({
       x: dragRef.current.startPosX + deltaX,
       y: dragRef.current.startPosY + deltaY,
     });
-  };
+  }, [isDragging, onPositionChange]);
 
   const handleMouseUp = () => {
     setIsDragging(false);
@@ -138,7 +138,7 @@ export function LinkParametersPanel({
     };
   };
 
-  const handleTouchMove = (e: TouchEvent) => {
+  const handleTouchMove = useCallback((e: TouchEvent) => {
     if (!isDragging || !dragRef.current) return;
 
     const touch = e.touches[0];
@@ -149,7 +149,7 @@ export function LinkParametersPanel({
       x: dragRef.current.startPosX + deltaX,
       y: dragRef.current.startPosY + deltaY,
     });
-  };
+  }, [isDragging, onPositionChange]);
 
   const handleTouchEnd = () => {
     setIsDragging(false);
@@ -171,7 +171,7 @@ export function LinkParametersPanel({
         document.removeEventListener("touchend", handleTouchEnd);
       };
     }
-  }, [isDragging]);
+  }, [isDragging, handleMouseMove, handleTouchMove]);
 
   // Prevent scrolling while dragging
   useEffect(() => {
