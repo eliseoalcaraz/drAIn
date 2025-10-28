@@ -83,6 +83,14 @@ export const LAYER_COLORS = {
     selectedStrokeWidth: 1.2, // Selected border width
     hitAreaRadius: 50, // Invisible hit area radius for easier clicking (2x from 25px)
   },
+  flood_hazard: {
+    icon: "#8d8a89ff",
+    high: "#d73027", // Deep red for high hazard
+    medium: "#fc8d59", // Orange for medium hazard
+    low: "#fee090", // Yellow for low hazard
+    default: "#ffffbf", // Pale for undefined or safe zones
+    opacity: 0.8,
+  },
 } as const;
 
 // OVERLAY_CONFIG synchronized with LAYER_COLORS
@@ -102,6 +110,7 @@ export const LAYER_IDS: string[] = [
   "storm_drains-layer",
   "inlets-layer",
   "outlets-layer",
+  "flood_hazard-layer",
 ];
 
 // Hit area layer IDs for click detection and cursor feedback
@@ -207,14 +216,36 @@ export function getCirclePaintConfig(layerType: keyof typeof LAYER_COLORS) {
   };
 }
 
+export function getFloodHazardPaintConfig() {
+  const config = LAYER_COLORS.flood_hazard;
+  return {
+    "fill-color": [
+      "match",
+      ["get", "Var"],
+      3,
+      config.high,
+      2,
+      config.medium,
+      1,
+      config.low,
+      config.default,
+    ] as unknown as string,
+    "fill-opacity": config.opacity,
+  };
+}
+
 /**
  * Get paint configuration for invisible hit area line layers
  * These are larger, transparent layers for better click detection
  */
-export function getLineHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) {
+export function getLineHitAreaPaintConfig(
+  layerType: keyof typeof LAYER_COLORS
+) {
   const config = LAYER_COLORS[layerType];
   if (!("hitAreaWidth" in config)) {
-    throw new Error(`Layer type ${layerType} does not have hit area configuration`);
+    throw new Error(
+      `Layer type ${layerType} does not have hit area configuration`
+    );
   }
 
   return {
@@ -228,10 +259,14 @@ export function getLineHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) 
  * Get paint configuration for invisible hit area circle layers
  * These are larger, transparent layers for better click detection
  */
-export function getCircleHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) {
+export function getCircleHitAreaPaintConfig(
+  layerType: keyof typeof LAYER_COLORS
+) {
   const config = LAYER_COLORS[layerType];
   if (!("hitAreaRadius" in config)) {
-    throw new Error(`Layer type ${layerType} does not have hit area configuration`);
+    throw new Error(
+      `Layer type ${layerType} does not have hit area configuration`
+    );
   }
 
   return {

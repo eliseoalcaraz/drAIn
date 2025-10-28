@@ -95,6 +95,8 @@ export interface ControlPanelProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario: string,
+  onChangeFloodScenario: (id: string) => void;
   // Simulation mode
   isSimulationMode?: boolean;
   selectedPointForSimulation?: string | null;

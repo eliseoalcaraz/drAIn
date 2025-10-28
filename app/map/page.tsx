@@ -11,12 +11,12 @@ import {
   MAPBOX_ACCESS_TOKEN,
   OVERLAY_CONFIG,
   LAYER_IDS,
-  HIT_AREA_LAYER_IDS,
   MAP_STYLES,
   getLinePaintConfig,
   getCirclePaintConfig,
   getLineHitAreaPaintConfig,
   getCircleHitAreaPaintConfig,
+  getFloodHazardPaintConfig,
   CAMERA_ANIMATION,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
@@ -53,13 +53,15 @@ export default function MapPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [mapError, setMapError] = useState<string | null>(null);
-
+  const [selectedFloodScenario, setSelectedFloodScenario] =
+    useState<string>("5YR");
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
     "storm_drains-layer": true,
     "inlets-layer": true,
     "outlets-layer": true,
     "reports-layer": true,
+    "flood_hazard-layer": true,
   });
 
   const [selectedFeature, setSelectedFeature] = useState<{
@@ -137,11 +139,77 @@ export default function MapPage() {
     }
   };
 
+  const handleFloodScenarioChange = (scenarioId: string) => {
+    console.log(`Switching to ${scenarioId} flood hazard...`);
+
+    if (!mapRef.current) {
+      console.error("Map not ready");
+      return;
+    }
+
+    setSelectedFloodScenario(scenarioId);
+
+    const source = mapRef.current.getSource(
+      "flood_hazard"
+    ) as mapboxgl.GeoJSONSource;
+
+    if (source) {
+      const dataUrl = `/flood-hazard/${scenarioId} Flood Hazard.json`;
+      console.log(`Loading: ${dataUrl}`);
+
+      source.setData(dataUrl);
+
+      // Verify the switch worked
+      mapRef.current.once("sourcedata", (e) => {
+        if (e.sourceId === "flood_hazard" && e.isSourceLoaded) {
+          const features = mapRef.current?.querySourceFeatures("flood_hazard");
+          console.log(
+            `Loaded ${scenarioId}: ${features?.length || 0} features`
+          );
+        }
+      });
+    } else {
+      console.error("flood_hazard source not found");
+      console.log(
+        "Available sources:",
+        Object.keys(mapRef.current.getStyle().sources)
+      );
+    }
+  };
+
   // Refs for data to avoid stale closures in map click handler
   const inletsRef = useRef<Inlet[]>([]);
   const outletsRef = useRef<Outlet[]>([]);
   const pipesRef = useRef<Pipe[]>([]);
   const drainsRef = useRef<Drain[]>([]);
+
+  useEffect(() => {
+    const loadReports = async () => {
+      try {
+        const data = await fetchReports();
+        setReports(data);
+        //console.log("Fetched reports:", data);
+      } catch (err) {
+        console.error("Failed to load reports:", err);
+      }
+    };
+    loadReports();
+    const unsubscribe = subscribeToReportChanges(
+      (newReport) => {
+        const formatted = formatReport(newReport);
+        setReports((prev) => [...prev, formatted]);
+        console.log("🗺️ MapPage new report:", formatted);
+      },
+      (updatedReport) => {
+        const formatted = formatReport(updatedReport);
+        setReports((prev) =>
+          prev.map((r) => (r.id === formatted.id ? formatted : r))
+        );
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
 
   // Update refs when data changes
   useEffect(() => {
@@ -192,7 +260,9 @@ export default function MapPage() {
       try {
         // Check WebGL support before initializing map
         if (!mapboxgl.supported()) {
-          setMapError("WebGL is not supported on this browser. Please use a modern browser with WebGL support.");
+          setMapError(
+            "WebGL is not supported on this browser. Please use a modern browser with WebGL support."
+          );
           return;
         }
 
@@ -246,6 +316,22 @@ export default function MapPage() {
               },
               "waterway-label"
             );
+          }
+
+          if (!map.getSource("flood_hazard")) {
+            console.log("🔵 Adding flood_hazard source and layer...");
+
+            map.addSource("flood_hazard", {
+              type: "geojson",
+              data: `/flood-hazard/${selectedFloodScenario} Flood Hazard.json`,
+            });
+
+            map.addLayer({
+              id: "flood_hazard-layer",
+              type: "fill",
+              source: "flood_hazard",
+              paint: getFloodHazardPaintConfig(),
+            });
           }
 
           if (!map.getSource("man_pipes")) {
@@ -374,7 +460,9 @@ export default function MapPage() {
           if (!feature.layer) return;
 
           // Use currentTabRef instead of controlPanelTab
-          const shouldKeepTab = dataConsumerTabs.includes(currentTabRef.current);
+          const shouldKeepTab = dataConsumerTabs.includes(
+            currentTabRef.current
+          );
           //console.log("Should keep current tab?", shouldKeepTab);
 
           // Map hit layer IDs to their corresponding data
@@ -391,7 +479,9 @@ export default function MapPage() {
               break;
             }
             case "inlets-hit-layer": {
-              const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
+              const inlet = inletsRef.current.find(
+                (i) => i.id === props.In_Name
+              );
               if (inlet) {
                 handleSelectInlet(inlet);
                 if (!shouldKeepTab) {
@@ -413,7 +503,9 @@ export default function MapPage() {
               break;
             }
             case "storm_drains-hit-layer": {
-              const drain = drainsRef.current.find((d) => d.id === props.In_Name);
+              const drain = drainsRef.current.find(
+                (d) => d.id === props.In_Name
+              );
               if (drain) {
                 handleSelectDrain(drain);
                 if (!shouldKeepTab) {
@@ -443,7 +535,9 @@ export default function MapPage() {
         });
       } catch (error) {
         console.error("Failed to initialize map:", error);
-        setMapError("Failed to initialize map. Please refresh the page or try a different browser.");
+        setMapError(
+          "Failed to initialize map. Please refresh the page or try a different browser."
+        );
         return;
       }
     }
@@ -567,7 +661,8 @@ export default function MapPage() {
     if (mapRef.current) {
       layerIds.forEach((layerId) => {
         if (mapRef.current?.getLayer(layerId)) {
-          const isVisible = overlayVisibility[layerId as keyof typeof overlayVisibility];
+          const isVisible =
+            overlayVisibility[layerId as keyof typeof overlayVisibility];
           mapRef.current.setLayoutProperty(
             layerId,
             "visibility",
@@ -629,6 +724,7 @@ export default function MapPage() {
       "inlets-layer": !someVisible,
       "outlets-layer": !someVisible,
       "reports-layer": !someVisible,
+      "flood_hazard-layer": !someVisible,
     };
 
     setOverlayVisibility(updated);
@@ -810,7 +906,9 @@ export default function MapPage() {
           {mapError && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/95 z-50">
               <div className="text-center p-8 max-w-md">
-                <h2 className="text-2xl font-bold mb-4">Map Initialization Error</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                  Map Initialization Error
+                </h2>
                 <p className="text-muted-foreground mb-4">{mapError}</p>
                 <button
                   onClick={() => window.location.reload()}
@@ -840,6 +938,8 @@ export default function MapPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={handleFloodScenarioChange}
           reports={reports}
           onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}

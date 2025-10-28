@@ -3,6 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import AgencyLink from "@/components/agency-link";
+import { toast } from "sonner";
 
 interface UserLinksProps {
   isGuest?: boolean;
@@ -17,6 +18,20 @@ export default function UserLinks({
   onLink,
   onUnlink,
 }: UserLinksProps) {
+  const handleUnlink = async () => {
+    if (onUnlink) {
+      await onUnlink();
+      toast.success("Agency unlinked successfully");
+    }
+  };
+
+  const handleLink = async (agencyId: string, agencyName: string) => {
+    if (onLink) {
+      await onLink(agencyId, agencyName);
+      toast.success(`Successfully linked to ${agencyName}`);
+    }
+  };
+
   return (
     <Card className="rounded-none h-full border-none flex flex-col pb-12">
       <CardContent className="flex-1 flex  justify-center">
@@ -28,7 +43,7 @@ export default function UserLinks({
             </div>
             <Button
               className="self-center"
-              onClick={onUnlink}
+              onClick={handleUnlink}
               disabled={isGuest}
             >
               Unlink Agency
@@ -36,7 +51,7 @@ export default function UserLinks({
           </div>
         ) : (
           <div className="space-y-2 flex flex-col justify-center w-full">
-            <AgencyLink onLink={onLink} disabled={isGuest} />
+            <AgencyLink onLink={handleLink} disabled={isGuest} />
           </div>
         )}
       </CardContent>
