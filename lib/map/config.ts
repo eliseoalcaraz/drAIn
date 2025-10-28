@@ -85,9 +85,9 @@ export const LAYER_COLORS = {
   },
   flood_hazard: {
     icon: "#8d8a89ff",
-    high: "#d73027",   // Deep red for high hazard
+    high: "#d73027", // Deep red for high hazard
     medium: "#fc8d59", // Orange for medium hazard
-    low: "#fee090",    // Yellow for low hazard
+    low: "#fee090", // Yellow for low hazard
     default: "#ffffbf", // Pale for undefined or safe zones
     opacity: 0.8,
   },
@@ -103,12 +103,6 @@ export const OVERLAY_CONFIG = [
   },
   { id: "inlets-layer", name: "Inlets", color: LAYER_COLORS.inlets.color },
   { id: "outlets-layer", name: "Outlets", color: LAYER_COLORS.outlets.color },
-  {
-    id: "flood_hazard-layer",
-    name: "Flood Hazard",
-    color: LAYER_COLORS.flood_hazard.icon, // representative color
-  },
-
 ];
 
 export const LAYER_IDS: string[] = [
@@ -228,9 +222,12 @@ export function getFloodHazardPaintConfig() {
     "fill-color": [
       "match",
       ["get", "Var"],
-      3, config.high,
-      2, config.medium,
-      1, config.low,
+      3,
+      config.high,
+      2,
+      config.medium,
+      1,
+      config.low,
       config.default,
     ] as unknown as string,
     "fill-opacity": config.opacity,
@@ -241,10 +238,14 @@ export function getFloodHazardPaintConfig() {
  * Get paint configuration for invisible hit area line layers
  * These are larger, transparent layers for better click detection
  */
-export function getLineHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) {
+export function getLineHitAreaPaintConfig(
+  layerType: keyof typeof LAYER_COLORS
+) {
   const config = LAYER_COLORS[layerType];
   if (!("hitAreaWidth" in config)) {
-    throw new Error(`Layer type ${layerType} does not have hit area configuration`);
+    throw new Error(
+      `Layer type ${layerType} does not have hit area configuration`
+    );
   }
 
   return {
@@ -258,10 +259,14 @@ export function getLineHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) 
  * Get paint configuration for invisible hit area circle layers
  * These are larger, transparent layers for better click detection
  */
-export function getCircleHitAreaPaintConfig(layerType: keyof typeof LAYER_COLORS) {
+export function getCircleHitAreaPaintConfig(
+  layerType: keyof typeof LAYER_COLORS
+) {
   const config = LAYER_COLORS[layerType];
   if (!("hitAreaRadius" in config)) {
-    throw new Error(`Layer type ${layerType} does not have hit area configuration`);
+    throw new Error(
+      `Layer type ${layerType} does not have hit area configuration`
+    );
   }
 
   return {

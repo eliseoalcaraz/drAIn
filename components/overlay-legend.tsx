@@ -3,7 +3,6 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Toggle } from "@/components/ui/toggle";
-import { FloodScenarioSelector } from "@/components/flood-scenario-selector";
 import {
   Card,
   CardContent,
@@ -21,15 +20,11 @@ interface OverlayLegendProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
-  selectedFloodScenario?: string;
-  onChangeFloodScenario?: (id: string) => void;
 }
 
 export function OverlayLegend({
   overlays,
   onToggleOverlay,
-  selectedFloodScenario,
-  onChangeFloodScenario
 }: OverlayLegendProps) {
   // Filter out drainage components (exclude reports-layer)
   const drainageOverlays = overlays.filter((o) => o.id !== "reports-layer");
@@ -50,7 +45,7 @@ export function OverlayLegend({
   };
 
   return (
-    <Card className="flex gap-2 flex-col">
+    <Card className="flex gap-2 flex-col pb-4">
       <CardHeader className="flex items-center justify-between pb-0 relative">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Map Layers</CardTitle>
@@ -135,11 +130,6 @@ export function OverlayLegend({
             </div>
           </div>
         ))}
-        <div className="pt-4"></div>
-        <FloodScenarioSelector
-          selectedScenario={selectedFloodScenario}
-          onScenarioChange={onChangeFloodScenario}
-        />
       </CardContent>
     </Card>
   );
