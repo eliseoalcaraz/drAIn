@@ -7,6 +7,8 @@ import { useSidebar } from "@/components/ui/sidebar";
 import client from "@/app/api/client";
 import { Spinner } from "@/components/ui/spinner";
 import DataFlowPipeline from "@/components/data-flow";
+import { Button } from "@/components/ui/button";
+import Image from "next/image";
 
 export default function WelcomePage() {
   const { user } = useAuth();
@@ -115,35 +117,31 @@ export default function WelcomePage() {
       />
 
       {/* Foreground Content  */}
-      {/* <div className="relative z-10 flex flex-1 h-full flex-col items-center justify-center text-center px-4 pointer-events-none">
-        <div className="flex flex-col items-center gap-3 mb-6">
-          <div className="relative w-32 h-32 pointer-events-auto rounded-2xl border border-[#7b7d7c]/50 p-4 overflow-hidden">
+      <div className="relative z-10 flex flex-1 h-full flex-col items-center justify-center text-center px-4 pointer-events-none">
+        <div className="flex flex-col max-w-3xl gap-20">
+          <h1 className="text-5xl font-bold text-[#34332e] leading-2 flex flex-wrap items-center justify-center gap-4 font-[family-name:var(--font-century-gothic)]">
+            <span>a blueprint</span>
             <Image
-              src="/images/logo6.png"
-              alt="drAIn Logo"
-              fill
-              className="object-contain"
+              src="/images/logo.png"
+              alt="Logo"
+              width={80}
+              height={60}
+              className="pointer-events-auto rotate-0 mb-1 transition-transform duration-300 hover:rotate-12 animate-rotate-in"
             />
-          </div>
-
-          <h1 className="text-4xl font-bold text-gray-800 mb-1">
-            project drain
+            <span>for efficient</span>
+            <span className="text-shine">drainage management system</span>
           </h1>
 
-          <p className="text-lg text-gray-600 max-w-xl text-center mb-3">
-            The blueprint for efficient drainage system management
-          </p>
+          <div>
+            <Button
+              size="lg"
+              className="text-md bg-[#3B82F6] hover:bg-[#2563EB] pointer-events-auto"
+            >
+              Explore Map
+            </Button>
+          </div>
         </div>
-
-        <Button
-          onClick={handleNavigateToMap}
-          disabled={loading}
-          size="lg"
-          className="text-md bg-[#3B82F6] hover:bg-[#2563EB] pointer-events-auto"
-        >
-          Explore Map
-        </Button>
-      </div> */}
+      </div>
     </main>
   );
 }
