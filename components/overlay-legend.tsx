@@ -115,11 +115,18 @@ export function OverlayLegend({
                   {overlay.name}
                 </Label>
               </div>
-              <Switch
-                checked={overlay.visible}
-                onCheckedChange={() => onToggleOverlay(overlay.id)}
-                className="ml-auto"
-              />
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleOverlay(overlay.id);
+                }}
+              >
+                <Switch
+                  checked={overlay.visible}
+                  onCheckedChange={() => {}}
+                  className="ml-auto"
+                />
+              </div>
             </div>
           </div>
         ))}
