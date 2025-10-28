@@ -32,7 +32,6 @@ import type {
   Pipe,
   DatasetType,
 } from "@/components/control-panel/types";
-import type { Report } from "@/lib/supabase/report";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -182,34 +181,6 @@ export default function MapPage() {
   const outletsRef = useRef<Outlet[]>([]);
   const pipesRef = useRef<Pipe[]>([]);
   const drainsRef = useRef<Drain[]>([]);
-
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        const data = await fetchReports();
-        setReports(data);
-        //console.log("Fetched reports:", data);
-      } catch (err) {
-        console.error("Failed to load reports:", err);
-      }
-    };
-    loadReports();
-    const unsubscribe = subscribeToReportChanges(
-      (newReport) => {
-        const formatted = formatReport(newReport);
-        setReports((prev) => [...prev, formatted]);
-        console.log("🗺️ MapPage new report:", formatted);
-      },
-      (updatedReport) => {
-        const formatted = formatReport(updatedReport);
-        setReports((prev) =>
-          prev.map((r) => (r.id === formatted.id ? formatted : r))
-        );
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
 
   // Update refs when data changes
   useEffect(() => {
