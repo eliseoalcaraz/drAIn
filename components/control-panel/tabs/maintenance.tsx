@@ -164,41 +164,19 @@ export default function Maintenance({
     setMessage("");
 
     const { type, id } = selectedAsset;
-    const sortedReports = [...reports].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    const mostRecentReport =
-      sortedReports.length > 0 ? sortedReports[0] : undefined;
-
     let result;
     switch (type) {
       case "inlets":
-        result = await recordInletMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordInletMaintenance(id, maintenanceStatus);
         break;
       case "man_pipes":
-        result = await recordManPipeMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordManPipeMaintenance(id, maintenanceStatus);
         break;
       case "outlets":
-        result = await recordOutletMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordOutletMaintenance(id, maintenanceStatus);
         break;
       case "storm_drains":
-        result = await recordStormDrainMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordStormDrainMaintenance(id, maintenanceStatus);
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -214,14 +192,8 @@ export default function Maintenance({
       );
       handleViewHistory(type, id);
       loadReports(id); // Reload reports to reflect any deletions or changes
-      if (mostRecentReport) {
-      }
     }
   };
-
-  // const mostRecentReport = reports.sort(
-  //   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  // )[0];
 
   const handleRecordWithStatus = async (status: "in-progress" | "resolved") => {
     if (!selectedAsset) {
@@ -232,46 +204,21 @@ export default function Maintenance({
     setMessage("");
 
     const { type, id } = selectedAsset;
-    const sortedReports = [...reports].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    const mostRecentReport =
-      sortedReports.length > 0 ? sortedReports[0] : undefined;
 
     const commentsToSubmit = agencyComments.trim() === "" ? "" : agencyComments;
     let result;
     switch (type) {
       case "inlets":
-        result = await recordInletMaintenance(
-          id,
-          mostRecentReport?.id,
-          status,
-          commentsToSubmit
-        );
+        result = await recordInletMaintenance(id, status, commentsToSubmit);
         break;
       case "man_pipes":
-        result = await recordManPipeMaintenance(
-          id,
-          mostRecentReport?.id,
-          status,
-          commentsToSubmit
-        );
+        result = await recordManPipeMaintenance(id, status, commentsToSubmit);
         break;
       case "outlets":
-        result = await recordOutletMaintenance(
-          id,
-          mostRecentReport?.id,
-          status,
-          commentsToSubmit
-        );
+        result = await recordOutletMaintenance(id, status, commentsToSubmit);
         break;
       case "storm_drains":
-        result = await recordStormDrainMaintenance(
-          id,
-          mostRecentReport?.id,
-          status,
-          commentsToSubmit
-        );
+        result = await recordStormDrainMaintenance(id, status, commentsToSubmit);
         break;
       default:
         result = { error: "Unknown asset type." };

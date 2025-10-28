@@ -121,7 +121,7 @@ export const fetchLatestReportsPerComponent = async (
   return latestReports;
 };
 
-export const updateReportStatus = async (
+const _updateReportStatusById = async (
   reportId: string,
   status: "in-progress" | "resolved"
 ) => {
@@ -137,6 +137,36 @@ export const updateReportStatus = async (
     }
   } catch (error) {
     console.error("Error updating report status:", error);
+    throw error;
+  }
+};
+
+export const updateReportsStatusForComponent = async (
+  componentId: string,
+  status: "in-progress" | "resolved",
+  maintenanceDate: string
+) => {
+  try {
+    const { error } = await client
+      .from("reports")
+      .update({ status })
+      .eq("component_id", componentId)
+      .neq("status", "resolved")
+      .in("status", ["in-progress", "pending"])
+      .lte("created_at", maintenanceDate);
+
+    if (error) {
+      console.error(
+        "Error updating multiple report statuses for component:",
+        error
+      );
+      throw error;
+    }
+  } catch (error) {
+    console.error(
+      "Error updating multiple report statuses for component:",
+      error
+    );
     throw error;
   }
 };

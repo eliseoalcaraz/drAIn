@@ -1,7 +1,7 @@
 "use client";
 
 import client from "@/app/api/client";
-import { updateReportStatus } from "@/lib/supabase/report";
+import { updateReportsStatusForComponent } from "@/lib/supabase/report";
 
 // Helper function to normalize Supabase joined data to arrays for TypeScript
 // Supabase's select syntax for related tables (e.g., `agencies ( name )`) often
@@ -24,7 +24,7 @@ const normalizeJoinedData = (data: unknown) => {
 };
 
 // Inlet Maintenance Functions
-export async function recordInletMaintenance(inletId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
+export async function recordInletMaintenance(inletId: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -50,7 +50,6 @@ export async function recordInletMaintenance(inletId: string, reportId?: string,
         in_name: inletId, // Using 'in_name' as the column for string identifier
         agency_id: profile.agency_id,
         represented_by: user.id,
-        addressed_report_id: reportId,
         status: status,
         description: description,
       },
@@ -62,8 +61,8 @@ export async function recordInletMaintenance(inletId: string, reportId?: string,
     return { error: `Failed to record maintenance for inlet ${inletId}.` };
   }
 
-  if (reportId && status) {
-    await updateReportStatus(reportId, status);
+  if (status) {
+    await updateReportsStatusForComponent(inletId, status, new Date().toISOString());
   }
 
   return { success: true, data: data[0] };
@@ -94,7 +93,7 @@ export async function getInletMaintenanceHistory(inletId: string) {
 }
 
 // Man Pipe Maintenance Functions
-export async function recordManPipeMaintenance(manPipeId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
+export async function recordManPipeMaintenance(manPipeId: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -120,7 +119,6 @@ export async function recordManPipeMaintenance(manPipeId: string, reportId?: str
         name: manPipeId, // Using 'name' as the column for string identifier
         agency_id: profile.agency_id,
         represented_by: user.id,
-        addressed_report_id: reportId,
         status: status,
         description: description,
       },
@@ -132,8 +130,8 @@ export async function recordManPipeMaintenance(manPipeId: string, reportId?: str
     return { error: `Failed to record maintenance for man pipe ${manPipeId}.` };
   }
 
-    if (reportId && status) {
-        await updateReportStatus(reportId, status);
+    if (status) {
+        await updateReportsStatusForComponent(manPipeId, status, new Date().toISOString());
     }
 
   return { success: true, data: data[0] };
@@ -164,7 +162,7 @@ export async function getManPipeMaintenanceHistory(manPipeId: string) {
 }
 
 // Outlet Maintenance Functions
-export async function recordOutletMaintenance(outletId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
+export async function recordOutletMaintenance(outletId: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -190,7 +188,6 @@ export async function recordOutletMaintenance(outletId: string, reportId?: strin
         out_name: outletId, // Using 'out_name' as the column for string identifier
         agency_id: profile.agency_id,
         represented_by: user.id,
-        addressed_report_id: reportId,
         status: status,
         description: description,
       },
@@ -202,8 +199,8 @@ export async function recordOutletMaintenance(outletId: string, reportId?: strin
     return { error: `Failed to record maintenance for outlet ${outletId}.` };
   }
 
-    if (reportId && status) {
-        await updateReportStatus(reportId, status);
+    if (status) {
+        await updateReportsStatusForComponent(outletId, status, new Date().toISOString());
     }
 
   return { success: true, data: data[0] };
@@ -234,7 +231,7 @@ export async function getOutletMaintenanceHistory(outletId: string) {
 }
 
 // Storm Drain Maintenance Functions
-export async function recordStormDrainMaintenance(stormDrainId: string, reportId?: string, status?: 'in-progress' | 'resolved', description?: string) {
+export async function recordStormDrainMaintenance(stormDrainId: string, status?: 'in-progress' | 'resolved', description?: string) {
   const {
     data: { user },
   } = await client.auth.getUser();
@@ -254,13 +251,12 @@ export async function recordStormDrainMaintenance(stormDrainId: string, reportId
   }
 
   const { data, error } = await client
-    .from("storm_drains_maintenance") // Assuming a new table for storm drains
+    .from("storm_drains_maintenance")
     .insert([
       {
         in_name: stormDrainId, // Using 'in_name' as the column for string identifier for storm drains
         agency_id: profile.agency_id,
         represented_by: user.id,
-        addressed_report_id: reportId,
         status: status,
         description: description,
       },
@@ -272,8 +268,8 @@ export async function recordStormDrainMaintenance(stormDrainId: string, reportId
     return { error: `Failed to record maintenance for storm drain ${stormDrainId}.` };
   }
 
-    if (reportId && status) {
-        await updateReportStatus(reportId, status);
+    if (status) {
+        await updateReportsStatusForComponent(stormDrainId, status, new Date().toISOString());
     }
 
   return { success: true, data: data[0] };

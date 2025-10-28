@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import type { Report } from "@/lib/supabase/report";
+import type { Report as SupabaseReport } from "@/lib/supabase/report"; // Renamed to avoid conflict
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
 import { format, subWeeks, subMonths, startOfDay } from "date-fns";
@@ -15,10 +15,15 @@ import type {
   Pipe,
   Drain,
 } from "@/components/control-panel/types";
+import { ImageViewer } from "@/components/image-viewer"; // Import ImageViewer
+
+interface Report extends SupabaseReport {
+  coordinates: [number, number];
+}
 
 interface ReportHistoryListProps {
   dateFilter?: DateFilterValue;
-  reports?: Report[];
+  reports?: Report[]; // Use the extended Report interface
   onRefresh?: () => Promise<void>;
   isRefreshing?: boolean;
   isSimulationMode?: boolean;
@@ -52,6 +57,14 @@ export default function ReportHistoryList({
   selectedPipe = null,
   selectedDrain = null,
 }: ReportHistoryListProps) {
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+
+  const handleReportClick = (report: Report) => {
+    setSelectedReport(report);
+    setShowImageViewer(true);
+  };
+
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "resolved":
@@ -205,7 +218,8 @@ export default function ReportHistoryList({
             {filteredReports.map((report) => (
               <div
                 key={report.id}
-                className="flex flex-row gap-3 border rounded-lg p-3 hover:bg-accent transition-colors"
+                className="flex flex-row gap-3 border rounded-lg p-3 hover:bg-accent transition-colors cursor-pointer"
+                onClick={() => handleReportClick(report)}
               >
                 <div className="flex items-start gap-3">
                   {/* Image Thumbnail with Badges */}
@@ -273,6 +287,20 @@ export default function ReportHistoryList({
           </div>
         )}
       </div>
+
+      {showImageViewer && selectedReport && selectedReport.image && (
+        <ImageViewer
+          imageUrl={selectedReport.image}
+          reporterName={selectedReport.reporterName}
+          date={selectedReport.date}
+          category={selectedReport.category}
+          description={selectedReport.description}
+          coordinates={selectedReport.coordinates}
+          componentId={selectedReport.componentId}
+          address={selectedReport.address}
+          onClose={() => setShowImageViewer(false)}
+        />
+      )}
     </div>
   );
 }
