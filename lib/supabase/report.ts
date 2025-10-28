@@ -68,7 +68,7 @@ export const uploadReport = async (
 
 export const fetchAllReports = async (): Promise<Report[]> => {
   try {
-    const { data, error } = await client.from("reports").select("*");
+    const { data, error } = await client.from("reports").select("*").order("created_at", {ascending:true});
 
     if (error) {
       console.error("Error fetching all reports:", error);
