@@ -37,21 +37,21 @@ import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  fetchAllReports,
-  fetchLatestReportsPerComponent,
-  formatReport,
   getreportCategoryCount,
-  subscribeToReportChanges,
 } from "@/lib/supabase/report";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useReports } from "@/components/context/ReportProvider";
 
 export default function MapPage() {
   const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
+  const {
+    latestReports: reports, // Use latestReports from context for map bubbles
+    allReports: allReportsData, // Use allReports from context for history
+    isRefreshingReports,
+    refreshReports: onRefreshReports, // Use refresh function from context
+  } = useReports();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [reports, setReports] = useState<Report[]>([]); // For map bubbles (latest per component)
-  const [allReports, setAllReports] = useState<Report[]>([]); // For history views (all reports)
-  const [isRefreshingReports, setIsRefreshingReports] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
   const [overlayVisibility, setOverlayVisibility] = useState({
@@ -142,41 +142,6 @@ export default function MapPage() {
   const outletsRef = useRef<Outlet[]>([]);
   const pipesRef = useRef<Pipe[]>([]);
   const drainsRef = useRef<Drain[]>([]);
-
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        // Fetch all reports once
-        const fetchedAllReports = await fetchAllReports();
-        setAllReports(fetchedAllReports);
-
-        // Derive latest reports per component from all reports
-        const latestReports = await fetchLatestReportsPerComponent(fetchedAllReports);
-        setReports(latestReports);
-
-        //console.log("Fetched all reports:", fetchedAllReports);
-        //console.log("Fetched latest reports:", latestReports);
-      } catch (err) {
-        console.error("Failed to load reports:", err);
-      }
-    };
-    loadReports();
-      const unsubscribe = subscribeToReportChanges(
-      (newReport) => {
-        const formatted = formatReport(newReport);
-        setReports((prev) => [...prev, formatted]);
-        console.log("🗺️ MapPage new report:", formatted);
-      },
-      (updatedReport) => {
-        const formatted = formatReport(updatedReport);
-        setReports((prev) =>
-          prev.map((r) => (r.id === formatted.id ? formatted : r))
-        );
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
 
   // Update refs when data changes
   useEffect(() => {
@@ -677,22 +642,6 @@ export default function MapPage() {
     setControlPanelTab("stats");
   };
 
-  // Handler for refreshing reports
-  const handleRefreshReports = async () => {
-    setIsRefreshingReports(true);
-    try {
-      const fetchedAllReports = await fetchAllReports();
-      setAllReports(fetchedAllReports);
-
-      const latestReports = await fetchLatestReportsPerComponent(fetchedAllReports);
-      setReports(latestReports);
-      //console.log("Refreshed reports:", latestReports);
-    } catch (err) {
-      console.error("Failed to refresh reports:", err);
-    } finally {
-      setIsRefreshingReports(false);
-    }
-  };
 
   const handleSelectInlet = (inlet: Inlet) => {
     if (!mapRef.current) return;
@@ -892,9 +841,9 @@ export default function MapPage() {
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
           reports={reports}
-          onRefreshReports={handleRefreshReports}
+          onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
-          allReportsData={allReports} // Pass all reports data to ControlPanel
+          allReportsData={allReportsData} // Pass all reports data to ControlPanel
         />
         <CameraControls
           onZoomIn={handleZoomIn}

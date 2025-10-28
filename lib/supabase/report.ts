@@ -224,60 +224,40 @@ export const formatReport = (
   };
 };
 
-let channel: RealtimeChannel | null = null;
-const listeners: {
-  onInsert: ((report: Report) => void)[];
-  onUpdate: ((report: Report) => void)[];
-} = {
-  onInsert: [],
-  onUpdate: [],
-};
-
-export function initReportChannel() {
-  if (channel) return channel;
-
-  channel = client.channel("reports_shared");
-
-  channel
-    .on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "reports" },
-      (payload) => {
-        console.log("Shared Channel Insert:", payload.new);
-        const formatted = formatReport(payload.new as Record<string, unknown>);
-        listeners.onInsert.forEach((cb) => cb(formatted));
-      }
-    )
-    .on(
-      "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "reports" },
-      (payload) => {
-        console.log("Shared Channel Update:", payload.new);
-        const formatted = formatReport(payload.new as Record<string, unknown>);
-        listeners.onUpdate.forEach((cb) => cb(formatted));
-      }
-    )
-    .subscribe((status, err) => {
-      console.log("Shared Report Channel status:", status, err || "");
-    });
-
-  return channel;
-}
-
 export function subscribeToReportChanges(
   onInsert?: (r: Report) => void,
   onUpdate?: (r: Report) => void
 ) {
-  initReportChannel();
+  const channel = client.channel("reports");
 
-  if (onInsert) listeners.onInsert.push(onInsert);
-  if (onUpdate) listeners.onUpdate.push(onUpdate);
+  if (onInsert) {
+    channel.on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "reports" },
+      (payload) => {
+        console.log("Channel Insert:", payload.new);
+        onInsert(payload.new as Report);
+      }
+    );
+  }
+
+  if (onUpdate) {
+    channel.on(
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: "reports" },
+      (payload) => {
+        console.log("Channel Update:", payload.new);
+        onUpdate(payload.new as Report);
+      }
+    );
+  }
+
+  channel.subscribe((status, err) => {
+    console.log("Report Channel status:", status, err || "");
+  });
 
   return () => {
-    if (onInsert)
-      listeners.onInsert = listeners.onInsert.filter((cb) => cb !== onInsert);
-    if (onUpdate)
-      listeners.onUpdate = listeners.onUpdate.filter((cb) => cb !== onUpdate);
+    client.removeChannel(channel);
   };
 }
 
