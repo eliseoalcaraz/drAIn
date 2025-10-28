@@ -84,6 +84,7 @@ export default function SimulationPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const [selectedFloodScenario, setSelectedFloodScenario] = useState<string>("5YR");
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
     "storm_drains-layer": true,
@@ -1284,6 +1285,8 @@ export default function SimulationPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={setSelectedFloodScenario}
           isSimulationMode={isSimulationActive}
           selectedPointForSimulation={selectedPointForSimulation}
           reports={[]}

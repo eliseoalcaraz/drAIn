@@ -45,7 +45,7 @@ export function OverlayLegend({
   };
 
   return (
-    <Card className="flex gap-2 flex-col">
+    <Card className="flex gap-2 flex-col pb-4">
       <CardHeader className="flex items-center justify-between pb-0 relative">
         <div className="flex flex-col gap-1.5">
           <CardTitle>Map Layers</CardTitle>

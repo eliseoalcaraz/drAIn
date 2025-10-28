@@ -17,11 +17,13 @@ import {
   DrainSortField,
 } from "@/components/control-panel/tabs/tables-content";
 import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
-import { type NodeParams, type LinkParams } from "@/components/control-panel/tabs/simulation-models/model3";
+import {
+  type NodeParams,
+  type LinkParams,
+} from "@/components/control-panel/tabs/simulation-models/model3";
 import ProfileContent from "@/components/control-panel/tabs/profile-content";
 import HistoryContent from "@/components/control-panel/tabs/history-content";
 import type { ProfileView } from "../hooks/use-control-panel-state";
-
 
 interface RainfallParams {
   total_precip: number;
@@ -71,6 +73,8 @@ interface ContentRendererProps {
     visible: boolean;
   }>;
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario?: string;
+  onChangeFloodScenario?: (id: string) => void;
 
   // Navigation props
   onNavigateToTable?: (
@@ -131,7 +135,7 @@ interface ContentRendererProps {
   onComponentParamsChange?: (params: Map<string, NodeParams>) => void;
   pipeParams?: Map<string, LinkParams>;
   onPipeParamsChange?: (params: Map<string, LinkParams>) => void;
-  rainfallParams: RainfallParams,
+  rainfallParams: RainfallParams;
   onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel?: boolean;
   onToggleNodePanel?: () => void;
@@ -167,6 +171,8 @@ export function ContentRenderer({
   onSelectDrain,
   overlays,
   onToggleOverlay,
+  selectedFloodScenario,
+  onChangeFloodScenario,
   onNavigateToTable,
   onNavigateToReportForm,
   isDragEnabled,
@@ -238,6 +244,8 @@ export function ContentRenderer({
           onToggleDrag={onToggleDrag}
           reports={reports}
           isSimulationMode={isSimulationMode}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={onChangeFloodScenario}
         />
       );
 
