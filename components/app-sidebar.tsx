@@ -4,7 +4,12 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { Map } from "lucide-react";
 import { IconArticleFilled } from "@tabler/icons-react";
-import { HomeIcon, MapIcon, BookOpenIcon } from "@heroicons/react/24/solid";
+import {
+  HomeIcon,
+  MapIcon,
+  BookOpenIcon,
+  BeakerIcon,
+} from "@heroicons/react/24/solid";
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
@@ -38,6 +43,11 @@ const data = {
       title: "Map",
       url: "/map",
       icon: MapIcon,
+    },
+    {
+      title: "Simulation",
+      url: "/simulation?active=true",
+      icon: BeakerIcon,
     },
     {
       title: "Documentation",
