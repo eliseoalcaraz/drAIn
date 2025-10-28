@@ -172,8 +172,6 @@ export default function OverlaysContent({
           <OverlayLegend
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
-            selectedFloodScenario={selectedFloodScenario}
-            onChangeFloodScenario={onChangeFloodScenario}
           />
         ),
       },

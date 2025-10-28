@@ -9,7 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { TriangleAlert, Info } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 
 interface FloodScenarioCardProps {
   isVisible: boolean;
