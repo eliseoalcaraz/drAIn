@@ -66,50 +66,59 @@ export const uploadReport = async (
   }
 };
 
-export const fetchReports = async (): Promise<Report[]> => {
+export const fetchAllReports = async (): Promise<Report[]> => {
   try {
     const { data, error } = await client.from("reports").select("*");
 
     if (error) {
-      console.error("Error fetching reports:", error);
+      console.error("Error fetching all reports:", error);
       throw error;
     }
 
     if (!data) return [];
 
-    const imageUrls = data.map((report: Record<string, unknown>) => {
-      const { data: img } = client.storage
-        .from("ReportImage")
-        .getPublicUrl(report.image as string);
-
-      return {
-        imageUrl: img.publicUrl,
-      };
-    });
-
     const formattedReports: Report[] = data.map(
-      (report: Record<string, unknown>, index: number) => ({
-        id: report.id?.toString() ?? crypto.randomUUID(),
-        date: (report.created_at as string) ?? new Date().toISOString(),
-        category: (report.category as string) ?? "Uncategorized",
-        description: (report.description as string) ?? "No description",
-        image: imageUrls[index].imageUrl ?? "",
-        reporterName: (report.reporter_name as string) ?? "Anonymous",
-        status: (report.status as string) ?? "pending",
-        componentId: (report.component_id as string) ?? "N/A",
-        coordinates: [report.long as number, report.lat as number] as [
-          number,
-          number
-        ],
-        geocoded_status: (report.geocoded_status as string) ?? "pending",
-        address: (report.address as string) ?? "Loading address...",
-      })
+      (report: Record<string, unknown>) => formatReport(report)
     );
     return formattedReports;
   } catch (error) {
-    console.error("Error fetching reports:", error);
+    console.error("Error fetching all reports:", error);
     throw error;
   }
+};
+
+export const fetchLatestReportsPerComponent = async (
+  allReportsData?: Report[]
+): Promise<Report[]> => {
+  let reportsToProcess: Report[];
+
+  if (allReportsData) {
+    reportsToProcess = allReportsData;
+  } else {
+    // Fallback: if allReportsData is not provided, fetch all reports
+    reportsToProcess = await fetchAllReports();
+  }
+
+  if (!reportsToProcess || reportsToProcess.length === 0) return [];
+
+  // Group reports by componentId and find the latest for each
+  const latestReportsMap = new Map<string, Report>();
+  
+  // Sort data by created_at to ensure the first encountered is the latest per component
+  const sortedData = [...reportsToProcess].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+  sortedData.forEach((reportData: Report) => {
+    const componentId = reportData.componentId as string;
+
+    if (!latestReportsMap.has(componentId)) {
+      latestReportsMap.set(componentId, reportData);
+    }
+  });
+
+  // Convert map values back to an array
+  const latestReports = Array.from(latestReportsMap.values());
+
+  return latestReports;
 };
 
 export const updateReportStatus = async (

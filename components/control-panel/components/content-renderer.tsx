@@ -140,6 +140,7 @@ interface ContentRendererProps {
 
   // Shared handler for opening node simulation slideshow
   onOpenNodeSimulation?: (nodeId: string) => void;
+  allReportsData: Report[]; // Added for comprehensive report history
 }
 
 export function ContentRenderer({
@@ -214,6 +215,7 @@ export function ContentRenderer({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
+  allReportsData, // Destructure allReportsData
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -290,7 +292,7 @@ export function ContentRenderer({
         <ReportsTab
           activeReportTab={activeReportTab}
           dateFilter={dateFilter}
-          reports={reports}
+          reports={allReportsData}
           onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
           isSimulationMode={isSimulationMode}
@@ -325,7 +327,7 @@ export function ContentRenderer({
           selectedOutlet={selectedOutlet}
           selectedPipe={selectedPipe}
           selectedDrain={selectedDrain}
-          reports={reports}
+          reports={allReportsData}
           onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
           isSimulationMode={isSimulationMode}

@@ -11,7 +11,7 @@ import {
   recordStormDrainMaintenance,
   getStormDrainMaintenanceHistory,
 } from "@/app/actions/clientMaintenanceActions";
-import { fetchReports } from "@/lib/supabase/report";
+import { fetchAllReports } from "@/lib/supabase/report";
 import type { Report } from "@/lib/supabase/report";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
@@ -114,7 +114,7 @@ export default function Maintenance({
   }, [selectedInlet, selectedOutlet, selectedPipe, selectedDrain]);
 
   const loadReports = async (componentId: string) => {
-    const allReports = await fetchReports();
+    const allReports = await fetchAllReports();
     const assetReports = allReports.filter(
       (report) => report.componentId === componentId
     );

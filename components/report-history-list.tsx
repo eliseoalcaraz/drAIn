@@ -67,7 +67,7 @@ export default function ReportHistoryList({
 
   // Filter reports based on date filter
   const filteredReports = useMemo(() => {
-    let filtered = reports;
+    let currentFilteredReports = reports;
 
     const selectedId =
       selectedInlet?.id ||
@@ -76,15 +76,11 @@ export default function ReportHistoryList({
       selectedDrain?.id;
 
     if (selectedId) {
-      filtered = filtered.filter((report) => report.componentId === selectedId);
-    }
-
-    if (dateFilter === "all") {
-      return filtered;
+      currentFilteredReports = currentFilteredReports.filter((report) => report.componentId === selectedId);
     }
 
     const now = new Date();
-    let cutoffDate: Date;
+    let cutoffDate: Date | null = null; // Initialize cutoffDate
 
     switch (dateFilter) {
       case "today":
@@ -102,11 +98,25 @@ export default function ReportHistoryList({
       case "month":
         cutoffDate = subMonths(now, 1);
         break;
+      case "all":
       default:
-        return reports;
+        // No date cutoff for 'all', but we still want to sort
+        break;
     }
 
-    return filtered.filter((report) => new Date(report.date) >= cutoffDate);
+    // Apply cutoffDate filtering if it exists
+    if (cutoffDate) {
+      currentFilteredReports = currentFilteredReports.filter(
+        (report) => new Date(report.date).getTime() >= cutoffDate!.getTime()
+      );
+    }
+
+    // Always sort the reports by date in descending order (latest to oldest)
+    currentFilteredReports.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    return currentFilteredReports;
   }, [
     reports,
     dateFilter,

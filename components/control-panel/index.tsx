@@ -28,6 +28,7 @@ const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
 
 export function ControlPanel({
   reports,
+  allReportsData,
   activeTab,
   dataset,
   selectedInlet,
@@ -78,7 +79,7 @@ export function ControlPanel({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
-}: ControlPanelProps & { reports: Report[] }) {
+}: ControlPanelProps & { reports: Report[] }) { // reports are latest, allReportsData are all
   const router = useRouter();
   const supabase = client;
   const authContext = useContext(AuthContext);
@@ -282,7 +283,8 @@ export function ControlPanel({
             onToggleDrag={handleToggleDrag}
             isSimulationMode={isSimulationMode}
             selectedPointForSimulation={selectedPointForSimulation}
-            reports={reports}
+            reports={reports} // Still passing 'reports' for the map
+            allReportsData={allReportsData} // Pass all reports data down
             profileView={profileView}
             onProfileViewChange={setProfileView}
             activeReportTab={activeReportTab}

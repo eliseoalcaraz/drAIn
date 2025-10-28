@@ -37,7 +37,8 @@ import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  fetchReports,
+  fetchAllReports,
+  fetchLatestReportsPerComponent,
   formatReport,
   getreportCategoryCount,
   subscribeToReportChanges,
@@ -48,7 +49,8 @@ export default function MapPage() {
   const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [reports, setReports] = useState<Report[]>([]);
+  const [reports, setReports] = useState<Report[]>([]); // For map bubbles (latest per component)
+  const [allReports, setAllReports] = useState<Report[]>([]); // For history views (all reports)
   const [isRefreshingReports, setIsRefreshingReports] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
 
@@ -144,9 +146,16 @@ export default function MapPage() {
   useEffect(() => {
     const loadReports = async () => {
       try {
-        const data = await fetchReports();
-        setReports(data);
-        //console.log("Fetched reports:", data);
+        // Fetch all reports once
+        const fetchedAllReports = await fetchAllReports();
+        setAllReports(fetchedAllReports);
+
+        // Derive latest reports per component from all reports
+        const latestReports = await fetchLatestReportsPerComponent(fetchedAllReports);
+        setReports(latestReports);
+
+        //console.log("Fetched all reports:", fetchedAllReports);
+        //console.log("Fetched latest reports:", latestReports);
       } catch (err) {
         console.error("Failed to load reports:", err);
       }
@@ -672,9 +681,12 @@ export default function MapPage() {
   const handleRefreshReports = async () => {
     setIsRefreshingReports(true);
     try {
-      const data = await fetchReports();
-      setReports(data);
-      //console.log("Refreshed reports:", data);
+      const fetchedAllReports = await fetchAllReports();
+      setAllReports(fetchedAllReports);
+
+      const latestReports = await fetchLatestReportsPerComponent(fetchedAllReports);
+      setReports(latestReports);
+      //console.log("Refreshed reports:", latestReports);
     } catch (err) {
       console.error("Failed to refresh reports:", err);
     } finally {
@@ -882,6 +894,7 @@ export default function MapPage() {
           reports={reports}
           onRefreshReports={handleRefreshReports}
           isRefreshingReports={isRefreshingReports}
+          allReportsData={allReports} // Pass all reports data to ControlPanel
         />
         <CameraControls
           onZoomIn={handleZoomIn}
