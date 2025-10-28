@@ -69,6 +69,10 @@ interface ContentRendererProps {
     visible: boolean;
   }>;
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario?: string,
+  onChangeFloodScenario?: (id: string) => void;
+
+
 
   // Navigation props
   onNavigateToTable?: (
@@ -129,8 +133,8 @@ interface ContentRendererProps {
   onComponentParamsChange?: (params: Map<string, any>) => void;
   pipeParams?: Map<string, any>;
   onPipeParamsChange?: (params: Map<string, any>) => void;
-  rainfallParams: RainfallParams,
-  onRainfallParamsChange: (params: RainfallParams) => void;
+  rainfallParams?: RainfallParams,
+  onRainfallParamsChange?: (params: RainfallParams) => void;
   showNodePanel?: boolean;
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
@@ -165,6 +169,8 @@ export function ContentRenderer({
   onSelectDrain,
   overlays,
   onToggleOverlay,
+  selectedFloodScenario,
+  onChangeFloodScenario,
   onNavigateToTable,
   onNavigateToReportForm,
   isDragEnabled,
@@ -236,6 +242,8 @@ export function ContentRenderer({
           onToggleDrag={onToggleDrag}
           reports={reports}
           isSimulationMode={isSimulationMode}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={onChangeFloodScenario}
         />
       );
 

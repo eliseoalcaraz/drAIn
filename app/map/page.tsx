@@ -14,6 +14,7 @@ import {
   MAP_STYLES,
   getLinePaintConfig,
   getCirclePaintConfig,
+  getFloodHazardPaintConfig,
   CAMERA_ANIMATION,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
@@ -46,13 +47,14 @@ export default function MapPage() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const [reports, setReports] = useState<any[]>([]);
   const [isRefreshingReports, setIsRefreshingReports] = useState(false);
-
+  const [selectedFloodScenario, setSelectedFloodScenario] = useState<string>("5YR");
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
     "storm_drains-layer": true,
     "inlets-layer": true,
     "outlets-layer": true,
     "reports-layer": true,
+    "flood_hazard-layer": true
   });
 
   const [selectedFeature, setSelectedFeature] = useState<{
@@ -129,6 +131,37 @@ export default function MapPage() {
       setSelectedFeature(null);
     }
   };
+
+  const handleFloodScenarioChange = (scenarioId: string) => {
+  console.log(`Switching to ${scenarioId} flood hazard...`);
+  
+  if (!mapRef.current) {
+    console.error("Map not ready");
+    return;
+  }
+  
+  setSelectedFloodScenario(scenarioId);
+  
+  const source = mapRef.current.getSource("flood_hazard") as mapboxgl.GeoJSONSource;
+  
+  if (source) {
+    const dataUrl = `/flood-hazard/${scenarioId} Flood Hazard.json`;
+    console.log(`Loading: ${dataUrl}`);
+    
+    source.setData(dataUrl);
+    
+    // Verify the switch worked
+    mapRef.current.once('sourcedata', (e) => {
+      if (e.sourceId === 'flood_hazard' && e.isSourceLoaded) {
+        const features = mapRef.current?.querySourceFeatures('flood_hazard');
+        console.log(`Loaded ${scenarioId}: ${features?.length || 0} features`);
+      }
+    });
+  } else {
+    console.error("flood_hazard source not found");
+    console.log("Available sources:", Object.keys(mapRef.current.getStyle().sources));
+  }
+};
 
   // Refs for data to avoid stale closures in map click handler
   const inletsRef = useRef<Inlet[]>([]);
@@ -262,6 +295,22 @@ export default function MapPage() {
           );
         }
 
+        if (!map.getSource("flood_hazard")) {
+          console.log("🔵 Adding flood_hazard source and layer...");
+          
+          map.addSource("flood_hazard", {
+            type: "geojson",
+            data: `/flood-hazard/${selectedFloodScenario} Flood Hazard.json`,
+          });
+
+          map.addLayer({
+            id: "flood_hazard-layer",
+            type: "fill",
+            source: "flood_hazard",
+            paint: getFloodHazardPaintConfig(),
+          });
+        }
+
         if (!map.getSource("man_pipes")) {
           map.addSource("man_pipes", {
             type: "geojson",
@@ -317,6 +366,7 @@ export default function MapPage() {
             paint: getCirclePaintConfig("outlets"),
           });
         }
+        
       };
 
       map.on("load", addCustomLayers);
@@ -588,6 +638,7 @@ export default function MapPage() {
       "inlets-layer": !someVisible,
       "outlets-layer": !someVisible,
       "reports-layer": !someVisible,
+      "flood_hazard-layer": !someVisible
     };
 
     setOverlayVisibility(updated);
@@ -797,6 +848,8 @@ export default function MapPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={handleFloodScenarioChange}
           reports={reports}
           onRefreshReports={handleRefreshReports}
           isRefreshingReports={isRefreshingReports}

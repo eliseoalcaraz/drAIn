@@ -92,6 +92,8 @@ export interface ControlPanelProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario: string,
+  onChangeFloodScenario: (id: string) => void;
   // Simulation mode
   isSimulationMode?: boolean;
   selectedPointForSimulation?: string | null;
@@ -124,8 +126,8 @@ export interface ControlPanelProps {
   pipeParams?: Map<string, any>;
   onPipeParamsChange?: (params: Map<string, any>) => void;
   showNodePanel?: boolean;
-  rainfallParams: RainfallParams,
-  onRainfallParamsChange: (params: RainfallParams) => void;
+  rainfallParams?: RainfallParams,
+  onRainfallParamsChange?: (params: RainfallParams) => void;
   onToggleNodePanel?: () => void;
   showLinkPanel?: boolean;
   onToggleLinkPanel?: () => void;

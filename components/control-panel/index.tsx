@@ -42,6 +42,8 @@ export function ControlPanel({
   onBack,
   overlaysVisible,
   onToggle,
+  selectedFloodScenario,
+  onChangeFloodScenario,
   overlays,
   onToggleOverlay,
   isSimulationMode = false,
@@ -238,6 +240,8 @@ export function ControlPanel({
             onSelectDrain={onSelectDrain}
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
+            selectedFloodScenario={selectedFloodScenario}
+            onChangeFloodScenario={onChangeFloodScenario}
             onNavigateToTable={handleNavigateToTable}
             onNavigateToReportForm={handleNavigateToReportForm}
             isDragEnabled={isDragEnabled}

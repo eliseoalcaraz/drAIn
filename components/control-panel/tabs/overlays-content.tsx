@@ -30,6 +30,8 @@ interface OverlayContentProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario?: string,
+  onChangeFloodScenario?: (id: string) => void;
   onNavigateToTable?: (
     dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
   ) => void;
@@ -102,6 +104,8 @@ export default function OverlaysContent({
   overlays,
   onToggleOverlay,
   onNavigateToTable,
+  selectedFloodScenario,
+  onChangeFloodScenario,
   onNavigateToReportForm,
   searchTerm = "",
   isDragEnabled = true,
@@ -166,6 +170,8 @@ export default function OverlaysContent({
           <OverlayLegend
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
+            selectedFloodScenario={selectedFloodScenario}
+            onChangeFloodScenario={onChangeFloodScenario}
           />
         ),
       },

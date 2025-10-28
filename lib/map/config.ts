@@ -79,6 +79,14 @@ export const LAYER_COLORS = {
     strokeWidth: 0.5, // Normal border width
     selectedStrokeWidth: 1.2, // Selected border width
   },
+  flood_hazard: {
+    icon: "#8d8a89ff",
+    high: "#d73027",   // Deep red for high hazard
+    medium: "#fc8d59", // Orange for medium hazard
+    low: "#fee090",    // Yellow for low hazard
+    default: "#ffffbf", // Pale for undefined or safe zones
+    opacity: 0.8,
+  },
 } as const;
 
 // OVERLAY_CONFIG synchronized with LAYER_COLORS
@@ -91,6 +99,12 @@ export const OVERLAY_CONFIG = [
   },
   { id: "inlets-layer", name: "Inlets", color: LAYER_COLORS.inlets.color },
   { id: "outlets-layer", name: "Outlets", color: LAYER_COLORS.outlets.color },
+  {
+    id: "flood_hazard-layer",
+    name: "Flood Hazard",
+    color: LAYER_COLORS.flood_hazard.icon, // representative color
+  },
+
 ];
 
 export const LAYER_IDS: string[] = [
@@ -98,6 +112,7 @@ export const LAYER_IDS: string[] = [
   "storm_drains-layer",
   "inlets-layer",
   "outlets-layer",
+  "flood_hazard-layer",
 ];
 
 export const MAP_STYLES = {
@@ -192,5 +207,21 @@ export function getCirclePaintConfig(layerType: keyof typeof LAYER_COLORS) {
       duration: TRANSITION_CONFIG.duration,
       delay: TRANSITION_CONFIG.delay,
     },
+  };
+}
+
+
+export function getFloodHazardPaintConfig() {
+  const config = LAYER_COLORS.flood_hazard;
+  return {
+    "fill-color": [
+      "match",
+      ["get", "Var"], 
+      3, config.high,
+      2, config.medium,
+      1, config.low,
+      config.default,
+    ] as any,
+    "fill-opacity": config.opacity,
   };
 }
