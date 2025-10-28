@@ -162,7 +162,7 @@ export default function ImageUploader({
                     : "hover:bg-[#dc2b35]"
                 }`}
               >
-                <X className="w-3.5 h-3.5 text-white" />
+                <X className="w-3.5 h-3.5 text-white cursor-pointer" />
               </button>
             </div>
           </div>
