@@ -27,7 +27,7 @@ export function FloodScenarioSelector({
           {scenarios.find((s) => s.id === selectedScenario)?.label}
         </span>
       </div>
-
+      
       {/* Scenario selector */}
       <select
         value={selectedScenario}
