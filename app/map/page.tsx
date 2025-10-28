@@ -11,9 +11,12 @@ import {
   MAPBOX_ACCESS_TOKEN,
   OVERLAY_CONFIG,
   LAYER_IDS,
+  HIT_AREA_LAYER_IDS,
   MAP_STYLES,
   getLinePaintConfig,
   getCirclePaintConfig,
+  getLineHitAreaPaintConfig,
+  getCircleHitAreaPaintConfig,
   CAMERA_ANIMATION,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
@@ -277,6 +280,14 @@ export default function MapPage() {
               data: "/drainage/man_pipes.geojson",
               promoteId: "Name",
             });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "man_pipes-hit-layer",
+              type: "line",
+              source: "man_pipes",
+              paint: getLineHitAreaPaintConfig("man_pipes"),
+            });
+            // Add visible layer on top
             map.addLayer({
               id: "man_pipes-layer",
               type: "line",
@@ -291,6 +302,14 @@ export default function MapPage() {
               data: "/drainage/storm_drains.geojson",
               promoteId: "In_Name",
             });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "storm_drains-hit-layer",
+              type: "circle",
+              source: "storm_drains",
+              paint: getCircleHitAreaPaintConfig("storm_drains"),
+            });
+            // Add visible layer on top
             map.addLayer({
               id: "storm_drains-layer",
               type: "circle",
@@ -305,6 +324,14 @@ export default function MapPage() {
               data: "/drainage/inlets.geojson",
               promoteId: "In_Name",
             });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "inlets-hit-layer",
+              type: "circle",
+              source: "inlets",
+              paint: getCircleHitAreaPaintConfig("inlets"),
+            });
+            // Add visible layer on top
             map.addLayer({
               id: "inlets-layer",
               type: "circle",
@@ -319,6 +346,14 @@ export default function MapPage() {
               data: "/drainage/outlets.geojson",
               promoteId: "Out_Name",
             });
+            // Add invisible hit area layer first (rendered below)
+            map.addLayer({
+              id: "outlets-hit-layer",
+              type: "circle",
+              source: "outlets",
+              paint: getCircleHitAreaPaintConfig("outlets"),
+            });
+            // Add visible layer on top
             map.addLayer({
               id: "outlets-layer",
               type: "circle",
@@ -337,20 +372,21 @@ export default function MapPage() {
           //console.log("Current tab from ref:", currentTabRef.current);
           //console.log("Data consumer tabs:", dataConsumerTabs);
 
-          const validLayers = [
-            "inlets-layer",
-            "outlets-layer",
-            "storm_drains-layer",
-            "man_pipes-layer",
+          // Query hit area layers for better click detection
+          const validHitLayers = [
+            "inlets-hit-layer",
+            "outlets-hit-layer",
+            "storm_drains-hit-layer",
+            "man_pipes-hit-layer",
           ].filter((id) => map.getLayer(id));
 
-          if (!validLayers.length) {
-            console.log("No valid layers found");
+          if (!validHitLayers.length) {
+            console.log("No valid hit area layers found");
             return;
           }
 
           const features = map.queryRenderedFeatures(e.point, {
-            layers: validLayers,
+            layers: validHitLayers,
           });
 
           if (!features.length) {
@@ -367,8 +403,9 @@ export default function MapPage() {
           const shouldKeepTab = dataConsumerTabs.includes(currentTabRef.current);
           //console.log("Should keep current tab?", shouldKeepTab);
 
+          // Map hit layer IDs to their corresponding data
           switch (feature.layer.id) {
-            case "man_pipes-layer": {
+            case "man_pipes-hit-layer": {
               const pipe = pipesRef.current.find((p) => p.id === props.Name);
               if (pipe) {
                 //console.log("Selected pipe:", pipe.id);
@@ -379,7 +416,7 @@ export default function MapPage() {
               }
               break;
             }
-            case "inlets-layer": {
+            case "inlets-hit-layer": {
               const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
               if (inlet) {
                 handleSelectInlet(inlet);
@@ -389,7 +426,7 @@ export default function MapPage() {
               }
               break;
             }
-            case "outlets-layer": {
+            case "outlets-hit-layer": {
               const outlet = outletsRef.current.find(
                 (o) => o.id === props.Out_Name
               );
@@ -401,7 +438,7 @@ export default function MapPage() {
               }
               break;
             }
-            case "storm_drains-layer": {
+            case "storm_drains-hit-layer": {
               const drain = drainsRef.current.find((d) => d.id === props.In_Name);
               if (drain) {
                 handleSelectDrain(drain);
@@ -414,8 +451,15 @@ export default function MapPage() {
           }
         });
 
-        // Cursor style
-        layerIds.forEach((layerId) => {
+        // Cursor style - use hit area layers for better cursor feedback
+        const hitAreaLayerIds = [
+          "inlets-hit-layer",
+          "outlets-hit-layer",
+          "storm_drains-hit-layer",
+          "man_pipes-hit-layer",
+        ];
+
+        hitAreaLayerIds.forEach((layerId) => {
           map.on("mouseenter", layerId, () => {
             map.getCanvas().style.cursor = "pointer";
           });
@@ -549,13 +593,22 @@ export default function MapPage() {
     if (mapRef.current) {
       layerIds.forEach((layerId) => {
         if (mapRef.current?.getLayer(layerId)) {
+          const isVisible = overlayVisibility[layerId as keyof typeof overlayVisibility];
           mapRef.current.setLayoutProperty(
             layerId,
             "visibility",
-            overlayVisibility[layerId as keyof typeof overlayVisibility]
-              ? "visible"
-              : "none"
+            isVisible ? "visible" : "none"
           );
+
+          // Also control the corresponding hit area layer visibility
+          const hitLayerId = layerId.replace("-layer", "-hit-layer");
+          if (mapRef.current?.getLayer(hitLayerId)) {
+            mapRef.current.setLayoutProperty(
+              hitLayerId,
+              "visibility",
+              isVisible ? "visible" : "none"
+            );
+          }
         }
       });
     }
