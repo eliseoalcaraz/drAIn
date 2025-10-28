@@ -1,26 +1,18 @@
 "use client";
 
+import { AuthProvider } from "@/components/context/AuthProvider";
+import { ReportProvider } from "@/components/context/ReportProvider";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { ThemeProvider } from "next-themes";
-import { useEffect, useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted) {
-    return null;
-  }
-
   return (
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="light"
-      disableTransitionOnChange
-    >
-      {children}
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <AuthProvider>
+        <ReportProvider>
+          <SidebarProvider>{children}</SidebarProvider>
+        </ReportProvider>
+      </AuthProvider>
     </ThemeProvider>
   );
 }

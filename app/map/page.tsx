@@ -37,19 +37,21 @@ import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  fetchReports,
-  formatReport,
   getreportCategoryCount,
-  subscribeToReportChanges,
 } from "@/lib/supabase/report";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useReports } from "@/components/context/ReportProvider";
 
 export default function MapPage() {
   const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
+  const {
+    latestReports: reports, // Use latestReports from context for map bubbles
+    allReports: allReportsData, // Use allReports from context for history
+    isRefreshingReports,
+    refreshReports: onRefreshReports, // Use refresh function from context
+  } = useReports();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isRefreshingReports, setIsRefreshingReports] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
   const [selectedFloodScenario, setSelectedFloodScenario] =
     useState<string>("5YR");
@@ -736,19 +738,6 @@ export default function MapPage() {
     setControlPanelTab("stats");
   };
 
-  // Handler for refreshing reports
-  const handleRefreshReports = async () => {
-    setIsRefreshingReports(true);
-    try {
-      const data = await fetchReports();
-      setReports(data);
-      //console.log("Refreshed reports:", data);
-    } catch (err) {
-      console.error("Failed to refresh reports:", err);
-    } finally {
-      setIsRefreshingReports(false);
-    }
-  };
 
   const handleSelectInlet = (inlet: Inlet) => {
     if (!mapRef.current) return;
@@ -952,8 +941,9 @@ export default function MapPage() {
           selectedFloodScenario={selectedFloodScenario}
           onChangeFloodScenario={handleFloodScenarioChange}
           reports={reports}
-          onRefreshReports={handleRefreshReports}
+          onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
+          allReportsData={allReportsData} // Pass all reports data to ControlPanel
         />
         <CameraControls
           onZoomIn={handleZoomIn}
