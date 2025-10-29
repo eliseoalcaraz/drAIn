@@ -3,6 +3,7 @@
 import React from "react";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -104,7 +105,9 @@ export default function Model2({
 
             <Select
               value={selectedYear?.toString() || ""}
-              onValueChange={(value) => onYearChange(Number(value) as YearOption)}
+              onValueChange={(value) =>
+                onYearChange(Number(value) as YearOption)
+              }
             >
               <SelectTrigger id="year-select" className="min-w-[120px]">
                 <SelectValue placeholder="Choose" />
@@ -119,24 +122,64 @@ export default function Model2({
             </Select>
           </div>
 
-          {/* other content can go here and will scroll if necessary */}
-          <div><span className="text-sm">Vulnerability Indicator</span></div>
-          <div className="flex justify-end py-1 px-5 items-center gap-4">
-            <div className="flex flex-col items-center gap-2">
-              <div className="bg-[#D32F2F] w-4 h-1.5 rounded-lg" />
-              <span className="text-xs">High Risk</span>
+          {/* Vulnerability Indicator Legend */}
+          <div className="space-y-3 px-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm ">Vulnerability Indicator</span>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <IconInfoCircleFilled className="w-3.5 h-3.5 text-[#8D8D8D]/50 hover:text-[#8D8D8D] cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs max-w-xs">
+                      Color-coded risk levels based on vulnerability analysis
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="bg-[#FFA000] w-4 h-1.5 rounded-lg" />
-              <span className="text-xs">Medium Risk</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="bg-[#FFF176] w-4 h-1.5 rounded-lg" />
-              <span className="text-xs">Low Risk</span>
-            </div>
-            <div className="flex flex-col items-center gap-2">
-              <div className="bg-[#388E3C] w-4 h-1.5 rounded-lg" />
-              <span className="text-xs">No risk</span>
+
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <Badge
+                variant="outline"
+                className="justify-start gap-1.5 py-1 px-2 border-[#D32F2F]/20 bg-[#D32F2F]/5 hover:bg-[#D32F2F]/10"
+              >
+                <div className="w-2 h-2 rounded-full bg-[#D32F2F] shadow-sm" />
+                <span className="text-[10px]  font-normal  text-foreground">
+                  High
+                </span>
+              </Badge>
+
+              <Badge
+                variant="outline"
+                className="justify-start gap-1.5 py-1 px-2 border-[#FFA000]/20 bg-[#FFA000]/5 hover:bg-[#FFA000]/10"
+              >
+                <div className="w-2 h-2 rounded-full bg-[#FFA000] shadow-sm" />
+                <span className="text-[10px]  font-normal text-foreground">
+                  Medium
+                </span>
+              </Badge>
+
+              <Badge
+                variant="outline"
+                className="justify-start gap-1.5 py-1 px-2 border-[#FDD835]/20 bg-[#FDD835]/5 hover:bg-[#FDD835]/10"
+              >
+                <div className="w-2 h-2 rounded-full bg-[#FDD835] shadow-sm" />
+                <span className="text-[10px]  font-normal text-foreground">
+                  Low
+                </span>
+              </Badge>
+
+              <Badge
+                variant="outline"
+                className="justify-start gap-1.5 py-1 px-2 border-[#388E3C]/20 bg-[#388E3C]/5 hover:bg-[#388E3C]/10"
+              >
+                <div className="w-2 h-2 rounded-full bg-[#388E3C] shadow-sm" />
+                <span className="text-[10px] font-normal text-foreground">
+                  No Risk
+                </span>
+              </Badge>
             </div>
           </div>
         </div>
@@ -176,8 +219,8 @@ export default function Model2({
           </div>
 
           <p className="text-[10px] text-muted-foreground mt-3">
-            The vulnerability data table will appear on the map and can be sorted
-            and dragged to reposition.
+            The vulnerability data table will appear on the map and can be
+            sorted and dragged to reposition.
           </p>
         </div>
       </div>
