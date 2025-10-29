@@ -6,6 +6,7 @@ import { Providers } from "./providers";
 import { AuthProvider } from "@/components/context/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarLayout } from "@/components/sidebar-layout";
+import { NavigationLoadingOverlay } from "@/components/NavigationLoadingOverlay";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,6 +52,7 @@ export default function RootLayout({
         <AuthProvider>
           <Providers>
             <SidebarLayout>{children}</SidebarLayout>
+            <NavigationLoadingOverlay />
             <Toaster position="top-center" />
           </Providers>
         </AuthProvider>

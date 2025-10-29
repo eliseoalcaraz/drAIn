@@ -1,24 +1,20 @@
 "use client";
 
 import { useAuth } from "@/components/context/AuthProvider";
-import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import { useSidebar } from "@/components/ui/sidebar";
 import client from "@/app/api/client";
-import { Spinner } from "@/components/ui/spinner";
 import DataFlowPipeline from "@/components/data-flow";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { usePageTransition } from "@/hooks/usePageTransition";
 
 export default function WelcomePage() {
   const { user } = useAuth();
-  const router = useRouter();
-  const { setOpen, isMobile, setOpenMobile } = useSidebar();
+  const { navigateTo, isNavigating } = usePageTransition();
   const supabase = client;
   const [_profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [_profileLoading, setProfileLoading] = useState(true);
   const [_publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
-  const [isNavigatingToMap, setIsNavigatingToMap] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -60,34 +56,9 @@ export default function WelcomePage() {
     }
   }, [user, supabase]);
 
-  const _handleNavigateToMap = () => {
-    // Close sidebar for smooth transition
-    if (isMobile) {
-      setOpenMobile(false);
-    } else {
-      setOpen(false);
-    }
-
-    // Show loading UI
-    setIsNavigatingToMap(true);
-
-    // Small delay to ensure loading UI renders before heavy navigation
-    setTimeout(() => {
-      router.push("/map");
-    }, 200);
+  const handleNavigateToMap = () => {
+    navigateTo("/map");
   };
-
-  // If navigating to map, show loading screen
-  if (isNavigatingToMap) {
-    return (
-      <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-blue-50 animate-in fade-in duration-300">
-        <div className="flex flex-col items-center gap-4">
-          <Spinner className="size-8 text-[#3F83DB]" />
-          <p className="text-lg font-medium text-gray-700">Loading Map...</p>
-        </div>
-      </main>
-    );
-  }
 
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#e8e8e8]/50">
@@ -136,6 +107,8 @@ export default function WelcomePage() {
             <Button
               size="lg"
               className="text-md bg-[#3B82F6] hover:bg-[#2563EB] pointer-events-auto"
+              onClick={handleNavigateToMap}
+              disabled={isNavigating}
             >
               Explore Map
             </Button>
