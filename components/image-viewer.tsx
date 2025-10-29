@@ -79,7 +79,7 @@ export function ImageViewer({
             onClick={onClose}
             className="absolute top-4 right-4 w-8 h-8 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors z-20"
           >
-            <X className="w-5 h-5 text-gray-600" />
+            <X className="w-5 h-5 text-gray-600 cursor-pointer" />
           </button>
 
           <h2 className="text-xl font-bold text-gray-900 mb-4 pr-8">

@@ -133,7 +133,7 @@ export function TopBar({
   const showSignOut = activeTab === "profile";
   const showNotification = activeTab === "profile";
   const showProfileProgress = activeTab === "profile";
-  const showLinkBar = activeTab === "simulations";
+  const showLinkBar = activeTab === "simulations" || activeTab === "chatbot";
   const showReportTabs = activeTab === "report";
   const showAdminTab = activeTab === "admin";
   const showDateSort = activeTab === "report" || activeTab === "admin";
@@ -169,14 +169,14 @@ export function TopBar({
       {showSettings && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]">
+            <button className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] cursor-pointer rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]">
               <MoreHorizontal className="w-5 h-5 text-[#8D8D8D]" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="start">
             <DropdownMenuItem
               onClick={() => onToggleDrag?.(!isDragEnabled)}
-              className="gap-2"
+              className="gap-2 cursor-pointer"
             >
               {isDragEnabled ? (
                 <Lock className="h-4 w-4" />
@@ -224,16 +224,16 @@ export function TopBar({
       {/* Back Button */}
       {showBackButton && (
         <button
-          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors"
+          className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors cursor-pointer"
           onClick={onBack}
         >
-          <ChevronLeft className="w-5 h-5 text-[#8D8D8D] hover:text-black" />
+          <ChevronLeft className="w-5 h-5 text-[#8D8D8D] hover:text-black pointer-events-none" />
         </button>
       )}
 
       {/* Selected Item Title */}
       {showBackButton && (
-        <div className="flex relative w-9/12 h-5">
+        <div className="flex relative w-9/12 h-5 cursor-pointer">
           <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
             {selectedItemTitle}
           </span>
@@ -320,7 +320,7 @@ export function TopBar({
           className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]"
           aria-label="Change Model"
         >
-          <ArrowLeft className="h-4 w-4 text-[#8D8D8D]" />
+          <ArrowLeft className="h-4 w-4 text-[#8D8D8D] cursor-pointer" />
         </button>
       )}
 

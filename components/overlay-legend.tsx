@@ -61,7 +61,7 @@ export function OverlayLegend({
           variant="outline"
           size="sm"
           aria-label="Toggle all layers"
-          className={`ml-auto border transition-colors duration-300 ${
+          className={`ml-auto border transition-colors cursor-pointer duration-300 ${
             allDrainageVisible ? "border-[#3F83DB]" : "border-gray-300"
           }`}
         >
@@ -124,7 +124,7 @@ export function OverlayLegend({
                 <Switch
                   checked={overlay.visible}
                   onCheckedChange={() => {}}
-                  className="ml-auto"
+                  className="ml-auto cursor-pointer"
                 />
               </div>
             </div>

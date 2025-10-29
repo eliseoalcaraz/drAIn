@@ -178,7 +178,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
               onClick={onClose}
               className="absolute top-3 right-3 w-6 h-6 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors"
             >
-              <X className="w-4 h-4 text-gray-600" />
+              <X className="w-4 h-4 text-gray-600 cursor-pointer" />
             </button>
 
             {/* Header */}
@@ -220,7 +220,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                     onClick={() => setShowImageViewer(true)}
                     className="inline-flex items-center gap-1 text-blue-600 hover:text-blue-700 hover:underline font-medium transition-colors"
                   >
-                    <span className="flex flex-row gap-1 items-center ml-[-1px]">
+                    <span className="flex flex-row gap-1 items-center ml-[-1px] cursor-pointer">
                       Image Attached
                       <Link className="w-3 h-3 mb-0.5" />
                     </span>
@@ -245,7 +245,7 @@ export const ReportBubble = forwardRef<ReportBubbleRef, Props>(
                   e.stopPropagation();
                   onHistoryClick?.();
                 }}
-                className="p-1 bg-[#EBEBEB] border border-[#bcbcbc] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1 bg-[#EBEBEB] border border-[#bcbcbc] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0] disabled:opacity-50 cursor-pointer"
               >
                 <History className="w-4 h-4 text-[#8D8D8D]" />
               </button>

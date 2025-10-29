@@ -27,25 +27,24 @@ export const CameraControls: FC<CameraControlsProps> = ({
         {isSimulationActive && onExitSimulation && (
           <button
             onClick={onExitSimulation}
-            className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
+            className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-gray-300 active:border active:border-gray-400 active:text-black"
           >
-            <X className="h-4 w-4" />
+            <X className="h-4 w-4 cursor-pointer" />
           </button>
         )}
-
         {/* Zoom In / Zoom Out */}
         <div className="flex flex-col bg-white rounded-sm shadow-md overflow-hidden">
           <button
             onClick={onZoomIn}
             className="p-2 rounded-t-sm rounded-x-md hover:bg-gray-100 border border-transparent border-b-gray-200 active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 cursor-pointer" />
           </button>
           <button
             onClick={onZoomOut}
             className="p-2 rounded-b-sm rounded-x-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
           >
-            <Minus className="w-4 h-4" />
+            <Minus className="w-4 h-4 cursor-pointer" />
           </button>
         </div>
 
@@ -54,7 +53,7 @@ export const CameraControls: FC<CameraControlsProps> = ({
           onClick={onResetPosition}
           className="p-2 bg-white rounded shadow-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
         >
-          <Crosshair className="w-4 h-4" />
+          <Crosshair className="w-4 h-4 cursor-pointer" />
         </button>
       </div>
 
@@ -64,7 +63,7 @@ export const CameraControls: FC<CameraControlsProps> = ({
         }}
         className="p-2 bg-white rounded shadow-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
       >
-        <MapIcon className="w-4 h-4" />
+        <MapIcon className="w-4 h-4 cursor-pointer" />
       </button>
     </div>
   );

@@ -79,7 +79,8 @@ export function ControlPanel({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
-}: ControlPanelProps & { reports: Report[] }) { // reports are latest, allReportsData are all
+}: ControlPanelProps & { reports: Report[] }) {
+  // reports are latest, allReportsData are all
   const router = useRouter();
   const supabase = client;
   const authContext = useContext(AuthContext);
@@ -229,7 +230,11 @@ export function ControlPanel({
   };
 
   return (
-    <div className="absolute m-5 flex flex-row h-[600px] w-sm bg-white rounded-2xl overflow-hidden">
+    <div className={`absolute m-5 flex flex-row h-[600px] w-sm rounded-2xl overflow-hidden ${
+      activeTab === "chatbot"
+        ? "bg-gradient-to-b from-blue-50 via-white to-blue-50"
+        : "bg-white"
+    }`}>
       {/* Sidebar */}
       <Sidebar
         activeTab={activeTab}

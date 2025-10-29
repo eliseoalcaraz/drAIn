@@ -30,7 +30,7 @@ export function DateSort({
 }: DateSortProps) {
   return (
     <Select value={value} onValueChange={onValueChange} disabled={disabled}>
-      <SelectTrigger className="w-36 h-8.5 bg-[#EBEBEB] border-[#DCDCDC] text-xs text-[#8D8D8D]">
+      <SelectTrigger className="w-36 h-8.5 bg-[#EBEBEB] border-[#DCDCDC] text-xs text-[#8D8D8D] cursor-pointer">
         <div className="flex items-center gap-2">
           <Calendar className="w-3.5 h-3.5 text-[#8D8D8D]" />
           <SelectValue placeholder="All time" />

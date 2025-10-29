@@ -50,7 +50,7 @@ export function SideNavigation({
       <button
         key={tab.id}
         onClick={() => onTabChange(tab.id)}
-        className="relative flex items-center justify-center"
+        className="relative flex items-center justify-center cursor-pointer"
       >
         <Icon className="w-5 h-5 text-[#B2ADAB] hover:text-black" />
 

@@ -15,7 +15,7 @@ export default function NotificationBell() {
   return (
     <Popover onOpenChange={(open) => open && handleOpenNotifications()}>
       <PopoverTrigger className="relative p-2 hover:bg-gray-100 rounded-full transition">
-        <IconBellFilled className="w-4.5 h-4.5 text-[#b2adab]" />
+        <IconBellFilled className="w-4.5 h-4.5 text-[#b2adab] cursor-pointer" />
         {unreadCount > 0 && (
           <Badge className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1.5">
             {unreadCount}
