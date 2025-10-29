@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { TriangleAlert } from "lucide-react";
+import { useState } from "react";
 
 interface FloodScenarioCardProps {
   isVisible: boolean;
@@ -24,6 +25,7 @@ export function FloodScenarioCard({
   selectedScenario,
   onScenarioChange,
 }: FloodScenarioCardProps) {
+  const [visible, setVisible] = useState(isVisible);
   return (
     <div className="bg-[#f7f7f7] rounded-xl border border-t-0 border-[#e2e2e2]">
       <Card className="border-x-0 flex gap-2 flex-col">
@@ -38,17 +40,20 @@ export function FloodScenarioCard({
           <Toggle
             id="toggle-flood"
             pressed={isVisible}
-            onPressedChange={onToggle}
+            onPressedChange={() => {
+                onToggle();
+                setVisible(!visible);
+              }}
             variant="outline"
             size="sm"
             aria-label="Toggle flood hazard layer"
-            className={`ml-auto border transition-colors duration-300 ${
-              isVisible ? "border-[#3F83DB]" : "border-gray-300"
+            className={`ml-auto border cursor-pointer transition-colors duration-300 ${
+              visible ? "border-[#3F83DB]" : "border-gray-300"
             }`}
           >
             <TriangleAlert
               className={`h-4 w-4 ${
-                isVisible ? "text-[#3F83DB]" : "text-gray-400"
+                visible ? "text-[#3F83DB]" : "text-gray-400"
               }`}
             />
           </Toggle>
