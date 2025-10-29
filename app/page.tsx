@@ -60,17 +60,48 @@ export default function WelcomePage() {
     navigateTo("/map");
   };
 
+
+  const toggleFullScreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch((err) => {
+        console.error(
+          `Error attempting to enable full-screen mode: ${err.message} (${err.name})`
+        );
+      });
+    } else {
+      // Exit full-screen mode
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
+  };
+
   return (
     <main className="relative min-h-screen overflow-hidden bg-[#e8e8e8]/50">
-      {/* Background pipeline with map SVG — absolute and full-size of main */}
-      {/* Adjust mapOpacity (0-1) to control background visibility */}
-      {/* enableHover makes map paths interactive - entire shape area is hoverable, fills with color on hover */}
-      {/* <div
-        className="absolute inset-0 z-0"
-        style={{
-          background: "linear-gradient(to left, #ffffff 40%, #c0ecff 100%)",
-        }}
-      /> */}
+      <div className="absolute top-4 right-4 z-20 pointer-events-auto">
+        <Button
+          variant="outline"
+          size="icon"
+          className="bg-white/80 hover:bg-white transition-colors border-gray-300 shadow-lg"
+          onClick={toggleFullScreen}
+          aria-label="Toggle Fullscreen"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="h-5 w-5"
+          >
+            <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+          </svg>
+        </Button>
+      </div>
 
       <DataFlowPipeline
         background
