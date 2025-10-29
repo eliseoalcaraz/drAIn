@@ -49,6 +49,7 @@ import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
 import { NodeSimulationSlideshow } from "@/components/node-simulation-slideshow";
 import { NodeParametersPanel } from "@/components/node-parameters-panel";
 import { LinkParametersPanel } from "@/components/link-parameters-panel";
+import { Minimize } from "lucide-react";
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
 
@@ -854,7 +855,7 @@ export default function SimulationPage() {
       "Unique vulnerability categories:",
       Array.from(uniqueCategories)
     );
-    console.log("Sample nodes:", vulnerabilityData.slice(0, 5));
+    // console.log("Sample nodes:", vulnerabilityData.slice(0, 5));
 
     // Color mapping for vulnerability categories
     // Using a function to handle case-insensitive and flexible matching
@@ -959,7 +960,7 @@ export default function SimulationPage() {
         "#307524", // Selected stroke color
         inletsStrokeMatchExpression,
       ]);
-      console.log("Updated inlets-layer color and stroke");
+      // console.log("Updated inlets-layer color and stroke");
     }
 
     // Update storm_drains-layer color and stroke
@@ -976,10 +977,17 @@ export default function SimulationPage() {
         "#355491", // Selected stroke color
         drainsStrokeMatchExpression,
       ]);
-      console.log("Updated storm_drains-layer color and stroke");
+      // console.log("Updated storm_drains-layer color and stroke");
     }
   };
 
+  const handleClosePopUps = () => {
+    setIsTableMinimized(true);
+    setIsTable3Minimized(true);
+    setTableData(null);
+    setTableData3(null);
+    setActivePanel(null);
+  }
   // Vulnerability table handlers
   const handleGenerateTable = async () => {
     if (!selectedYear) return;
@@ -1253,6 +1261,8 @@ export default function SimulationPage() {
     setSlideshowNode(null);
     setSlideshowNodeData(null);
     setSlideshowAllData(null);
+    setIsTableMinimized(false);
+    setIsTable3Minimized(false);
   };
 
   return (
@@ -1328,6 +1338,7 @@ export default function SimulationPage() {
           isTable3Minimized={isTable3Minimized}
           onToggleTable3Minimize={handleToggleTable3Minimize}
           onOpenNodeSimulation={handleOpenNodeSimulation}
+          onClosePopUps={handleClosePopUps}
         />
         <CameraControls
           onZoomIn={handleZoomIn}

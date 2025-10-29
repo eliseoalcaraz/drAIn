@@ -16,13 +16,13 @@ export function MoreOptions() {
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-40">
-        <DropdownMenuItem onClick={() => console.log("Edit clicked")}>
+        <DropdownMenuItem onClick={() => { /* console.log("Edit clicked") */ }}>
           Edit
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => console.log("Delete clicked")}>
+        <DropdownMenuItem onClick={() => { /* console.log("Delete clicked") */ }}>
           Delete
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => console.log("Share clicked")}>
+        <DropdownMenuItem onClick={() => { /* console.log("Share clicked") */ }}>
           Share
         </DropdownMenuItem>
       </DropdownMenuContent>

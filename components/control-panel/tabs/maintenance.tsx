@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   recordInletMaintenance,
   getInletMaintenanceHistory,
@@ -44,6 +44,25 @@ type HistoryItem = {
   description: string | null;
 };
 
+const assetActions = {
+  inlets: {
+    getHistory: getInletMaintenanceHistory,
+    record: recordInletMaintenance,
+  },
+  man_pipes: {
+    getHistory: getManPipeMaintenanceHistory,
+    record: recordManPipeMaintenance,
+  },
+  outlets: {
+    getHistory: getOutletMaintenanceHistory,
+    record: recordOutletMaintenance,
+  },
+  storm_drains: {
+    getHistory: getStormDrainMaintenanceHistory,
+    record: recordStormDrainMaintenance,
+  },
+};
+
 export type MaintenanceProps = {
   selectedInlet?: Inlet | null;
   selectedOutlet?: Outlet | null;
@@ -77,11 +96,42 @@ export default function Maintenance({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [_message, setMessage] = useState<string>("");
   const [history, setHistory] = useState<HistoryItem[] | null>(null);
-  const [maintenanceStatus, setMaintenanceStatus] = useState<
-    "in-progress" | "resolved"
-  >("in-progress");
   const [agencyComments, setAgencyComments] = useState<string>("");
   const [_reports, setReports] = useState<Report[]>([]);
+
+  const loadReports = useCallback(async (componentId: string) => {
+    const allReports = await fetchAllReports();
+    const assetReports = allReports.filter(
+      (report) => report.componentId === componentId,
+    );
+    setReports(assetReports);
+  }, []);
+
+  const handleViewHistory = useCallback(async (assetType: string, assetId: string) => {
+    setIsLoading(true);
+    setMessage("");
+    setHistory(null);
+
+    const actions =
+      assetActions[assetType as keyof typeof assetActions];
+    if (!actions) {
+      setMessage("Unknown asset type.");
+      setIsLoading(false);
+      return;
+    }
+
+    const result = await actions.getHistory(assetId);
+
+    setIsLoading(false);
+
+    if (result.error) {
+      setMessage(`Error fetching history: ${result.error}`);
+    } else if (result.data && (result.data as HistoryItem[]).length > 0) {
+      setHistory(result.data as HistoryItem[]);
+    } else {
+      setMessage("No maintenance history found for this asset.");
+    }
+  }, []);
 
   useEffect(() => {
     let assetType = "";
@@ -111,101 +161,7 @@ export default function Maintenance({
       setReports([]);
       setMessage("");
     }
-  }, [selectedInlet, selectedOutlet, selectedPipe, selectedDrain]);
-
-  const loadReports = async (componentId: string) => {
-    const allReports = await fetchAllReports();
-    const assetReports = allReports.filter(
-      (report) => report.componentId === componentId
-    );
-    setReports(assetReports);
-  };
-
-  const handleViewHistory = async (assetType: string, assetId: string) => {
-    setIsLoading(true);
-    setMessage("");
-    setHistory(null);
-
-    let result: { error?: string; data?: HistoryItem[] };
-    switch (assetType) {
-      case "inlets":
-        result = (await getInletMaintenanceHistory(assetId)) as {
-          error?: string;
-          data?: HistoryItem[];
-        };
-        break;
-      case "man_pipes":
-        result = (await getManPipeMaintenanceHistory(assetId)) as {
-          error?: string;
-          data?: HistoryItem[];
-        };
-        break;
-      case "outlets":
-        result = (await getOutletMaintenanceHistory(assetId)) as {
-          error?: string;
-          data?: HistoryItem[];
-        };
-        break;
-      case "storm_drains":
-        result = (await getStormDrainMaintenanceHistory(assetId)) as {
-          error?: string;
-          data?: HistoryItem[];
-        };
-        break;
-      default:
-        result = { error: "Unknown asset type." };
-    }
-
-    setIsLoading(false);
-
-    if (result.error) {
-      setMessage(`Error fetching history: ${result.error}`);
-    } else if (result.data && result.data.length > 0) {
-      setHistory(result.data);
-    } else {
-      setMessage("No maintenance history found for this asset.");
-    }
-  };
-
-  const _handleRecordMaintenance = async () => {
-    if (!selectedAsset) {
-      setMessage("No asset selected.");
-      return;
-    }
-    setIsLoading(true);
-    setMessage("");
-
-    const { type, id } = selectedAsset;
-    let result;
-    switch (type) {
-      case "inlets":
-        result = await recordInletMaintenance(id, maintenanceStatus);
-        break;
-      case "man_pipes":
-        result = await recordManPipeMaintenance(id, maintenanceStatus);
-        break;
-      case "outlets":
-        result = await recordOutletMaintenance(id, maintenanceStatus);
-        break;
-      case "storm_drains":
-        result = await recordStormDrainMaintenance(id, maintenanceStatus);
-        break;
-      default:
-        result = { error: "Unknown asset type." };
-    }
-
-    setIsLoading(false);
-
-    if (result.error) {
-      setMessage(`Error: ${result.error}`);
-    } else {
-      setMessage(
-        `Maintenance recorded successfully for ${type} with ID ${id}.`
-      );
-      handleViewHistory(type, id);
-      loadReports(id); // Reload reports to reflect any deletions or changes
-    }
-  };
+  }, [selectedInlet, selectedOutlet, selectedPipe, selectedDrain, handleViewHistory, loadReports]);
 
   const handleRecordWithStatus = async (status: "in-progress" | "resolved") => {
     if (!selectedAsset) {
@@ -218,27 +174,15 @@ export default function Maintenance({
     const { type, id } = selectedAsset;
 
     const commentsToSubmit = agencyComments.trim() === "" ? "" : agencyComments;
-    let result;
-    switch (type) {
-      case "inlets":
-        result = await recordInletMaintenance(id, status, commentsToSubmit);
-        break;
-      case "man_pipes":
-        result = await recordManPipeMaintenance(id, status, commentsToSubmit);
-        break;
-      case "outlets":
-        result = await recordOutletMaintenance(id, status, commentsToSubmit);
-        break;
-      case "storm_drains":
-        result = await recordStormDrainMaintenance(
-          id,
-          status,
-          commentsToSubmit
-        );
-        break;
-      default:
-        result = { error: "Unknown asset type." };
+    
+    const actions = assetActions[type as keyof typeof assetActions];
+    if (!actions) {
+      setMessage("Unknown asset type.");
+      setIsLoading(false);
+      return;
     }
+
+    const result = await actions.record(id, status, commentsToSubmit);
 
     setIsLoading(false);
 
@@ -248,7 +192,6 @@ export default function Maintenance({
       setMessage(`Maintenance recorded successfully as ${status}.`);
       handleViewHistory(type, id);
       loadReports(id);
-      setMaintenanceStatus(status);
     }
   };
 

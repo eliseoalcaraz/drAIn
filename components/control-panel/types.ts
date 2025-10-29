@@ -142,4 +142,5 @@ export interface ControlPanelProps {
   activeAdminTab?: "maintenance" | "reports";
   onAdminTabChange?: (tab: "maintenance" | "reports") => void;
   allReportsData: Report[]; // Added for comprehensive report history
+  onClosePopUps?: () => void;
 }
