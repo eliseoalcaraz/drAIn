@@ -120,6 +120,25 @@ export default function Model2({
           </div>
 
           {/* other content can go here and will scroll if necessary */}
+          <div><span className="text-sm">Vulnerability Indicator</span></div>
+          <div className="flex justify-end py-1 px-5 items-center gap-4">
+            <div className="flex flex-col items-center gap-2">
+              <div className="bg-[#D32F2F] w-4 h-1.5 rounded-lg" />
+              <span className="text-xs">High Risk</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="bg-[#FFA000] w-4 h-1.5 rounded-lg" />
+              <span className="text-xs">Medium Risk</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="bg-[#FFF176] w-4 h-1.5 rounded-lg" />
+              <span className="text-xs">Low Risk</span>
+            </div>
+            <div className="flex flex-col items-center gap-2">
+              <div className="bg-[#388E3C] w-4 h-1.5 rounded-lg" />
+              <span className="text-xs">No risk</span>
+            </div>
+          </div>
         </div>
 
         {/* footer anchored to bottom */}

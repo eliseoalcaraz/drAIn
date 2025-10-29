@@ -49,6 +49,7 @@ import { fetchYRTable } from "@/lib/Vulnerabilities/FetchDeets";
 import { NodeSimulationSlideshow } from "@/components/node-simulation-slideshow";
 import { NodeParametersPanel } from "@/components/node-parameters-panel";
 import { LinkParametersPanel } from "@/components/link-parameters-panel";
+import { Minimize } from "lucide-react";
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
 
@@ -980,6 +981,13 @@ export default function SimulationPage() {
     }
   };
 
+  const handleClosePopUps = () => {
+    setIsTableMinimized(true);
+    setIsTable3Minimized(true);
+    setTableData(null);
+    setTableData3(null);
+    setActivePanel(null);
+  }
   // Vulnerability table handlers
   const handleGenerateTable = async () => {
     if (!selectedYear) return;
@@ -1253,6 +1261,8 @@ export default function SimulationPage() {
     setSlideshowNode(null);
     setSlideshowNodeData(null);
     setSlideshowAllData(null);
+    setIsTableMinimized(false);
+    setIsTable3Minimized(false);
   };
 
   return (
@@ -1328,6 +1338,7 @@ export default function SimulationPage() {
           isTable3Minimized={isTable3Minimized}
           onToggleTable3Minimize={handleToggleTable3Minimize}
           onOpenNodeSimulation={handleOpenNodeSimulation}
+          onClosePopUps={handleClosePopUps}
         />
         <CameraControls
           onZoomIn={handleZoomIn}

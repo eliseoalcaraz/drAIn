@@ -79,6 +79,7 @@ export function ControlPanel({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
+  onClosePopUps = () => {},
 }: ControlPanelProps & { reports: Report[] }) {
   // reports are latest, allReportsData are all
   const router = useRouter();
@@ -263,6 +264,7 @@ export function ControlPanel({
           onDateFilterChange={setDateFilter}
           activeAdminTab={activeAdminTab}
           onAdminTabChange={setActiveAdminTab}
+          onClosePopUps={onClosePopUps}
         />
 
         {/* Main Content */}

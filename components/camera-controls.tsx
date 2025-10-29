@@ -27,7 +27,7 @@ export const CameraControls: FC<CameraControlsProps> = ({
         {isSimulationActive && onExitSimulation && (
           <button
             onClick={onExitSimulation}
-            className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-gray-300 active:border active:border-gray-400 active:text-black"
+            className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-gray-200 active:border active:border-gray-300 active:text-black"
           >
             <X className="h-4 w-4 cursor-pointer" />
           </button>
@@ -36,13 +36,13 @@ export const CameraControls: FC<CameraControlsProps> = ({
         <div className="flex flex-col bg-white rounded-sm shadow-md overflow-hidden">
           <button
             onClick={onZoomIn}
-            className="p-2 rounded-t-sm rounded-x-md hover:bg-gray-100 border border-transparent border-b-gray-200 active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
+            className="p-2 rounded-t-sm rounded-x-md hover:bg-gray-100 border border-transparent border-b-gray-200 active:bg-gray-300 active:border active:border-gray-300 active:text-black"
           >
             <Plus className="w-4 h-4 cursor-pointer" />
           </button>
           <button
             onClick={onZoomOut}
-            className="p-2 rounded-b-sm rounded-x-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
+            className="p-2 rounded-t-sm rounded-x-md hover:bg-gray-100 border border-transparent border-b-gray-200 active:bg-gray-300 active:border active:border-gray-300 active:text-black"
           >
             <Minus className="w-4 h-4 cursor-pointer" />
           </button>
@@ -51,7 +51,7 @@ export const CameraControls: FC<CameraControlsProps> = ({
         {/* Reset Position */}
         <button
           onClick={onResetPosition}
-          className="p-2 bg-white rounded shadow-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
+          className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-gray-200 active:border active:border-gray-300 active:text-black"
         >
           <Crosshair className="w-4 h-4 cursor-pointer" />
         </button>
@@ -61,7 +61,7 @@ export const CameraControls: FC<CameraControlsProps> = ({
         onClick={() => {
           onChangeStyle();
         }}
-        className="p-2 bg-white rounded shadow-md hover:bg-gray-100 border border-transparent active:bg-[#4b72f3] active:border active:border-[#2b3ea7] active:text-white"
+        className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-gray-300 active:border active:border-gray-400 active:text-black"
       >
         <MapIcon className="w-4 h-4 cursor-pointer" />
       </button>
