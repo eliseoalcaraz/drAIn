@@ -235,7 +235,7 @@ export function subscribeToReportChanges(
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "reports" },
       (payload) => {
-        console.log("Channel Insert:", payload.new);
+        // console.log("Channel Insert:", payload.new);
         onInsert(payload.new as Report);
       }
     );
@@ -246,14 +246,14 @@ export function subscribeToReportChanges(
       "postgres_changes",
       { event: "UPDATE", schema: "public", table: "reports" },
       (payload) => {
-        console.log("Channel Update:", payload.new);
+        // console.log("Channel Update:", payload.new);
         onUpdate(payload.new as Report);
       }
     );
   }
 
   channel.subscribe((status, err) => {
-    console.log("Report Channel status:", status, err || "");
+    // console.log("Report Channel status:", status, err || "");
   });
 
   return () => {
@@ -272,7 +272,7 @@ export const getreportCategoryCount = async (
       .eq("category", targetCategory)
       .eq("component_id", categoryId);
 
-    console.log(targetCategory, categoryId, categoryCount);
+    // console.log(targetCategory, categoryId, categoryCount);
     return categoryCount ?? 0;
   } catch (error) {
     console.error("Error fetching reports:", error);
