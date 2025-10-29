@@ -244,7 +244,7 @@ export function ContentRenderer({
           searchTerm={searchTerm}
           isDragEnabled={isDragEnabled}
           onToggleDrag={onToggleDrag}
-          reports={reports}
+          reports={allReportsData}
           isSimulationMode={isSimulationMode}
           selectedFloodScenario={selectedFloodScenario}
           onChangeFloodScenario={onChangeFloodScenario}
