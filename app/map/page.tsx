@@ -11,7 +11,6 @@ import {
   MAPBOX_ACCESS_TOKEN,
   OVERLAY_CONFIG,
   LAYER_IDS,
-  HIT_AREA_LAYER_IDS,
   MAP_STYLES,
   getLinePaintConfig,
   getCirclePaintConfig,
@@ -152,7 +151,7 @@ export default function MapPage() {
       }
     };
     loadReports();
-      const unsubscribe = subscribeToReportChanges(
+    const unsubscribe = subscribeToReportChanges(
       (newReport) => {
         const formatted = formatReport(newReport);
         setReports((prev) => [...prev, formatted]);
@@ -218,7 +217,9 @@ export default function MapPage() {
       try {
         // Check WebGL support before initializing map
         if (!mapboxgl.supported()) {
-          setMapError("WebGL is not supported on this browser. Please use a modern browser with WebGL support.");
+          setMapError(
+            "WebGL is not supported on this browser. Please use a modern browser with WebGL support."
+          );
           return;
         }
 
@@ -400,7 +401,9 @@ export default function MapPage() {
           if (!feature.layer) return;
 
           // Use currentTabRef instead of controlPanelTab
-          const shouldKeepTab = dataConsumerTabs.includes(currentTabRef.current);
+          const shouldKeepTab = dataConsumerTabs.includes(
+            currentTabRef.current
+          );
           //console.log("Should keep current tab?", shouldKeepTab);
 
           // Map hit layer IDs to their corresponding data
@@ -417,7 +420,9 @@ export default function MapPage() {
               break;
             }
             case "inlets-hit-layer": {
-              const inlet = inletsRef.current.find((i) => i.id === props.In_Name);
+              const inlet = inletsRef.current.find(
+                (i) => i.id === props.In_Name
+              );
               if (inlet) {
                 handleSelectInlet(inlet);
                 if (!shouldKeepTab) {
@@ -439,7 +444,9 @@ export default function MapPage() {
               break;
             }
             case "storm_drains-hit-layer": {
-              const drain = drainsRef.current.find((d) => d.id === props.In_Name);
+              const drain = drainsRef.current.find(
+                (d) => d.id === props.In_Name
+              );
               if (drain) {
                 handleSelectDrain(drain);
                 if (!shouldKeepTab) {
@@ -469,7 +476,9 @@ export default function MapPage() {
         });
       } catch (error) {
         console.error("Failed to initialize map:", error);
-        setMapError("Failed to initialize map. Please refresh the page or try a different browser.");
+        setMapError(
+          "Failed to initialize map. Please refresh the page or try a different browser."
+        );
         return;
       }
     }
@@ -593,7 +602,8 @@ export default function MapPage() {
     if (mapRef.current) {
       layerIds.forEach((layerId) => {
         if (mapRef.current?.getLayer(layerId)) {
-          const isVisible = overlayVisibility[layerId as keyof typeof overlayVisibility];
+          const isVisible =
+            overlayVisibility[layerId as keyof typeof overlayVisibility];
           mapRef.current.setLayoutProperty(
             layerId,
             "visibility",
@@ -849,7 +859,9 @@ export default function MapPage() {
           {mapError && (
             <div className="absolute inset-0 flex items-center justify-center bg-background/95 z-50">
               <div className="text-center p-8 max-w-md">
-                <h2 className="text-2xl font-bold mb-4">Map Initialization Error</h2>
+                <h2 className="text-2xl font-bold mb-4">
+                  Map Initialization Error
+                </h2>
                 <p className="text-muted-foreground mb-4">{mapError}</p>
                 <button
                   onClick={() => window.location.reload()}
