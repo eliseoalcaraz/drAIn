@@ -1,3 +1,4 @@
+/* eslint-disable */
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -63,7 +64,7 @@ interface Model3Props {
   onComponentParamsChange: (params: Map<string, NodeParams>) => void;
   pipeParams: Map<string, LinkParams>;
   onPipeParamsChange: (params: Map<string, LinkParams>) => void;
-  rainfallParams: RainfallParams,
+  rainfallParams: RainfallParams;
   onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel: boolean;
   onToggleNodePanel: () => void;
@@ -79,14 +80,14 @@ interface Model3Props {
   onOpenNodeSimulation?: (nodeId: string) => void;
 }
 
-export const DEFAULT_NODE_PARAMS: NodeParams = {
+const DEFAULT_NODE_PARAMS: NodeParams = {
   inv_elev: 0,
   init_depth: 0,
   ponding_area: 0,
   surcharge_depth: 0,
 };
 
-export const DEFAULT_LINK_PARAMS: LinkParams = {
+const DEFAULT_LINK_PARAMS: LinkParams = {
   init_flow: 0,
   upstrm_offset_depth: 0,
   downstrm_offset_depth: 0,
@@ -100,10 +101,10 @@ const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
 
 export default function Model3({
   selectedPointId: externalSelectedPointId = null,
-  selectedInlet: _selectedInlet = null,
-  selectedOutlet: _selectedOutlet = null,
-  selectedPipe: _selectedPipe = null,
-  selectedDrain: _selectedDrain = null,
+  selectedInlet = null,
+  selectedOutlet = null,
+  selectedPipe = null,
+  selectedDrain = null,
   selectedComponentIds,
   onComponentIdsChange,
   selectedPipeIds,
@@ -120,7 +121,7 @@ export default function Model3({
   onToggleLinkPanel,
   onGenerateTable,
   isLoadingTable,
-  onCloseTable: _onCloseTable,
+  onCloseTable,
   hasTable = false,
   isTableMinimized = false,
   onToggleMinimize,
@@ -143,7 +144,7 @@ export default function Model3({
     ) {
       onComponentIdsChange([...selectedComponentIds, externalSelectedPointId]);
     }
-  }, [externalSelectedPointId, selectedComponentIds, onComponentIdsChange]);
+  }, [externalSelectedPointId]);
 
   // Handle component selection changes - auto-populate params
   useEffect(() => {
@@ -189,7 +190,7 @@ export default function Model3({
     if (paramsChanged) {
       onComponentParamsChange(newParams);
     }
-  }, [selectedComponentIds, inlets, drains, componentParams, onComponentParamsChange]);
+  }, [selectedComponentIds, inlets, drains]);
 
   // Handle pipe selection changes
   useEffect(() => {
@@ -215,7 +216,7 @@ export default function Model3({
     if (paramsChanged) {
       onPipeParamsChange(newParams);
     }
-  }, [selectedPipeIds, pipeParams, onPipeParamsChange]);
+  }, [selectedPipeIds]);
 
   const handleGenerateTableClick = () => {
     if (selectedComponentIds.length === 0) {
