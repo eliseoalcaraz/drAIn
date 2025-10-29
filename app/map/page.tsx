@@ -144,7 +144,7 @@ function MapPageContent() {
   };
 
   const handleFloodScenarioChange = (scenarioId: string) => {
-    console.log(`Switching to ${scenarioId} flood hazard...`);
+    // console.log(`Switching to ${scenarioId} flood hazard...`);
 
     if (!mapRef.current) {
       console.error("Map not ready");
@@ -159,7 +159,7 @@ function MapPageContent() {
 
     if (source) {
       const dataUrl = `/flood-hazard/${scenarioId} Flood Hazard.json`;
-      console.log(`Loading: ${dataUrl}`);
+      // console.log(`Loading: ${dataUrl}`);
 
       source.setData(dataUrl);
 
@@ -295,7 +295,7 @@ function MapPageContent() {
           }
 
           if (!map.getSource("flood_hazard")) {
-            console.log("🔵 Adding flood_hazard source and layer...");
+            // console.log("🔵 Adding flood_hazard source and layer...");
 
             map.addSource("flood_hazard", {
               type: "geojson",
@@ -417,7 +417,7 @@ function MapPageContent() {
           ].filter((id) => map.getLayer(id));
 
           if (!validHitLayers.length) {
-            console.log("No valid hit area layers found");
+            // console.log("No valid hit area layers found");
             return;
           }
 

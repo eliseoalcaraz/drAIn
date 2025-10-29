@@ -33,7 +33,7 @@ export default function TestSimulation() {
     try {
       const data = await runSimulation(nodes, links, rainfall);
       setResult(data);
-      console.log('✅ Simulation successful:', data);
+      // console.log('✅ Simulation successful:', data);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unknown error occurred';
       setError(errorMessage);
