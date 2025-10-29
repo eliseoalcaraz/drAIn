@@ -855,7 +855,7 @@ export default function SimulationPage() {
       "Unique vulnerability categories:",
       Array.from(uniqueCategories)
     );
-    console.log("Sample nodes:", vulnerabilityData.slice(0, 5));
+    // console.log("Sample nodes:", vulnerabilityData.slice(0, 5));
 
     // Color mapping for vulnerability categories
     // Using a function to handle case-insensitive and flexible matching
@@ -960,7 +960,7 @@ export default function SimulationPage() {
         "#307524", // Selected stroke color
         inletsStrokeMatchExpression,
       ]);
-      console.log("Updated inlets-layer color and stroke");
+      // console.log("Updated inlets-layer color and stroke");
     }
 
     // Update storm_drains-layer color and stroke
@@ -977,7 +977,7 @@ export default function SimulationPage() {
         "#355491", // Selected stroke color
         drainsStrokeMatchExpression,
       ]);
-      console.log("Updated storm_drains-layer color and stroke");
+      // console.log("Updated storm_drains-layer color and stroke");
     }
   };
 
