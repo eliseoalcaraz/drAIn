@@ -50,7 +50,7 @@ export function NavMain({
                   tooltip={item.title}
                   onClick={(e) => item.url && handleNavClick(e, item.url)}
                 >
-                  {item.icon && <item.icon className="text-[#b2adab]" />}
+                  {item.icon && <item.icon className="text-[#b2adab] cursor-pointer" />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>
               </SidebarMenuItem>

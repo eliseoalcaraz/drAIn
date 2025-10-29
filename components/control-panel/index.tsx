@@ -79,7 +79,8 @@ export function ControlPanel({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
-}: ControlPanelProps & { reports: Report[] }) { // reports are latest, allReportsData are all
+}: ControlPanelProps & { reports: Report[] }) {
+  // reports are latest, allReportsData are all
   const router = useRouter();
   const supabase = client;
   const authContext = useContext(AuthContext);

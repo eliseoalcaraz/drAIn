@@ -173,7 +173,7 @@ export default function ReportHistoryList({
           title="Refresh reports"
         >
           <RefreshCw
-            className={`w-4 h-4 text-[#8D8D8D] ${
+            className={`w-4 h-4 text-[#8D8D8D] cursor-pointer ${
               isRefreshing ? "animate-spin" : ""
             }`}
           />
