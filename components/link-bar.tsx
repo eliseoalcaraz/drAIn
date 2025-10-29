@@ -23,7 +23,7 @@ export function LinkBar({ link = "" }: LinkBarProps) {
 
   return (
     <div className="grid w-full max-w-sm gap-6">
-      <InputGroup className="px-1 [--radius:9999px] min-w-0">
+      <InputGroup className="px-1 [--radius:9999px] min-w-0 bg-white">
         {/* ensure children can shrink/truncate */}
         <Popover>
           <PopoverTrigger asChild>

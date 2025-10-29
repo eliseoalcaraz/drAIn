@@ -133,7 +133,7 @@ export function TopBar({
   const showSignOut = activeTab === "profile";
   const showNotification = activeTab === "profile";
   const showProfileProgress = activeTab === "profile";
-  const showLinkBar = activeTab === "simulations";
+  const showLinkBar = activeTab === "simulations" || activeTab === "chatbot";
   const showReportTabs = activeTab === "report";
   const showAdminTab = activeTab === "admin";
   const showDateSort = activeTab === "report" || activeTab === "admin";

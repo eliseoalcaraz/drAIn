@@ -5,9 +5,11 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, Bot, User, Loader2, AlertCircle } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Send, Loader2, AlertCircle } from "lucide-react";
 import { buildPrompt } from "@/lib/chatbot/prompts";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Image from "next/image";
 
 interface Message {
   role: "user" | "bot";
@@ -130,53 +132,81 @@ export function ChatbotView() {
   }
 
   return (
-    <div className="flex flex-col h-full">
-      {/* Messages Area */}
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4 pb-4">
+    <div className="flex flex-col h-full relative ">
+      {/* Overlapping Source Icons - Absolutely Positioned */}
+      <div className="absolute top-2 left-1/2 -translate-x-1/2 z-10 flex items-center">
+        <Avatar className="w-12 h-12 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer">
+          <AvatarFallback className="p-0 overflow-hidden">
+            <Image
+              src="/images/drain.png"
+              alt="Drain"
+              width={48}
+              height={48}
+              className="object-cover"
+            />
+          </AvatarFallback>
+        </Avatar>
+        <Avatar className="w-12 h-12 -ml-3 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer z-10">
+          <AvatarFallback className="p-0 overflow-hidden">
+            <Image
+              src="/images/google.png"
+              alt="Google"
+              width={48}
+              height={48}
+              className="object-cover"
+            />
+          </AvatarFallback>
+        </Avatar>
+        <Avatar className="w-12 h-12 -ml-3 border-2 border-white shadow-lg hover:scale-110 transition-transform cursor-pointer z-20">
+          <AvatarFallback className="p-0 overflow-hidden">
+            <Image
+              src="/images/gemini.png"
+              alt="Gemini"
+              width={48}
+              height={48}
+              className="object-cover"
+            />
+          </AvatarFallback>
+        </Avatar>
+      </div>
+
+      {/* Messages Area with Transparent Gradient Background */}
+      <ScrollArea className="flex-1 p-4 pt-20 bg-transparent">
+        <div className="space-y-6 pb-4">
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex gap-3 ${
+              className={`flex ${
                 msg.role === "user" ? "justify-end" : "justify-start"
               }`}
             >
-              {msg.role === "bot" && (
-                <div className="flex-shrink-0">
-                  <Bot className="w-8 h-8 p-1.5 bg-primary text-primary-foreground rounded-full" />
-                </div>
-              )}
               <div
-                className={`rounded-lg px-4 py-2.5 max-w-[85%] break-words ${
+                className={`px-5 py-3 break-words max-w-[80%] ${
                   msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
+                    ? "bg-blue-500 text-white rounded-2xl"
+                    : "bg-white border border-gray-300 rounded-2xl text-gray-800"
                 }`}
               >
-                <div className="whitespace-pre-wrap">{msg.content}</div>
-                <div className={`text-xs mt-1 opacity-70`}>
+                <div className="whitespace-pre-wrap text-sm">{msg.content}</div>
+                <div
+                  className={`text-[10px] mt-1 ${
+                    msg.role === "user" ? "text-blue-100" : "text-gray-500"
+                  }`}
+                >
                   {msg.timestamp.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
                 </div>
               </div>
-              {msg.role === "user" && (
-                <div className="flex-shrink-0">
-                  <User className="w-8 h-8 p-1.5 bg-primary text-primary-foreground rounded-full" />
-                </div>
-              )}
             </div>
           ))}
 
           {loading && (
-            <div className="flex gap-3 justify-start">
-              <div className="flex-shrink-0">
-                <Bot className="w-8 h-8 p-1.5 bg-primary text-primary-foreground rounded-full" />
-              </div>
-              <div className="bg-muted rounded-lg px-4 py-2.5 flex items-center gap-2">
-                <Loader2 className="w-4 h-4 animate-spin" />
-                <span>Thinking...</span>
+            <div className="flex justify-start">
+              <div className="bg-white border border-gray-300 shadow-md rounded-2xl px-3 py-2 flex items-center gap-2 max-w-[80%]">
+                <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                <span className="text-gray-800 text-sm">Thinking...</span>
               </div>
             </div>
           )}
@@ -190,37 +220,35 @@ export function ChatbotView() {
         <div className="px-4 pb-2">
           <Alert variant="destructive">
             <AlertCircle className="h-4 w-4" />
-            <AlertDescription>{error}</AlertDescription>
+            <AlertDescription className="text-sm">{error}</AlertDescription>
           </Alert>
         </div>
       )}
 
       {/* Input Area */}
-      <div className="p-4 border-t bg-background">
-        <div className="flex gap-2">
+      <div className="p-4 pr-2.5">
+        <div className="relative flex items-center">
           <Input
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyPress={handleKeyPress}
-            placeholder="Ask about drainage infrastructure, reports, or system features..."
+            placeholder="Ask, Search or Chat..."
             disabled={loading}
-            className="flex-1"
+            className="flex-1 text-sm pr-16 h-12 bg-white border-[#d1d5dc] rounded-lg"
           />
           <Button
             onClick={sendMessage}
             disabled={loading || !input.trim()}
             size="icon"
+            className="absolute right-2 h-9 w-9"
           >
             {loading ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             )}
           </Button>
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          Powered by Google Gemini AI
-        </p>
       </div>
     </div>
   );
