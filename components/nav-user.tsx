@@ -1,17 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   ChevronsUpDown,
   LogOut,
-  Sparkles,
   User,
-  CreditCard,
   Bell,
+  BellRing,
   Github,
   LogIn,
   UserPlus,
 } from "lucide-react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -44,6 +45,17 @@ export function NavUser({
   const router = useRouter();
   const { isMobile, state } = useSidebar();
   const isGuest = user.name === "Guest" || user.email === "Not logged in";
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  const handleNotificationToggle = () => {
+    const newState = !notificationsEnabled;
+    setNotificationsEnabled(newState);
+    if (newState) {
+      toast.success("Notifications turned on");
+    } else {
+      toast.info("Notifications turned off");
+    }
+  };
 
   return (
     <SidebarMenu className="bg-[#fafafa] border border-[#dbdbdb] rounded-md p-1">
@@ -122,23 +134,18 @@ export function NavUser({
               // Logged-in user menu items
               <>
                 <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <Sparkles />
-                    Upgrade to Pro
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => router.push("/map?activetab=profile")}
+                  >
                     <User />
                     Account
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <CreditCard />
-                    Billing
-                  </DropdownMenuItem>
-                  <DropdownMenuItem>
-                    <Bell />
+                  <DropdownMenuItem onClick={handleNotificationToggle}>
+                    {notificationsEnabled ? (
+                      <BellRing className="text-blue-600" />
+                    ) : (
+                      <Bell />
+                    )}
                     Notifications
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
