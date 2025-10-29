@@ -53,7 +53,7 @@ export default function NotificationBell() {
                   {n.address || "No address provided"}
                 </p>
 
-                {/* {n.description && (
+                {/* {n.description && ( 
                   <p className="text-xs text-gray-500 italic">
                     “
                     {n.description.length > 60

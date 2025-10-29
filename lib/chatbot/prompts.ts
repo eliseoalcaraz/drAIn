@@ -18,7 +18,7 @@ export interface PromptConfig {
 /**
  * Main system prompt that defines the chatbot's role and capabilities
  */
-const SYSTEM_PROMPT = `You are an intelligent assistant for the PJDSC (Drainage Infrastructure Management System).
+const SYSTEM_PROMPT = `You are an intelligent assistant for the drAIn (Drainage Infrastructure Management System).
 
 Your role is to help users understand and manage drainage infrastructure data, including:
 - Drainage pipes and their properties (type, shape, length, Manning's coefficient)
@@ -73,10 +73,14 @@ const RESPONSE_GUIDELINES = `Response Guidelines:
 /**
  * Builds the complete prompt with context
  */
-export function buildPrompt(userMessage: string, conversationHistory: string[] = []): string {
-  const historyContext = conversationHistory.length > 0
-    ? `\n\nPrevious conversation:\n${conversationHistory.join('\n')}\n`
-    : '';
+export function buildPrompt(
+  userMessage: string,
+  conversationHistory: string[] = []
+): string {
+  const historyContext =
+    conversationHistory.length > 0
+      ? `\n\nPrevious conversation:\n${conversationHistory.join("\n")}\n`
+      : "";
 
   return `${SYSTEM_PROMPT}
 
