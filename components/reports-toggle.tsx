@@ -90,7 +90,7 @@ export function ReportsToggle({
               variant="outline"
               size="sm"
               aria-label="Toggle reports visibility"
-              className={`ml-auto border transition-colors duration-300 ${
+              className={`ml-auto border transition-colors cursor-pointer duration-300 ${
                 visible ? "border-[#3F83DB]" : "border-gray-300"
               }`}
             >

@@ -2,7 +2,14 @@
 
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
-import { useRef, useEffect, useState, useMemo, useCallback, Suspense } from "react";
+import {
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  Suspense,
+} from "react";
 import {
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
@@ -35,9 +42,7 @@ import type {
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  getreportCategoryCount,
-} from "@/lib/supabase/report";
+import { getreportCategoryCount } from "@/lib/supabase/report";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useReports } from "@/components/context/ReportProvider";
 
@@ -708,7 +713,6 @@ function MapPageContent() {
     clearSelections();
     setControlPanelTab("stats");
   };
-
 
   const handleSelectInlet = (inlet: Inlet) => {
     if (!mapRef.current) return;

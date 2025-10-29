@@ -17,6 +17,7 @@ export function OverlayToggle({
         id="overlay-toggle"
         checked={overlaysVisible}
         onCheckedChange={onToggle}
+        className="cursor-pointer"
       />
     </div>
   );

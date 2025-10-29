@@ -62,6 +62,8 @@ export type SortField = string;
 export interface FieldConfig {
   label: string;
   key: string;
+  description?: string;
+  unit?: string;
 }
 interface RainfallParams {
   total_precip: number;

@@ -370,11 +370,11 @@ export default function SubmitTab() {
                   onCheckedChange={(checked) =>
                     setManualAccepted(checked as boolean)
                   }
-                  className="mt-1"
+                  className="mt-1 cursor-pointer"
                 />
                 <label
                   htmlFor="manual-terms"
-                  className="text-sm leading-relaxed cursor-pointer"
+                  className="text-sm leading-relaxed"
                 >
                   I acknowledge that I am submitting this report without GPS
                   verification and confirm that the information provided is
@@ -390,11 +390,11 @@ export default function SubmitTab() {
                 onCheckedChange={(checked) =>
                   setTermsAccepted(checked as boolean)
                 }
-                className="mt-1"
+                className="mt-1 cursor-pointer"
               />
               <label
                 htmlFor="terms"
-                className="text-sm leading-relaxed cursor-pointer"
+                className="text-sm leading-relaxed"
               >
                 I accept the terms and conditions and confirm that the
                 information provided is accurate
