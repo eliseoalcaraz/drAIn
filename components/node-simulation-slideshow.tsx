@@ -64,7 +64,7 @@ const METRIC_SLIDES: MetricSlide[] = [
     id: "time_of_max",
     title: "Time of Max",
     value: (details) => details.Time_Of_Max_Occurence.toFixed(2),
-    unit: "hr",
+    unit: "min",
     description: "Time when maximum flow rate occurs",
   },
   {

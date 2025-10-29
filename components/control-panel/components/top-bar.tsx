@@ -62,6 +62,7 @@ interface TopBarProps {
   onAdminTabChange?: (tab: "maintenance" | "reports") => void;
   dateFilter?: DateFilterValue;
   onDateFilterChange?: (value: DateFilterValue) => void;
+  onClosePopUps?: () => void;
 }
 
 export function TopBar({
@@ -83,6 +84,7 @@ export function TopBar({
   activeAdminTab = "maintenance",
   dateFilter = "all",
   onDateFilterChange,
+  onClosePopUps,
 }: TopBarProps) {
   const [showSignOutDialog, setShowSignOutDialog] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
@@ -316,7 +318,10 @@ export function TopBar({
       {/* small icon-only change-model button (shows when a model is selected) */}
       {showChangeModelButton && (
         <button
-          onClick={clearSimModelParam}
+          onClick={() => {
+            clearSimModelParam();
+            onClosePopUps?.();       
+          }}
           className="w-8.5 h-8.5 bg-[#EBEBEB] border border-[#DCDCDC] rounded-full flex items-center justify-center transition-colors hover:bg-[#E0E0E0]"
           aria-label="Change Model"
         >

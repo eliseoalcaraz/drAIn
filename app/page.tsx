@@ -82,8 +82,15 @@ export default function WelcomePage() {
         fillOnHover={true} // Makes entire shape area hoverable, not just thin border
         fillOpacity={0.2} // 20% opacity on hover fill
         hoverTrailDelay={300} // 300ms delay creates a trailing effect following the cursor
-        onPathClick={(pathId) => { /* console.log("✅ Clicked:", pathId) */ }}
-        onPathHover={(pathId) => pathId && { /* console.log("🖱️ Hovering:", pathId) */ }}
+        onPathClick={(_pathId) => {
+          /* console.log("✅ Clicked:", pathId) */
+        }}
+        onPathHover={(pathId) =>
+          pathId &&
+          {
+            /* console.log("🖱️ Hovering:", pathId) */
+          }
+        }
         debug={false}
       />
 
