@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Providers } from "./providers";
 import { AuthProvider } from "@/components/context/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { SidebarLayout } from "@/components/sidebar-layout";
+import { NavigationLoadingOverlay } from "@/components/NavigationLoadingOverlay";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -14,6 +16,22 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const centuryGothic = localFont({
+  src: [
+    {
+      path: "../public/fonts/centurygothic.ttf",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../public/fonts/centurygothic_bold.ttf",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-century-gothic",
 });
 
 export const metadata: Metadata = {
@@ -27,13 +45,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${centuryGothic.variable} antialiased`}
       >
         <AuthProvider>
           <Providers>
             <SidebarLayout>{children}</SidebarLayout>
+            <NavigationLoadingOverlay />
             <Toaster position="top-center" />
           </Providers>
         </AuthProvider>

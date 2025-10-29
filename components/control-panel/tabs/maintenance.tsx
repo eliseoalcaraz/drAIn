@@ -11,7 +11,7 @@ import {
   recordStormDrainMaintenance,
   getStormDrainMaintenanceHistory,
 } from "@/app/actions/clientMaintenanceActions";
-import { fetchReports } from "@/lib/supabase/report";
+import { fetchAllReports } from "@/lib/supabase/report";
 import type { Report } from "@/lib/supabase/report";
 import type { Inlet, Outlet, Pipe, Drain } from "../types";
 import {
@@ -81,7 +81,7 @@ export default function Maintenance({
     "in-progress" | "resolved"
   >("in-progress");
   const [agencyComments, setAgencyComments] = useState<string>("");
-  const [reports, setReports] = useState<Report[]>([]);
+  const [_reports, setReports] = useState<Report[]>([]);
 
   useEffect(() => {
     let assetType = "";
@@ -114,7 +114,7 @@ export default function Maintenance({
   }, [selectedInlet, selectedOutlet, selectedPipe, selectedDrain]);
 
   const loadReports = async (componentId: string) => {
-    const allReports = await fetchReports();
+    const allReports = await fetchAllReports();
     const assetReports = allReports.filter(
       (report) => report.componentId === componentId
     );
@@ -129,16 +129,28 @@ export default function Maintenance({
     let result: { error?: string; data?: HistoryItem[] };
     switch (assetType) {
       case "inlets":
-        result = await getInletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getInletMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       case "man_pipes":
-        result = await getManPipeMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getManPipeMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       case "outlets":
-        result = await getOutletMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getOutletMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       case "storm_drains":
-        result = await getStormDrainMaintenanceHistory(assetId) as { error?: string; data?: HistoryItem[] };
+        result = (await getStormDrainMaintenanceHistory(assetId)) as {
+          error?: string;
+          data?: HistoryItem[];
+        };
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -164,41 +176,19 @@ export default function Maintenance({
     setMessage("");
 
     const { type, id } = selectedAsset;
-    const sortedReports = [...reports].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    const mostRecentReport =
-      sortedReports.length > 0 ? sortedReports[0] : undefined;
-
     let result;
     switch (type) {
       case "inlets":
-        result = await recordInletMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordInletMaintenance(id, maintenanceStatus);
         break;
       case "man_pipes":
-        result = await recordManPipeMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordManPipeMaintenance(id, maintenanceStatus);
         break;
       case "outlets":
-        result = await recordOutletMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordOutletMaintenance(id, maintenanceStatus);
         break;
       case "storm_drains":
-        result = await recordStormDrainMaintenance(
-          id,
-          mostRecentReport?.id,
-          maintenanceStatus
-        );
+        result = await recordStormDrainMaintenance(id, maintenanceStatus);
         break;
       default:
         result = { error: "Unknown asset type." };
@@ -214,14 +204,8 @@ export default function Maintenance({
       );
       handleViewHistory(type, id);
       loadReports(id); // Reload reports to reflect any deletions or changes
-      if (mostRecentReport) {
-      }
     }
   };
-
-  // const mostRecentReport = reports.sort(
-  //   (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  // )[0];
 
   const handleRecordWithStatus = async (status: "in-progress" | "resolved") => {
     if (!selectedAsset) {
@@ -232,43 +216,22 @@ export default function Maintenance({
     setMessage("");
 
     const { type, id } = selectedAsset;
-    const sortedReports = [...reports].sort(
-      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-    );
-    const mostRecentReport =
-      sortedReports.length > 0 ? sortedReports[0] : undefined;
 
     const commentsToSubmit = agencyComments.trim() === "" ? "" : agencyComments;
     let result;
     switch (type) {
       case "inlets":
-        result = await recordInletMaintenance(
-          id,
-          mostRecentReport?.id,
-          status,
-          commentsToSubmit
-        );
+        result = await recordInletMaintenance(id, status, commentsToSubmit);
         break;
       case "man_pipes":
-        result = await recordManPipeMaintenance(
-          id,
-          mostRecentReport?.id,
-          status,
-          commentsToSubmit
-        );
+        result = await recordManPipeMaintenance(id, status, commentsToSubmit);
         break;
       case "outlets":
-        result = await recordOutletMaintenance(
-          id,
-          mostRecentReport?.id,
-          status,
-          commentsToSubmit
-        );
+        result = await recordOutletMaintenance(id, status, commentsToSubmit);
         break;
       case "storm_drains":
         result = await recordStormDrainMaintenance(
           id,
-          mostRecentReport?.id,
           status,
           commentsToSubmit
         );
@@ -476,7 +439,7 @@ export default function Maintenance({
                 onChange={(e) => setAgencyComments(e.target.value)}
                 placeholder="Agency Comments Here"
                 rows={1}
-                style={{ height: '56px', minHeight: '56px', maxHeight: '56px' }}
+                style={{ height: "56px", minHeight: "56px", maxHeight: "56px" }}
                 className="resize-none bg-transparent !h-14"
               />
             </FieldContent>

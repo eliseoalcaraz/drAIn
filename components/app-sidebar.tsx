@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Map } from "lucide-react";
+import Logo from "@/public/icons/logo.svg";
 import { IconArticleFilled } from "@tabler/icons-react";
 import {
   HomeIcon,
@@ -13,7 +13,6 @@ import {
 
 import { NavMain } from "@/components/nav-main";
 import { NavUser } from "@/components/nav-user";
-import { TeamSwitcher } from "@/components/team-switcher";
 import {
   Sidebar,
   SidebarContent,
@@ -28,11 +27,6 @@ import NotificationBell from "@/components/report-notif";
 
 // This is the data structure for the sidebar
 const data = {
-  team: {
-    name: "Project Drain",
-    logo: Map,
-    plan: "Drainage Monitoring System",
-  },
   navMain: [
     {
       title: "Home",
@@ -127,8 +121,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       collapsible="icon"
       {...props}
     >
-      <SidebarHeader className="border-b">
-        <TeamSwitcher team={data.team} />
+      <SidebarHeader
+        className="border-b flex items-center justify-center py-4 cursor-pointer"
+        onClick={() => router.push("/")}
+      >
+        <Logo className="h-7 w-auto text-[#5a87e7]" />
       </SidebarHeader>
       <SidebarContent>
         <NavMain items={data.navMain} />

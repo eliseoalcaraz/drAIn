@@ -22,6 +22,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { OverlayLegend } from "../../overlay-legend";
 import { ChartPieDonutText } from "../../chart-pie";
 import { ReportsToggle } from "../../reports-toggle";
+import { FloodScenarioCard } from "../../flood-scenario-card";
 
 interface OverlayContentProps {
   overlays: {
@@ -31,6 +32,8 @@ interface OverlayContentProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario?: string,
+  onChangeFloodScenario?: (id: string) => void;
   onNavigateToTable?: (
     dataset: "inlets" | "outlets" | "storm_drains" | "man_pipes"
   ) => void;
@@ -42,7 +45,7 @@ interface OverlayContentProps {
   isSimulationMode?: boolean;
 }
 
-type ComponentId = "chart" | "layers" | "reports";
+type ComponentId = "chart" | "layers" | "reports" | "flood";
 
 interface ComponentMetadata {
   id: ComponentId;
@@ -103,6 +106,8 @@ export default function OverlaysContent({
   overlays,
   onToggleOverlay,
   onNavigateToTable,
+  selectedFloodScenario,
+  onChangeFloodScenario,
   onNavigateToReportForm,
   searchTerm = "",
   isDragEnabled = true,
@@ -112,6 +117,7 @@ export default function OverlaysContent({
   const [componentOrder, setComponentOrder] = useState<ComponentId[]>([
     "chart",
     "layers",
+    "flood",
     "reports",
   ]);
 
@@ -170,6 +176,44 @@ export default function OverlaysContent({
         ),
       },
       {
+        id: "flood" as ComponentId,
+        keywords: [
+          "flood",
+          "hazard",
+          "scenario",
+          "risk",
+          "return",
+          "period",
+          "water",
+          "inundation",
+          "5yr",
+          "15yr",
+          "25yr",
+          "50yr",
+          "100yr",
+          "year",
+          "storm",
+          "rainfall",
+          "probability",
+          "annual",
+          "chance",
+          "high",
+          "medium",
+          "low",
+        ],
+        component: (
+          <FloodScenarioCard
+            isVisible={
+              overlays.find((o) => o.id === "flood_hazard-layer")?.visible ??
+              true
+            }
+            onToggle={() => onToggleOverlay("flood_hazard-layer")}
+            selectedScenario={selectedFloodScenario}
+            onScenarioChange={onChangeFloodScenario}
+          />
+        ),
+      },
+      {
         id: "reports" as ComponentId,
         keywords: [
           "reports",
@@ -204,6 +248,8 @@ export default function OverlaysContent({
       onNavigateToReportForm,
       reports,
       isSimulationMode,
+      selectedFloodScenario,
+      onChangeFloodScenario,
     ]
   );
 

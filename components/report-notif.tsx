@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { IconBellFilled } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -8,42 +7,13 @@ import {
   PopoverTrigger,
   PopoverContent,
 } from "@/components/ui/popover";
-import { subscribeToReportChanges, type Report } from "@/lib/supabase/report";
+import { useReports } from "./context/ReportProvider";
 
 export default function NotificationBell() {
-  const [notifications, setNotifications] = useState<Report[]>([]);
-  const [unreadCount, setUnreadCount] = useState(0);
-
-  useEffect(() => {
-    const unsubscribe = subscribeToReportChanges(
-      (newReport) => {
-        setNotifications((prev) => [newReport, ...prev]);
-        setUnreadCount((c) => c + 1);
-        console.log("New report inserted:", newReport);
-      },
-      (updatedReport) => {
-        setNotifications((prev) => {
-          const index = prev.findIndex((r) => r.id === updatedReport.id);
-          if (index !== -1) {
-            const newList = [...prev];
-            newList[index] = { ...updatedReport };
-            return newList;
-          }
-          return [updatedReport, ...prev];
-        });
-
-        setUnreadCount((c) => c + 1);
-        console.log("Report updated:", updatedReport);
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
-
-  const handleOpen = () => setUnreadCount(0);
+  const { notifications, unreadCount, handleOpenNotifications } = useReports();
 
   return (
-    <Popover onOpenChange={(open) => open && handleOpen()}>
+    <Popover onOpenChange={(open) => open && handleOpenNotifications()}>
       <PopoverTrigger className="relative p-2 hover:bg-gray-100 rounded-full transition">
         <IconBellFilled className="w-4.5 h-4.5 text-[#b2adab] cursor-pointer" />
         {unreadCount > 0 && (

@@ -1,9 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
-import type { Report } from "@/lib/supabase/report";
+import type { Report as SupabaseReport } from "@/lib/supabase/report"; // Renamed to avoid conflict
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { SpinnerEmpty } from "@/components/spinner-empty";
 import { format, subWeeks, subMonths, startOfDay } from "date-fns";
@@ -15,10 +15,15 @@ import type {
   Pipe,
   Drain,
 } from "@/components/control-panel/types";
+import { ImageViewer } from "@/components/image-viewer"; // Import ImageViewer
+
+interface Report extends SupabaseReport {
+  coordinates: [number, number];
+}
 
 interface ReportHistoryListProps {
   dateFilter?: DateFilterValue;
-  reports?: Report[];
+  reports?: Report[]; // Use the extended Report interface
   onRefresh?: () => Promise<void>;
   isRefreshing?: boolean;
   isSimulationMode?: boolean;
@@ -52,6 +57,14 @@ export default function ReportHistoryList({
   selectedPipe = null,
   selectedDrain = null,
 }: ReportHistoryListProps) {
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+
+  const handleReportClick = (report: Report) => {
+    setSelectedReport(report);
+    setShowImageViewer(true);
+  };
+
   const getStatusStyle = (status: string) => {
     switch (status) {
       case "resolved":
@@ -67,7 +80,7 @@ export default function ReportHistoryList({
 
   // Filter reports based on date filter
   const filteredReports = useMemo(() => {
-    let filtered = reports;
+    let currentFilteredReports = reports;
 
     const selectedId =
       selectedInlet?.id ||
@@ -76,15 +89,11 @@ export default function ReportHistoryList({
       selectedDrain?.id;
 
     if (selectedId) {
-      filtered = filtered.filter((report) => report.componentId === selectedId);
-    }
-
-    if (dateFilter === "all") {
-      return filtered;
+      currentFilteredReports = currentFilteredReports.filter((report) => report.componentId === selectedId);
     }
 
     const now = new Date();
-    let cutoffDate: Date;
+    let cutoffDate: Date | null = null; // Initialize cutoffDate
 
     switch (dateFilter) {
       case "today":
@@ -102,11 +111,25 @@ export default function ReportHistoryList({
       case "month":
         cutoffDate = subMonths(now, 1);
         break;
+      case "all":
       default:
-        return reports;
+        // No date cutoff for 'all', but we still want to sort
+        break;
     }
 
-    return filtered.filter((report) => new Date(report.date) >= cutoffDate);
+    // Apply cutoffDate filtering if it exists
+    if (cutoffDate) {
+      currentFilteredReports = currentFilteredReports.filter(
+        (report) => new Date(report.date).getTime() >= cutoffDate!.getTime()
+      );
+    }
+
+    // Always sort the reports by date in descending order (latest to oldest)
+    currentFilteredReports.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
+
+    return currentFilteredReports;
   }, [
     reports,
     dateFilter,
@@ -195,7 +218,8 @@ export default function ReportHistoryList({
             {filteredReports.map((report) => (
               <div
                 key={report.id}
-                className="flex flex-row gap-3 border rounded-lg p-3 hover:bg-accent transition-colors"
+                className="flex flex-row gap-3 border rounded-lg p-3 hover:bg-accent transition-colors cursor-pointer"
+                onClick={() => handleReportClick(report)}
               >
                 <div className="flex items-start gap-3">
                   {/* Image Thumbnail with Badges */}
@@ -263,6 +287,20 @@ export default function ReportHistoryList({
           </div>
         )}
       </div>
+
+      {showImageViewer && selectedReport && selectedReport.image && (
+        <ImageViewer
+          imageUrl={selectedReport.image}
+          reporterName={selectedReport.reporterName}
+          date={selectedReport.date}
+          category={selectedReport.category}
+          description={selectedReport.description}
+          coordinates={selectedReport.coordinates}
+          componentId={selectedReport.componentId}
+          address={selectedReport.address}
+          onClose={() => setShowImageViewer(false)}
+        />
+      )}
     </div>
   );
 }

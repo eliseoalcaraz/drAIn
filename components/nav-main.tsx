@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { Collapsible } from "@/components/ui/collapsible";
 import {
   SidebarGroup,
@@ -8,8 +7,8 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  useSidebar,
 } from "@/components/ui/sidebar";
+import { usePageTransition } from "@/hooks/usePageTransition";
 
 export function NavMain({
   items,
@@ -26,26 +25,12 @@ export function NavMain({
     }[];
   }[];
 }) {
-  const router = useRouter();
-  const { setOpen, isMobile, setOpenMobile } = useSidebar();
+  const { navigateTo, isNavigating } = usePageTransition();
 
-  // Close sidebar when navigating to map or simulation pages
   const handleNavClick = (e: React.MouseEvent, url: string) => {
-    if (url) {
-      // Prevent default navigation
+    if (url && !isNavigating) {
       e.preventDefault();
-
-      // Close sidebar immediately
-      if (isMobile) {
-        setOpenMobile(false);
-      } else {
-        setOpen(false);
-      }
-
-      // Navigate after a brief delay to ensure sidebar closes
-      setTimeout(() => {
-        router.push(url);
-      }, 200);
+      navigateTo(url);
     }
   };
 

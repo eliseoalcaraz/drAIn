@@ -1,4 +1,5 @@
 import type { NodeParams, LinkParams } from "./tabs/simulation-models/model3";
+import type { Report } from "@/lib/supabase/report";
 
 export interface Pipe {
   id: string;
@@ -61,6 +62,8 @@ export type SortField = string;
 export interface FieldConfig {
   label: string;
   key: string;
+  description?: string;
+  unit?: string;
 }
 interface RainfallParams {
   total_precip: number;
@@ -94,6 +97,8 @@ export interface ControlPanelProps {
     visible: boolean;
   }[];
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario: string,
+  onChangeFloodScenario: (id: string) => void;
   // Simulation mode
   isSimulationMode?: boolean;
   selectedPointForSimulation?: string | null;
@@ -136,4 +141,5 @@ export interface ControlPanelProps {
   // Admin tab state
   activeAdminTab?: "maintenance" | "reports";
   onAdminTabChange?: (tab: "maintenance" | "reports") => void;
+  allReportsData: Report[]; // Added for comprehensive report history
 }

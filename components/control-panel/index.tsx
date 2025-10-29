@@ -26,6 +26,7 @@ const DEFAULT_RAINFALL_PARAMS: RainfallParams = {
 
 export function ControlPanel({
   reports,
+  allReportsData,
   activeTab,
   dataset,
   selectedInlet,
@@ -41,6 +42,8 @@ export function ControlPanel({
   onBack,
   overlaysVisible,
   onToggle,
+  selectedFloodScenario,
+  onChangeFloodScenario,
   overlays,
   onToggleOverlay,
   isSimulationMode = false,
@@ -77,10 +80,12 @@ export function ControlPanel({
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
 }: ControlPanelProps & { reports: Report[] }) {
+  // reports are latest, allReportsData are all
   const router = useRouter();
   const supabase = client;
   const authContext = useContext(AuthContext);
   const session = authContext?.session;
+
   const [profile, setProfile] = useState<Record<string, unknown> | null>(null);
   const [publicAvatarUrl, setPublicAvatarUrl] = useState<string | null>(null);
 
@@ -111,6 +116,7 @@ export function ControlPanel({
             const currentExtension =
               pathParts.length > 1 ? `.${pathParts.pop()}` : "";
             const basePath = pathParts.join(".");
+
             const extensionsToTry = [
               currentExtension,
               ...COMMON_EXTENSIONS.filter((ext) => ext !== currentExtension),
@@ -121,15 +127,17 @@ export function ControlPanel({
               const { data: urlData } = supabase.storage
                 .from("Avatars")
                 .getPublicUrl(testPath);
+
               const candidateUrl = urlData.publicUrl;
 
               try {
                 const response = await fetch(candidateUrl, { method: "HEAD" });
+
                 if (response.ok) {
                   publicUrl = candidateUrl;
                   break;
                 }
-              } catch {
+              } catch (_e) {
                 console.warn(`Fetch failed for ${ext}. Skipping.`);
               }
             }
@@ -147,6 +155,7 @@ export function ControlPanel({
 
           setProfile(data);
           setPublicAvatarUrl(publicUrl);
+
           localStorage.setItem(
             cacheKey,
             JSON.stringify({ profile: data, publicAvatarUrl: publicUrl })
@@ -179,9 +188,14 @@ export function ControlPanel({
     handleSearch,
   } = useControlPanelState();
 
+  // Drag control state
   const [isDragEnabled, setIsDragEnabled] = useState(false);
-  const handleToggleDrag = (enabled: boolean) => setIsDragEnabled(enabled);
 
+  const handleToggleDrag = (enabled: boolean) => {
+    setIsDragEnabled(enabled);
+  };
+
+  // Date filter state
   const [dateFilter, setDateFilter] = useState<DateFilterValue>("all");
 
   const handleSignOut = async () => {
@@ -194,6 +208,7 @@ export function ControlPanel({
     router.push("/login");
   };
 
+  // Data hooks
   const { inlets, loading: loadingInlets } = useInlets();
   const { outlets, loading: loadingOutlets } = useOutlets();
   const { pipes, loading: loadingPipes } = usePipes();
@@ -277,13 +292,16 @@ export function ControlPanel({
             onSelectDrain={onSelectDrain}
             overlays={overlays}
             onToggleOverlay={onToggleOverlay}
+            selectedFloodScenario={selectedFloodScenario}
+            onChangeFloodScenario={onChangeFloodScenario}
             onNavigateToTable={handleNavigateToTable}
             onNavigateToReportForm={handleNavigateToReportForm}
             isDragEnabled={isDragEnabled}
             onToggleDrag={handleToggleDrag}
             isSimulationMode={isSimulationMode}
             selectedPointForSimulation={selectedPointForSimulation}
-            reports={reports}
+            reports={reports} // Still passing 'reports' for the map
+            allReportsData={allReportsData} // Pass all reports data down
             profileView={profileView}
             onProfileViewChange={setProfileView}
             activeReportTab={activeReportTab}

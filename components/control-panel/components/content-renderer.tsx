@@ -17,11 +17,13 @@ import {
   DrainSortField,
 } from "@/components/control-panel/tabs/tables-content";
 import SimulationsContent from "@/components/control-panel/tabs/simulations-content";
-import { type NodeParams, type LinkParams } from "@/components/control-panel/tabs/simulation-models/model3";
+import {
+  type NodeParams,
+  type LinkParams,
+} from "@/components/control-panel/tabs/simulation-models/model3";
 import ProfileContent from "@/components/control-panel/tabs/profile-content";
 import HistoryContent from "@/components/control-panel/tabs/history-content";
 import type { ProfileView } from "../hooks/use-control-panel-state";
-
 
 interface RainfallParams {
   total_precip: number;
@@ -71,6 +73,8 @@ interface ContentRendererProps {
     visible: boolean;
   }>;
   onToggleOverlay: (id: string) => void;
+  selectedFloodScenario?: string;
+  onChangeFloodScenario?: (id: string) => void;
 
   // Navigation props
   onNavigateToTable?: (
@@ -131,7 +135,7 @@ interface ContentRendererProps {
   onComponentParamsChange?: (params: Map<string, NodeParams>) => void;
   pipeParams?: Map<string, LinkParams>;
   onPipeParamsChange?: (params: Map<string, LinkParams>) => void;
-  rainfallParams: RainfallParams,
+  rainfallParams: RainfallParams;
   onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel?: boolean;
   onToggleNodePanel?: () => void;
@@ -140,6 +144,7 @@ interface ContentRendererProps {
 
   // Shared handler for opening node simulation slideshow
   onOpenNodeSimulation?: (nodeId: string) => void;
+  allReportsData: Report[]; // Added for comprehensive report history
 }
 
 export function ContentRenderer({
@@ -167,6 +172,8 @@ export function ContentRenderer({
   onSelectDrain,
   overlays,
   onToggleOverlay,
+  selectedFloodScenario,
+  onChangeFloodScenario,
   onNavigateToTable,
   onNavigateToReportForm,
   isDragEnabled,
@@ -214,6 +221,7 @@ export function ContentRenderer({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
+  allReportsData, // Destructure allReportsData
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -238,6 +246,8 @@ export function ContentRenderer({
           onToggleDrag={onToggleDrag}
           reports={reports}
           isSimulationMode={isSimulationMode}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={onChangeFloodScenario}
         />
       );
 
@@ -290,7 +300,7 @@ export function ContentRenderer({
         <ReportsTab
           activeReportTab={activeReportTab}
           dateFilter={dateFilter}
-          reports={reports}
+          reports={allReportsData}
           onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
           isSimulationMode={isSimulationMode}
@@ -325,7 +335,7 @@ export function ContentRenderer({
           selectedOutlet={selectedOutlet}
           selectedPipe={selectedPipe}
           selectedDrain={selectedDrain}
-          reports={reports}
+          reports={allReportsData}
           onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
           isSimulationMode={isSimulationMode}

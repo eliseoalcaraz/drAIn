@@ -2,7 +2,14 @@
 
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
-import { useRef, useEffect, useState, useMemo, useCallback } from "react";
+import {
+  useRef,
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  Suspense,
+} from "react";
 import {
   DEFAULT_CENTER,
   DEFAULT_ZOOM,
@@ -16,6 +23,7 @@ import {
   getCirclePaintConfig,
   getLineHitAreaPaintConfig,
   getCircleHitAreaPaintConfig,
+  getFloodHazardPaintConfig,
   CAMERA_ANIMATION,
 } from "@/lib/map/config";
 import mapboxgl from "mapbox-gl";
@@ -31,32 +39,33 @@ import type {
   Pipe,
   DatasetType,
 } from "@/components/control-panel/types";
-import type { Report } from "@/lib/supabase/report";
 import ReactDOM from "react-dom/client";
 import { ReportBubble, type ReportBubbleRef } from "@/components/report-bubble";
 import { useSearchParams, useRouter } from "next/navigation";
-import {
-  fetchReports,
-  formatReport,
-  getreportCategoryCount,
-  subscribeToReportChanges,
-} from "@/lib/supabase/report";
+import { getreportCategoryCount } from "@/lib/supabase/report";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { useReports } from "@/components/context/ReportProvider";
 
-export default function MapPage() {
+function MapPageContent() {
   const { setOpen, isMobile, setOpenMobile, open } = useSidebar();
+  const {
+    latestReports: reports, // Use latestReports from context for map bubbles
+    allReports: allReportsData, // Use allReports from context for history
+    isRefreshingReports,
+    refreshReports: onRefreshReports, // Use refresh function from context
+  } = useReports();
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
-  const [reports, setReports] = useState<Report[]>([]);
-  const [isRefreshingReports, setIsRefreshingReports] = useState(false);
   const [mapError, setMapError] = useState<string | null>(null);
-
+  const [selectedFloodScenario, setSelectedFloodScenario] =
+    useState<string>("5YR");
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
     "storm_drains-layer": true,
     "inlets-layer": true,
     "outlets-layer": true,
     "reports-layer": true,
+    "flood_hazard-layer": true,
   });
 
   const [selectedFeature, setSelectedFeature] = useState<{
@@ -134,39 +143,49 @@ export default function MapPage() {
     }
   };
 
+  const handleFloodScenarioChange = (scenarioId: string) => {
+    console.log(`Switching to ${scenarioId} flood hazard...`);
+
+    if (!mapRef.current) {
+      console.error("Map not ready");
+      return;
+    }
+
+    setSelectedFloodScenario(scenarioId);
+
+    const source = mapRef.current.getSource(
+      "flood_hazard"
+    ) as mapboxgl.GeoJSONSource;
+
+    if (source) {
+      const dataUrl = `/flood-hazard/${scenarioId} Flood Hazard.json`;
+      console.log(`Loading: ${dataUrl}`);
+
+      source.setData(dataUrl);
+
+      // Verify the switch worked
+      mapRef.current.once("sourcedata", (e) => {
+        if (e.sourceId === "flood_hazard" && e.isSourceLoaded) {
+          const features = mapRef.current?.querySourceFeatures("flood_hazard");
+          console.log(
+            `Loaded ${scenarioId}: ${features?.length || 0} features`
+          );
+        }
+      });
+    } else {
+      console.error("flood_hazard source not found");
+      console.log(
+        "Available sources:",
+        Object.keys(mapRef.current.getStyle().sources)
+      );
+    }
+  };
+
   // Refs for data to avoid stale closures in map click handler
   const inletsRef = useRef<Inlet[]>([]);
   const outletsRef = useRef<Outlet[]>([]);
   const pipesRef = useRef<Pipe[]>([]);
   const drainsRef = useRef<Drain[]>([]);
-
-  useEffect(() => {
-    const loadReports = async () => {
-      try {
-        const data = await fetchReports();
-        setReports(data);
-        //console.log("Fetched reports:", data);
-      } catch (err) {
-        console.error("Failed to load reports:", err);
-      }
-    };
-    loadReports();
-    const unsubscribe = subscribeToReportChanges(
-      (newReport) => {
-        const formatted = formatReport(newReport);
-        setReports((prev) => [...prev, formatted]);
-        console.log("🗺️ MapPage new report:", formatted);
-      },
-      (updatedReport) => {
-        const formatted = formatReport(updatedReport);
-        setReports((prev) =>
-          prev.map((r) => (r.id === formatted.id ? formatted : r))
-        );
-      }
-    );
-
-    return () => unsubscribe();
-  }, []);
 
   // Update refs when data changes
   useEffect(() => {
@@ -273,6 +292,22 @@ export default function MapPage() {
               },
               "waterway-label"
             );
+          }
+
+          if (!map.getSource("flood_hazard")) {
+            console.log("🔵 Adding flood_hazard source and layer...");
+
+            map.addSource("flood_hazard", {
+              type: "geojson",
+              data: `/flood-hazard/${selectedFloodScenario} Flood Hazard.json`,
+            });
+
+            map.addLayer({
+              id: "flood_hazard-layer",
+              type: "fill",
+              source: "flood_hazard",
+              paint: getFloodHazardPaintConfig(),
+            });
           }
 
           if (!map.getSource("man_pipes")) {
@@ -665,6 +700,7 @@ export default function MapPage() {
       "inlets-layer": !someVisible,
       "outlets-layer": !someVisible,
       "reports-layer": !someVisible,
+      "flood_hazard-layer": !someVisible,
     };
 
     setOverlayVisibility(updated);
@@ -676,20 +712,6 @@ export default function MapPage() {
   const handleControlPanelBack = () => {
     clearSelections();
     setControlPanelTab("stats");
-  };
-
-  // Handler for refreshing reports
-  const handleRefreshReports = async () => {
-    setIsRefreshingReports(true);
-    try {
-      const data = await fetchReports();
-      setReports(data);
-      //console.log("Refreshed reports:", data);
-    } catch (err) {
-      console.error("Failed to refresh reports:", err);
-    } finally {
-      setIsRefreshingReports(false);
-    }
   };
 
   const handleSelectInlet = (inlet: Inlet) => {
@@ -891,9 +913,12 @@ export default function MapPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={handleFloodScenarioChange}
           reports={reports}
-          onRefreshReports={handleRefreshReports}
+          onRefreshReports={onRefreshReports}
           isRefreshingReports={isRefreshingReports}
+          allReportsData={allReportsData} // Pass all reports data to ControlPanel
         />
         <CameraControls
           onZoomIn={handleZoomIn}
@@ -903,5 +928,13 @@ export default function MapPage() {
         />
       </main>
     </>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense fallback={<div className="w-full h-screen bg-blue-200" />}>
+      <MapPageContent />
+    </Suspense>
   );
 }

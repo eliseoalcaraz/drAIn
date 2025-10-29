@@ -2,7 +2,7 @@
 
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   DEFAULT_CENTER,
@@ -75,7 +75,7 @@ const rainfallVal = {
   duration_hr: 1,
 };
 
-export default function SimulationPage() {
+function SimulationPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const isSimulationActive = searchParams.get("active") === "true";
@@ -84,6 +84,7 @@ export default function SimulationPage() {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
 
+  const [selectedFloodScenario, setSelectedFloodScenario] = useState<string>("5YR");
   const [overlayVisibility, setOverlayVisibility] = useState({
     "man_pipes-layer": true,
     "storm_drains-layer": true,
@@ -1284,9 +1285,12 @@ export default function SimulationPage() {
           onToggle={handleToggleAllOverlays}
           overlays={overlayData}
           onToggleOverlay={handleOverlayToggle}
+          selectedFloodScenario={selectedFloodScenario}
+          onChangeFloodScenario={setSelectedFloodScenario}
           isSimulationMode={isSimulationActive}
           selectedPointForSimulation={selectedPointForSimulation}
           reports={[]}
+          allReportsData={[]}
           selectedComponentIds={selectedComponentIds}
           onComponentIdsChange={setSelectedComponentIds}
           selectedPipeIds={selectedPipeIds}
@@ -1427,5 +1431,13 @@ export default function SimulationPage() {
         )}
       </main>
     </>
+  );
+}
+
+export default function SimulationPage() {
+  return (
+    <Suspense fallback={<div className="w-full h-screen bg-gray-900" />}>
+      <SimulationPageContent />
+    </Suspense>
   );
 }
