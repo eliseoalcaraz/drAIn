@@ -93,12 +93,12 @@ export function TopBar({
   const searchParams = useSearchParams();
   const simModel = searchParams?.get("simModel") || null;
   const modelLinkMap: Record<string, string> = {
-    model2: "example.com/model2",
-    model3: "example.com/model3",
+    model2: "project-drain.vercel.app/simulation/model2",
+    model3: "project-drain.vercel.app/simulation/model3",
   };
   const simulationLink = simModel
-    ? modelLinkMap[simModel] ?? "example.com"
-    : "example.com";
+    ? modelLinkMap[simModel] ?? "project-drain.vercel.app/simulation"
+    : "project-drain.vercel.app/simulation";
 
   // Example profile setup steps - replace with actual data
   const profileSteps: ProfileStep[] = [
