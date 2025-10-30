@@ -47,6 +47,7 @@ export function DetailView({ item, fields, modelUrl }: DetailViewProps) {
         <div className="flex border border-[#ced1cd] rounded-md">
           {!showModel ? (
             <button
+              type="button"
               onClick={() => setShowModel(true)}
               className="flex-1 h-[250px] border-none rounded-lg flex flex-col items-center justify-center gap-3 hover:bg-[#f5f5f5] !cursor-pointer"
             >

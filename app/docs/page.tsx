@@ -42,6 +42,14 @@ export default function Docs() {
     {}
   );
 
+  // Add scrollbar-gutter to body only for this page
+  React.useEffect(() => {
+    document.body.style.overflowY = "scroll";
+    return () => {
+      document.body.style.overflowY = "";
+    };
+  }, []);
+
   const toggleSection = (section: string) => {
     setExpandedSections((prev) => ({
       ...prev,
@@ -63,13 +71,13 @@ export default function Docs() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-100">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+    <div className="min-h-screen bg-[#e8e8e8]/50">
+      <div className="w-[1280px] mx-auto px-4 md:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar Navigation */}
           <nav className="lg:col-span-1">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sticky top-24">
-              <h2 className="text-sm font-semibold text-slate-900 mb-3 px-2">
+            <div className="bg-white rounded-xl border border-[#ced1cd] py-6 px-6 sticky top-24">
+              <h2 className="text-sm font-semibold text-foreground mb-3 px-2">
                 Contents
               </h2>
               <ul className="space-y-1">
@@ -77,10 +85,10 @@ export default function Docs() {
                   <li key={id}>
                     <button
                       onClick={() => setActiveSection(id as SectionID)}
-                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all ${
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-sm text-sm transition-colors ${
                         activeSection === id
-                          ? "bg-blue-50 text-blue-700 font-medium"
-                          : "text-slate-700 hover:bg-slate-50"
+                          ? "bg-[#3B82F6] text-white font-medium"
+                          : "text-foreground hover:bg-[#f5f5f5]"
                       }`}
                     >
                       <Icon className="w-4 h-4" />
@@ -94,18 +102,17 @@ export default function Docs() {
 
           {/* Main Content */}
           <main className="lg:col-span-3">
-            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-8">
+            <div className="bg-white rounded-xl border border-[#ced1cd] py-6 px-6">
               {activeSection === "overview" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                    <h2 className="text-3xl font-bold text-foreground mb-3">
                       Overview
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="prose max-w-none">
-                    <p className="text-lg text-slate-700 leading-relaxed">
+                    <p className="text-base md:text-sm text-foreground leading-relaxed">
                       <strong>drAin</strong> is an AI-driven vulnerability
                       ranking and simulation platform that empowers cities to
                       better understand and manage urban flooding. It integrates
@@ -169,10 +176,9 @@ export default function Docs() {
               {activeSection === "architecture" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                    <h2 className="text-3xl font-bold text-foreground mb-3">
                       System Architecture
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="bg-slate-50 rounded-xl p-8 border border-slate-200">
@@ -281,10 +287,9 @@ export default function Docs() {
               {activeSection === "features" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                    <h2 className="text-3xl font-bold text-foreground mb-3">
                       Core Features
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="space-y-4">
@@ -406,10 +411,9 @@ export default function Docs() {
               {activeSection === "tech-stack" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                    <h2 className="text-3xl font-bold text-foreground mb-3">
                       Technology Stack
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -489,7 +493,6 @@ export default function Docs() {
                     <h2 className="text-3xl font-bold text-slate-900 mb-3">
                       Data Sources
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="bg-blue-50 border border-blue-200 rounded-xl p-6 mb-6">
@@ -581,10 +584,9 @@ export default function Docs() {
               {activeSection === "simulation" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                    <h2 className="text-3xl font-bold text-foreground mb-3">
                       Simulation Models
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <p className="text-slate-700">
@@ -697,10 +699,9 @@ export default function Docs() {
               {activeSection === "users" && (
                 <div className="space-y-6">
                   <div>
-                    <h2 className="text-3xl font-bold text-slate-900 mb-3">
+                    <h2 className="text-3xl font-bold text-foreground mb-3">
                       User Stories
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="space-y-4">
@@ -782,7 +783,6 @@ export default function Docs() {
                     <h2 className="text-3xl font-bold text-slate-900 mb-3">
                       Deployment
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-6 border border-blue-200 mb-6">
@@ -902,7 +902,6 @@ export default function Docs() {
                     <h2 className="text-3xl font-bold text-slate-900 mb-3">
                       Limitations & Future Work
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   <div className="space-y-4">
@@ -1027,34 +1026,23 @@ export default function Docs() {
                     <h2 className="text-3xl font-bold text-slate-900 mb-3">
                       System Demo
                     </h2>
-                    <div className="h-1 w-20 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full mb-6"></div>
                   </div>
 
                   {/* Demo Video Section */}
-                  <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-8 shadow-xl">
-                    <h3 className="text-2xl font-semibold text-white mb-4 flex items-center gap-2">
-                      <Play className="w-6 h-6" />
-                      Watch the Demo
-                    </h3>
-                    <p className="text-slate-300 mb-6">
-                      See FloodSim in action: explore real-time flood
-                      simulations, vulnerability assessments, and interactive
-                      features.
-                    </p>
-                    <div
-                      className="relative w-full rounded-xl overflow-hidden shadow-2xl bg-slate-700"
-                      style={{ paddingBottom: "56.25%" }}
-                    >
-                      <iframe
-                        className="absolute top-0 left-0 w-full h-full"
-                        src="https://www.youtube.com/embed/nNgk9dVrgxM?si=2kIyrGv9e0vbDH0h"
-                        title="YouTube video player"
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        referrerPolicy="strict-origin-when-cross-origin"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
+
+                  <div
+                    className="relative w-full rounded-xl overflow-hidden shadow-2xl bg-slate-700"
+                    style={{ paddingBottom: "56.25%" }}
+                  >
+                    <iframe
+                      className="absolute top-0 left-0 w-full h-full"
+                      src="https://www.youtube.com/embed/ZHE9dCcayRQ"
+                      title="YouTube video player"
+                      frameBorder="0"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    ></iframe>
                   </div>
                 </div>
               )}

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
+import { Switch } from "@/components/ui/switch";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import {
@@ -20,6 +21,7 @@ import {
   Settings,
   Minimize2,
   Maximize2,
+  CloudRain,
 } from "lucide-react";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
 import { LoadingScreen } from "@/components/loading-screen";
@@ -63,7 +65,7 @@ interface Model3Props {
   onComponentParamsChange: (params: Map<string, NodeParams>) => void;
   pipeParams: Map<string, LinkParams>;
   onPipeParamsChange: (params: Map<string, LinkParams>) => void;
-  rainfallParams: RainfallParams,
+  rainfallParams: RainfallParams;
   onRainfallParamsChange: (params: RainfallParams) => void;
   showNodePanel: boolean;
   onToggleNodePanel: () => void;
@@ -77,6 +79,8 @@ interface Model3Props {
   isTableMinimized?: boolean;
   onToggleMinimize?: () => void;
   onOpenNodeSimulation?: (nodeId: string) => void;
+  isRainActive?: boolean;
+  onToggleRain?: (enabled: boolean) => void;
 }
 
 export const DEFAULT_NODE_PARAMS: NodeParams = {
@@ -124,6 +128,8 @@ export default function Model3({
   hasTable = false,
   isTableMinimized = false,
   onToggleMinimize,
+  isRainActive = false,
+  onToggleRain,
 }: Model3Props) {
   //const [rainfallParams, setRainfallParams] = useState<RainfallParams>(
   //  DEFAULT_RAINFALL_PARAMS
@@ -189,7 +195,13 @@ export default function Model3({
     if (paramsChanged) {
       onComponentParamsChange(newParams);
     }
-  }, [selectedComponentIds, inlets, drains, componentParams, onComponentParamsChange]);
+  }, [
+    selectedComponentIds,
+    inlets,
+    drains,
+    componentParams,
+    onComponentParamsChange,
+  ]);
 
   // Handle pipe selection changes
   useEffect(() => {
@@ -431,6 +443,41 @@ export default function Model3({
               </div>
             </div>
           </div>
+
+          {/* Rain Effect Toggle */}
+          {onToggleRain && (
+            <div className={`flex items-center justify-between px-3 py-2 rounded-lg border border-border/40 bg-muted/20 ${!hasTable ? 'opacity-50' : ''}`}>
+              <div className="flex items-center gap-2">
+                <CloudRain className="h-4 w-4 text-muted-foreground" />
+                <Label
+                  htmlFor="rain-toggle-model3"
+                  className={`text-sm font-normal ${hasTable ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                >
+                  Rain Effect
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <IconInfoCircleFilled className="w-3.5 h-3.5 text-[#8D8D8D]/50 hover:text-[#8D8D8D] cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs max-w-xs">
+                        {hasTable
+                          ? "Toggle rainfall visualization effect (intensity based on precipitation)"
+                          : "Generate table first to enable rain effect"}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <Switch
+                id="rain-toggle-model3"
+                checked={isRainActive}
+                onCheckedChange={onToggleRain}
+                disabled={!hasTable}
+              />
+            </div>
+          )}
         </div>
 
         {/* Error Display */}

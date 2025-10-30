@@ -4,6 +4,8 @@ import React from "react";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -18,7 +20,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { IconInfoCircleFilled } from "@tabler/icons-react";
-import { Loader2, Minimize2, Maximize2 } from "lucide-react";
+import { Loader2, Minimize2, Maximize2, CloudRain } from "lucide-react";
 import { LoadingScreen } from "@/components/loading-screen";
 import type { Inlet, Outlet, Pipe, Drain } from "../../types";
 
@@ -36,6 +38,8 @@ interface Model2Props {
   hasTable?: boolean;
   isTableMinimized?: boolean;
   onToggleMinimize?: () => void;
+  isRainActive?: boolean;
+  onToggleRain?: (enabled: boolean) => void;
 }
 
 type YearOption = 2 | 5 | 10 | 15 | 20 | 25 | 50 | 100;
@@ -56,6 +60,8 @@ export default function Model2({
   hasTable = false,
   isTableMinimized = false,
   onToggleMinimize,
+  isRainActive = false,
+  onToggleRain,
 }: Model2Props) {
   return (
     <>
@@ -182,6 +188,41 @@ export default function Model2({
               </Badge>
             </div>
           </div>
+
+          {/* Rain Effect Toggle */}
+          {onToggleRain && (
+            <div className={`flex items-center justify-between px-3 py-2 rounded-lg border border-border/40 bg-muted/20 ${!hasTable ? 'opacity-50' : ''}`}>
+              <div className="flex items-center gap-2">
+                <CloudRain className="h-4 w-4 text-muted-foreground" />
+                <Label
+                  htmlFor="rain-toggle"
+                  className={`text-sm font-normal ${hasTable ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                >
+                  Rain Effect
+                </Label>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <IconInfoCircleFilled className="w-3.5 h-3.5 text-[#8D8D8D]/50 hover:text-[#8D8D8D] cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="text-xs max-w-xs">
+                        {hasTable
+                          ? "Toggle rainfall visualization effect on the map"
+                          : "Generate table first to enable rain effect"}
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+              <Switch
+                id="rain-toggle"
+                checked={isRainActive}
+                onCheckedChange={onToggleRain}
+                disabled={!hasTable}
+              />
+            </div>
+          )}
         </div>
 
         {/* footer anchored to bottom */}

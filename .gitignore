@@ -51,3 +51,6 @@ playwright.config.ts
 
 # copilot-instructions.md
 .github/copilot-instructions.md
+
+# vscode
+.vscode/
