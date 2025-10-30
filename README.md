@@ -28,20 +28,24 @@
 
 ## 🗺️ Overview
 
-**drAIn** is a developer toolkit for building **interactive urban drainage, flood modeling, and infrastructure management applications**.  
-It provides **modular React components**, **custom hooks**, and **visualization tools** to integrate **geospatial data**, **real-time analytics**, and **interactive mapping** features.
+**drAIn** (Where AI Meets the Flow) is an **AI/machine learning - powered platform for flood resilience**. It is designed to help engineers, planners, and local governments **predict, simulate, and strengthen urban drainage systems**.
+
+The project moves beyond simple hazard mapping by integrating **SWMM-based (Storm Water Management Model) hydraulic simulations** with **AI-driven analytics** and **community participation**. It transforms complex flood data into actionable insights to support proactive maintenance, infrastructure upgrades, and data-driven resilience planning.
 
 ---
 
 ### 💡 Why drAIn?
 
-drAIn helps simplify complex **flood resilience** and **infrastructure visualization** workflows by offering ready-to-use components and utilities.
+Urban flooding is a critical problem, often caused by heavy rainfall and poor drainage maintenance. While many existing tools focus on flood hazard mapping or risk assessment, they often remain theoretical. They typically lack real-time data integration, community participation, and operational decision support.
+
+**drAIn bridges this gap**. It's designed to provide component-level vulnerability insights and guide day-to-day maintenance and planning.
 
 #### ⚙️ Core Features
 
-- 🎨 **Map Layer Controls** – Manage and toggle multiple geospatial data layers.  
-- 🧩 **Modular Hooks** – Fetch, transform, and analyze spatial data dynamically.  
-- 📊 **Data Visualization** – Use charts and tables to display capacity, flow, and vulnerability metrics.
+* 🧠 **AI-Driven Vulnerability Ranking:** Assesses each drainage component using metrics like flooding volume and overflow duration. It then applies machine learning (K-Means clustering) to classify and rank structural vulnerabilities.
+* 🌊 **Interactive Simulation:** Provides interactive "what-if" scenario testing, allowing users to simulate the impact of rainfall or structural changes in real time.
+* 👥 **Community Participation:** Incorporates citizen reporting, allowing communities to contribute real-world drainage data for model validation and maintenance tracking.
+* 📊 **Actionable Intelligence:** Converts complex simulation data into clear, actionable intelligence for engineers and planners to make informed decisions.
 
 ---
 
