@@ -42,7 +42,7 @@ Urban flooding is a critical problem, often caused by heavy rainfall and poor dr
 
 #### ⚙️ Core Features
 
-* 🧠 **AI-Driven Vulnerability Ranking:** Assesses each drainage component using metrics like flooding volume and overflow duration. It then applies machine learning (K-Means clustering) to classify and rank structural vulnerabilities.
+* 🧠 **Machine learning - Driven Vulnerability Ranking:** Assesses each drainage component using metrics like flooding volume and overflow duration. It then applies machine learning (K-Means clustering) to classify and rank structural vulnerabilities.
 * 🌊 **Interactive Simulation:** Provides interactive "what-if" scenario testing, allowing users to simulate the impact of rainfall or structural changes in real time.
 * 👥 **Community Participation:** Incorporates citizen reporting, allowing communities to contribute real-world drainage data for model validation and maintenance tracking.
 * 📊 **Actionable Intelligence:** Converts complex simulation data into clear, actionable intelligence for engineers and planners to make informed decisions.
