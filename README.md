@@ -109,7 +109,8 @@ Don't forget to give the project a star! Thanks again!
 
 ## ⚖️ License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v2.0 (GPL-2.0).
+You may redistribute and/or modify it under the terms of the GNU GPL, as published by the Free Software Foundation. - see the [LICENSE](LICENSE) file for details.
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
