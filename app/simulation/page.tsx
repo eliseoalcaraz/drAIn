@@ -4,7 +4,7 @@
 
 import { ControlPanel } from "@/components/control-panel";
 import { CameraControls } from "@/components/camera-controls";
-import { useRef, useEffect, useState, useMemo } from "react";
+import { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   DEFAULT_CENTER,
@@ -17,6 +17,7 @@ import {
   runSimulation,
   transformToNodeDetails,
 } from "@/lib/simulation-api/simulation";
+import { enableRain, disableRain } from "@/lib/map/effects/rain-utils";
 
 import {
   SIMULATION_MAP_STYLE,
@@ -178,6 +179,9 @@ export default function SimulationPage() {
   const [pipeParams, setPipeParams] = useState<Map<string, any>>(new Map());
   const [rainfallParams, setRainfallParams] =
     useState<RainfallParams>(rainfallVal);
+
+  // Rain effect state
+  const [isRainActive, setIsRainActive] = useState(false);
 
   // Panel visibility - mutual exclusivity
   const [activePanel, setActivePanel] = useState<"node" | "link" | null>(null);
@@ -347,32 +351,14 @@ export default function SimulationPage() {
           map.setTerrain({ source: "mapbox-dem", exaggeration: 1.5 });
         }
 
-        if (!map.getLayer("3d-buildings")) {
-          map.addLayer(
-            {
-              id: "3d-buildings",
-              source: "composite",
-              "source-layer": "building",
-              filter: ["==", "extrude", "true"],
-              type: "fill-extrusion",
-              minzoom: 15,
-              paint: {
-                "fill-extrusion-color": "#aaa",
-                "fill-extrusion-height": [
-                  "interpolate",
-                  ["linear"],
-                  ["zoom"],
-                  15,
-                  0,
-                  15.05,
-                  ["get", "height"],
-                ],
-                "fill-extrusion-base": ["get", "min_height"],
-                "fill-extrusion-opacity": 0.6,
-              },
-            },
-            "waterway-label"
-          );
+        // Enable 3D buildings using Mapbox Standard style configuration
+        // Standard style has built-in 3D buildings that can be configured
+        try {
+          if (map.setConfigProperty) {
+            map.setConfigProperty('basemap', 'showBuildingExtrusions', true);
+          }
+        } catch (error) {
+          console.warn("Could not enable 3D buildings:", error);
         }
 
         if (!map.getSource("man_pipes")) {
@@ -1013,6 +999,12 @@ export default function SimulationPage() {
       // Apply vulnerability colors to inlets and storm drains
       applyVulnerabilityColors(data);
 
+      // Enable rain effect
+      if (mapRef.current) {
+        enableRain(mapRef.current, 1.0);
+        setIsRainActive(true);
+      }
+
       toast.success(
         `Successfully loaded ${data.length} nodes for ${selectedYear}YR`
       );
@@ -1079,6 +1071,15 @@ export default function SimulationPage() {
       // Apply vulnerability colors to inlets and storm drains
       applyVulnerabilityColors(transformedData);
 
+      // Enable rain effect with dynamic intensity based on precipitation
+      if (mapRef.current) {
+        // Map 0-300mm precipitation to 0.3-1.0 intensity range
+        const normalized = rainfallParams.total_precip / 300; // 0-1 range
+        const intensity = 0.3 + (normalized * 0.7); // Map to 0.3-1.0
+        enableRain(mapRef.current, intensity);
+        setIsRainActive(true);
+      }
+
       toast.success(
         `Successfully generated vulnerability data for ${transformedData.length} nodes`
       );
@@ -1113,6 +1114,29 @@ export default function SimulationPage() {
     setTableData3(null);
     setIsTable3Minimized(false);
   };
+
+  // Rain toggle handler
+  const handleToggleRain = useCallback((enabled: boolean) => {
+    if (!mapRef.current) return;
+
+    if (enabled) {
+      // Determine intensity based on which model is active
+      let intensity = 1.0; // Default for Model2
+
+      // If Model3 is active and has rainfall params, use dynamic intensity
+      // Map 0-300mm precipitation to 0.3-1.0 intensity range
+      if (tableData3 && rainfallParams) {
+        const normalized = rainfallParams.total_precip / 300; // 0-1 range
+        intensity = 0.3 + (normalized * 0.7); // Map to 0.3-1.0
+      }
+
+      enableRain(mapRef.current, intensity);
+      setIsRainActive(true);
+    } else {
+      disableRain(mapRef.current);
+      setIsRainActive(false);
+    }
+  }, [tableData3, rainfallParams]);
 
   // Helper function to parse Node_ID and determine source and feature ID
   const parseNodeId = (
@@ -1265,6 +1289,15 @@ export default function SimulationPage() {
     setIsTable3Minimized(false);
   };
 
+  // Cleanup rain effect when component unmounts
+  useEffect(() => {
+    return () => {
+      if (mapRef.current && isRainActive) {
+        disableRain(mapRef.current);
+      }
+    };
+  }, [isRainActive]);
+
   return (
     <>
       <main className="relative min-h-screen flex flex-col bg-gray-900">
@@ -1339,6 +1372,8 @@ export default function SimulationPage() {
           onToggleTable3Minimize={handleToggleTable3Minimize}
           onOpenNodeSimulation={handleOpenNodeSimulation}
           onClosePopUps={handleClosePopUps}
+          isRainActive={isRainActive}
+          onToggleRain={handleToggleRain}
         />
         <CameraControls
           onZoomIn={handleZoomIn}

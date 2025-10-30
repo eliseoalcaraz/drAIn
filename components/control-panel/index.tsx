@@ -80,6 +80,8 @@ export function ControlPanel({
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
   onClosePopUps = () => {},
+  isRainActive = false,
+  onToggleRain,
 }: ControlPanelProps & { reports: Report[] }) {
   // reports are latest, allReportsData are all
   const router = useRouter();
@@ -348,6 +350,8 @@ export function ControlPanel({
             showLinkPanel={showLinkPanel}
             onToggleLinkPanel={onToggleLinkPanel}
             onOpenNodeSimulation={onOpenNodeSimulation}
+            isRainActive={isRainActive}
+            onToggleRain={onToggleRain}
           />
         </div>
       </div>

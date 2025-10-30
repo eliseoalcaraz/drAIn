@@ -58,6 +58,9 @@ interface SimulationsContentProps {
   onToggleLinkPanel?: () => void;
   // Shared handler for opening node simulation slideshow
   onOpenNodeSimulation?: (nodeId: string) => void;
+  // Rain effect control
+  isRainActive?: boolean;
+  onToggleRain?: (enabled: boolean) => void;
 }
 
 export default function SimulationsContent({
@@ -96,6 +99,8 @@ export default function SimulationsContent({
   showLinkPanel = false,
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
+  isRainActive = false,
+  onToggleRain,
 }: SimulationsContentProps) {
   const [selectedModel, setSelectedModel] = useState<ModelType | null>(null);
   const router = useRouter();
@@ -170,6 +175,8 @@ export default function SimulationsContent({
       hasTable,
       isTableMinimized,
       onToggleMinimize: onToggleTableMinimize,
+      isRainActive,
+      onToggleRain,
     };
 
     const model3Props = {
@@ -195,6 +202,8 @@ export default function SimulationsContent({
       isTableMinimized: isTable3Minimized,
       onToggleMinimize: onToggleTable3Minimize,
       onOpenNodeSimulation,
+      isRainActive,
+      onToggleRain,
     };
 
     switch (selectedModel) {

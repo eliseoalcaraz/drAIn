@@ -145,6 +145,9 @@ interface ContentRendererProps {
   // Shared handler for opening node simulation slideshow
   onOpenNodeSimulation?: (nodeId: string) => void;
   allReportsData: Report[]; // Added for comprehensive report history
+  // Rain effect control
+  isRainActive?: boolean;
+  onToggleRain?: (enabled: boolean) => void;
 }
 
 export function ContentRenderer({
@@ -222,6 +225,8 @@ export function ContentRenderer({
   onToggleLinkPanel = () => {},
   onOpenNodeSimulation,
   allReportsData, // Destructure allReportsData
+  isRainActive = false,
+  onToggleRain,
 }: ContentRendererProps) {
   // Check for loading states first
   if (loadingInlets)
@@ -292,6 +297,8 @@ export function ContentRenderer({
           showLinkPanel={showLinkPanel}
           onToggleLinkPanel={onToggleLinkPanel}
           onOpenNodeSimulation={onOpenNodeSimulation}
+          isRainActive={isRainActive}
+          onToggleRain={onToggleRain}
         />
       );
 

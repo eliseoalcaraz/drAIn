@@ -143,4 +143,7 @@ export interface ControlPanelProps {
   onAdminTabChange?: (tab: "maintenance" | "reports") => void;
   allReportsData: Report[]; // Added for comprehensive report history
   onClosePopUps?: () => void;
+  // Rain effect control
+  isRainActive?: boolean;
+  onToggleRain?: (enabled: boolean) => void;
 }
