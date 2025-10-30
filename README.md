@@ -6,7 +6,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![Issues][issues-shield]][issues-url]
 <a href="https://github.com/eliseoalcaraz/drAIn/blob/main/LICENSE">
-<img alt="License" src="https://img.shields.io/badge/License-MIT-002D72?style=for-the-badge" />
+<img alt="License" src="https://img.shields.io/badge/License-GPL--2.0-blue?style=for-the-badge" />
 </a>
 
 <div align="center">
@@ -28,19 +28,20 @@
 
 ## 🗺️ Overview
 
-**drAIn** is a powerful developer toolkit tailored for building **interactive urban drainage, flood modeling, and infrastructure management applications**.  
-It combines **modular React components**, **custom hooks**, and **visualization tools** to enable seamless integration of **geospatial data**, **real-time analytics**, and **user interactions**.
+**drAIn** is a developer toolkit for building **interactive urban drainage, flood modeling, and infrastructure management applications**.  
+It provides **modular React components**, **custom hooks**, and **visualization tools** to integrate **geospatial data**, **real-time analytics**, and **interactive mapping** features.
 
 ---
 
 ### 💡 Why drAIn?
 
-This project aims to simplify the development of **complex infrastructure and flood resilience systems**.  
-The core features include:
+drAIn helps simplify complex **flood resilience** and **infrastructure visualization** workflows by offering ready-to-use components and utilities.
 
-- 🎨 **Map Layer Controls:** Easily toggle and manage geospatial overlays for infrastructure visualization.  
-- 🧩 **Modular Hooks:** Fetch and transform spatial data like pipes, drains, and outlets for dynamic analysis.  
-- 📊 **Data Visualization:** Render insightful charts and tables to interpret vulnerability and capacity metrics.
+#### ⚙️ Core Features
+
+- 🎨 **Map Layer Controls** – Manage and toggle multiple geospatial data layers.  
+- 🧩 **Modular Hooks** – Fetch, transform, and analyze spatial data dynamically.  
+- 📊 **Data Visualization** – Use charts and tables to display capacity, flow, and vulnerability metrics.
 
 ---
 
@@ -65,7 +66,7 @@ Follow these steps to set up and run **drAIn** locally.
 
 Make sure you have installed:
 
-- [Node.js](https://nodejs.org/) (version 16 or higher)
+- [Node.js](https://nodejs.org/) (v16+)
 - [pnpm](https://pnpm.io/)
 
 ---
@@ -80,8 +81,45 @@ cd drAIn
 # Install dependencies
 pnpm install
 
+
 ## 💻 Running Aplication
 pnpm run dev
 ```
 
+<!-- CONTRIBUTING -->
+
+## 📬 Contributing
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+### 📢 Contributors
+
+<a href="https://github.com/eliseoalcaraz/drAIn/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=eliseoalcarz/drAIn" alt="contrib.rocks image" />
+</a>
+
+<!-- LICENSE -->
+
+## ⚖️ License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+<!-- MARKDOWN LINKS & IMAGES -->
+<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
+
+[contributors-shield]: https://img.shields.io/github/contributors/eliseoalcarz/drAIn.svg?style=for-the-badge
+[contributors-url]: https://github.com/eliseoalcaraz/drAIn/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/eliseoalcaraz/drAIn.svg?style=for-the-badge
+[forks-url]: https://github.com/eliseoalcaraz/drAIn/network/members
+[stars-shield]: https://img.shields.io/github/stars/eliseoalcaraz/drAIn.svg?style=for-the-badge
+[stars-url]: https://github.com/eliseoalcaraz/drAIn/stargazers
+[issues-shield]: https://img.shields.io/github/issues/eliseoalcaraz/drAIn.svg?style=for-the-badge
+[issues-url]: https://github.com/eliseoalcaraz/drAIn/issues
 
