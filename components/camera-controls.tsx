@@ -27,7 +27,7 @@ export const CameraControls: FC<CameraControlsProps> = ({
         {isSimulationActive && onExitSimulation && (
           <button
             onClick={onExitSimulation}
-            className="bg-[#c53231] p-2 rounded-sm shadow-md hover:bg-[#a10018] border border-[#770504] active:bg-[#e25951] active:border active:border-gray-300 active:text-black"
+            className="bg-[#c53231] p-2 rounded-sm shadow-md hover:bg-[#a10018] border border-[#770504] active:bg-[#c53231] active:border active:border-[#770504] active:text-black"
           >
             <X className="h-4 w-4 cursor-pointer text-white" />
           </button>
