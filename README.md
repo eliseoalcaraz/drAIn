@@ -102,7 +102,7 @@ Don't forget to give the project a star! Thanks again!
 ### 📢 Contributors
 
 <a href="https://github.com/eliseoalcaraz/drAIn/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=eliseoalcarz/drAIn" alt="contrib.rocks image" />
+  <img src="https://contrib.rocks/image?repo=eliseoalcaraz/drAIn" alt="contrib.rocks image" />
 </a>
 
 <!-- LICENSE -->
@@ -115,7 +115,7 @@ You may redistribute and/or modify it under the terms of the GNU GPL, as publish
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
-[contributors-shield]: https://img.shields.io/github/contributors/eliseoalcarz/drAIn.svg?style=for-the-badge
+[contributors-shield]: https://img.shields.io/github/contributors/eliseoalcaraz/drAIn.svg?style=for-the-badge
 [contributors-url]: https://github.com/eliseoalcaraz/drAIn/graphs/contributors
 [forks-shield]: https://img.shields.io/github/forks/eliseoalcaraz/drAIn.svg?style=for-the-badge
 [forks-url]: https://github.com/eliseoalcaraz/drAIn/network/members
