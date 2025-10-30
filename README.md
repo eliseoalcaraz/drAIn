@@ -57,7 +57,6 @@ Urban flooding is a critical problem, often caused by heavy rainfall and poor dr
   <a href="https://www.typescriptlang.org/"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=flat" /></a>
   <a href="https://tailwindcss.com/"><img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-0EA5E9?logo=tailwindcss&logoColor=white&style=flat" /></a>
   <a href="https://leafletjs.com/"><img alt="Leaflet" src="https://img.shields.io/badge/Leaflet-199900?logo=leaflet&logoColor=white&style=flat" /></a>
-  <a href="https://d3js.org/"><img alt="D3.js" src="https://img.shields.io/badge/D3.js-F9A03C?logo=d3dotjs&logoColor=white&style=flat" /></a>
 </p>
 
 ---
