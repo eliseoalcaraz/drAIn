@@ -10,109 +10,122 @@
 </a>
 
 <div align="center">
+  <br />
   <a href="https://github.com/eliseoalcaraz/drAIn">
-    <img src="public/images/logo.png" alt="drAIn logo" width="40%" height="35%">
+    <img src="public/images/logo.png" alt="Logo" width="20%" height="20%">
   </a>
   <br />
   <p align="center">
-    <a href="#"><img alt="Status" src="https://img.shields.io/badge/status-Beta-yellow?style=flat&color=yellow" /></a>
-    <a href="https://nextjs.org/"><img alt="Next.js" src="https://img.shields.io/badge/Next.js-15.5.4-2B2B2B?logo=nextdotjs&logoColor=white&style=flat" /></a>
-    <a href="https://github.com/eliseoalcaraz/drAIn/commits/main"><img alt="Last commit" src="https://proxy.cyb3rko.de/shields/github/last-commit/eliseoalcaraz/drAIn?color=coral&logo=git&logoColor=white" /></a>
+    <br />
+      Predict, Simulate, and Strengthen Urban Drainage Systems
+    <br />
+    <br />
+    <p align="center">
+      <a href="#"><img alt="Status" src="https://img.shields.io/badge/status-Beta-yellow?style=flat&color=yellow" /></a>
+      <a href="https://nextjs.org/"><img alt="Next.js" src="https://img.shields.io/badge/Next.js-15.5.4-2B2B2B?logo=nextdotjs&logoColor=white&style=flat" /></a>
+      <a href="https://github.com/eliseoalcaraz/drAIn/commits/main"><img alt="Last commit" src="https://proxy.cyb3rko.de/shields/github/last-commit/eliseoalcaraz/drAIn?color=coral&logo=git&logoColor=white" /></a>
   </p>
   <a href="https://github.com/eliseoalcaraz/drAIn/issues/new?labels=bug&template=bug-report---.md">Report Bug</a>
   &middot;
   <a href="https://github.com/eliseoalcaraz/drAIn/issues/new?labels=enhancement&template=feature-request---.md">Request Feature</a>
 </div>
 
----
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#%EF%B8%8F-project-overview">🗺️ Project Overview</a>
+      <ul>
+        <li><a href="#-tech-stack">📚 Tech Stack</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#-getting-started">💻 Getting Started</a>
+      <ul>
+        <li><a href="#-prerequisites">🔧 Prerequisites</a></li>
+        <li><a href="#%EF%B8%8F-installation">🛠️ Installation</a></li>
+        <li><a href="#%EF%B8%8F-running-the-application">▶️ Running</a></li>
+      </ul>
+    </li>
+    <li><a href="#-contributing">📬 Contributing</a></li>
+    <li><a href="#%EF%B8%8F-license">⚖️ License</a></li>
+  </ol>
+</details>
 
-## 🗺️ Overview
+## 🗺️ Project Overview
 
-**drAIn** (Where AI Meets the Flow) is an **AI/machine learning - powered platform for flood resilience**. It is designed to help engineers, planners, and local governments **predict, simulate, and strengthen urban drainage systems**.
+**drAIn** is an **AI/machine learning - powered platform for flood resilience**. It is designed to help engineers, planners, and local governments **predict, simulate, and strengthen urban drainage systems**.
 
 The project moves beyond simple hazard mapping by integrating **SWMM-based (Storm Water Management Model) hydraulic simulations** with **AI-driven analytics** and **community participation**. It transforms complex flood data into actionable insights to support proactive maintenance, infrastructure upgrades, and data-driven resilience planning.
 
----
 
 ### 💡 Why drAIn?
 
 Urban flooding is a critical problem, often caused by heavy rainfall and poor drainage maintenance. While many existing tools focus on flood hazard mapping or risk assessment, they often remain theoretical. They typically lack real-time data integration, community participation, and operational decision support.
-
-**drAIn bridges this gap**. It's designed to provide component-level vulnerability insights and guide day-to-day maintenance and planning.
-
-#### ⚙️ Core Features
 
 * 🧠 **Machine learning - Driven Vulnerability Ranking:** Assesses each drainage component using metrics like flooding volume and overflow duration. It then applies machine learning (K-Means clustering) to classify and rank structural vulnerabilities.
 * 🌊 **Interactive Simulation:** Provides interactive "what-if" scenario testing, allowing users to simulate the impact of rainfall or structural changes in real time.
 * 👥 **Community Participation:** Incorporates citizen reporting, allowing communities to contribute real-world drainage data for model validation and maintenance tracking.
 * 📊 **Actionable Intelligence:** Converts complex simulation data into clear, actionable intelligence for engineers and planners to make informed decisions.
 
----
+### 📚 Tech Stack
 
-## 📚 Tech Stack
-
-### Frontend
 <p align="left">
-  <a href="https://nextjs.org/"><img alt="Next.js" src="https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white&style=flat" /></a>
-  <a href="https://react.dev/"><img alt="React" src="https://img.shields.io/badge/React-61DAFB?logo=react&logoColor=black&style=flat" /></a>
+  <a href="https://nextjs.org/"><img alt="Next.js" src="https://img.shields.io/badge/Next.js-2B2B2B?logo=nextdotjs&logoColor=white&style=flat" /></a>
   <a href="https://www.typescriptlang.org/"><img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white&style=flat" /></a>
-  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img alt="JavaScript" src="https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black&style=flat" /></a>
   <a href="https://tailwindcss.com/"><img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-0EA5E9?logo=tailwindcss&logoColor=white&style=flat" /></a>
-  <a href="https://ui.shadcn.com/"><img alt="shadcn/ui" src="https://img.shields.io/badge/shadcn%2Fui-000000?logo=shadcnui&logoColor=white&style=flat" /></a>
+  <a href="https://ui.shadcn.com/"><img alt="shadcn/ui" src="https://img.shields.io/badge/shadcn/ui-111111?logo=shadcnui&logoColor=white&style=flat" /></a>
   <a href="https://lucide.dev/"><img alt="Lucide Icons" src="https://img.shields.io/badge/Lucide_Icons-10B981?logo=lucide&logoColor=white&style=flat" /></a>
   <a href="https://www.mapbox.com/"><img alt="Mapbox" src="https://img.shields.io/badge/Mapbox-000000?logo=mapbox&logoColor=white&style=flat" /></a>
-</p>
-
-### Backend
-<p align="left">
-  <a href="https://supabase.com"><img alt="Supabase" src="https://img.shields.io/badge/Supabase-3ECF8E?logo=supabase&logoColor=white&style=flat" /></a>
+  <a href="https://supabase.com"><img alt="Supabase" src="https://img.shields.io/badge/Supabase-269e6c?logo=supabase&logoColor=white&style=flat" /></a>
   <a href="https://fastapi.tiangolo.com/"><img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-009688?logo=fastapi&logoColor=white&style=flat" /></a>
-</p>
-
-### ML & Simulation
-<p align="left">
   <a href="https://www.epa.gov/water-research/storm-water-management-model-swmm"><img alt="PySWMM" src="https://img.shields.io/badge/PySWMM-0078D4?logo=python&logoColor=white&style=flat" /></a>
   <a href="https://scikit-learn.org/"><img alt="scikit-learn" src="https://img.shields.io/badge/scikit--learn-F7931E?logo=scikitlearn&logoColor=white&style=flat" /></a>
-</p>
-
-### AI Agent
-<p align="left">
-  <a href="https://gemini.google.com/"><img alt="Google Gemini" src="https://img.shields.io/badge/Google_Gemini-8E4BFF?logo=googlegemini&logoColor=white&style=flat" /></a>
-</p>
-
-### Hosting
-<p align="left">
-  <a href="https://vercel.com/"><img alt="Vercel" src="https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white&style=flat" /></a>
+  <a href="https://gemini.google.com/"><img alt="Google Gemini" src="https://img.shields.io/badge/Google_Gemini-4285F4?logo=googlegemini&logoColor=white&style=flat" /></a>
+  <a href="https://vercel.com/"><img alt="Vercel" src="https://img.shields.io/badge/Vercel-232323?logo=vercel&logoColor=white&style=flat" /></a>
   <a href="https://railway.app/"><img alt="Railway" src="https://img.shields.io/badge/Railway-0B0D0E?logo=railway&logoColor=white&style=flat" /></a>
 </p>
 
----
+
+
+
+
 
 ## 💻 Getting Started
 
 Follow these steps to set up and run **drAIn** locally.
 
 ### 🔧 Prerequisites
-
-Make sure you have installed:
-
-- [Node.js](https://nodejs.org/) (v16+)
+- [Node.js](https://nodejs.org/) (version 16.0 or higher)
 - [pnpm](https://pnpm.io/)
-
----
 
 ### 🛠️ Installation
 
-```bash
-# Clone the repository
+#### 1. Clone the Repository
+
+```sh
 git clone https://github.com/eliseoalcaraz/drAIn.git
 cd drAIn
+```
 
-# Install dependencies
+#### 2. Install Dependencies
+
+```sh
 pnpm install
+```
 
+#### 3. Environment Setup
 
-## 💻 Running Aplication
+```bash
+cp .env.example .env
+```
+
+Edit the `.env` file with your configuration (API keys, database URL, etc.)
+
+### ▶️ Running the Application
+
+```sh
 pnpm run dev
 ```
 
