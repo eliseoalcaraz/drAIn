@@ -27,9 +27,9 @@ export const CameraControls: FC<CameraControlsProps> = ({
         {isSimulationActive && onExitSimulation && (
           <button
             onClick={onExitSimulation}
-            className="bg-white p-2 rounded-sm shadow-md hover:bg-gray-100 border border-transparent active:bg-gray-200 active:border active:border-gray-300 active:text-black"
+            className="bg-[#c53231] p-2 rounded-sm shadow-md hover:bg-[#a10018] border border-[#770504] active:bg-[#e25951] active:border active:border-gray-300 active:text-black"
           >
-            <X className="h-4 w-4 cursor-pointer" />
+            <X className="h-4 w-4 cursor-pointer text-white" />
           </button>
         )}
         {/* Zoom In / Zoom Out */}
