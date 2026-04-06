@@ -13,8 +13,10 @@ import {
   Settings2,
   FileText,
   Loader2,
+  Download,
 } from 'lucide-react';
 import { useState } from 'react';
+import DownloadReportsModal from './DownloadReportsModal';
 
 interface ReportFiltersProps {
   priority: string;
@@ -42,6 +44,7 @@ export default function ReportFilters({
   isLoading = false,
 }: ReportFiltersProps) {
   const [_openDropdown, setOpenDropdown] = useState<string | null>(null);
+  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
 
   const hasFilters =
     priority !== 'all' || status !== 'all' || componentType !== 'all';
@@ -317,8 +320,23 @@ export default function ReportFilters({
               <span>Clear All</span>
             </button>
           )}
+
+          {/* Download Button */}
+          <button
+            onClick={() => setIsDownloadModalOpen(true)}
+            className="flex h-9 w-auto min-w-fit items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 text-sm font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+            title="Download reports"
+          >
+            <Download className="h-4 w-4" style={{ color: '#5a87e7' }} />
+          </button>
         </div>
       </div>
+
+      {/* Download Modal */}
+      <DownloadReportsModal
+        open={isDownloadModalOpen}
+        onOpenChange={setIsDownloadModalOpen}
+      />
     </div>
   );
 }
