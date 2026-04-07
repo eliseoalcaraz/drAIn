@@ -11,7 +11,7 @@
 
 <div align="center">
   <br />
-  <a href="https://github.com/eliseoalcaraz/drAIn">
+  <a href="https://github.com/kiloumanjaro/drAIn/">
     <img src="public/images/logo.png" alt="Logo" width="20%" height="20%">
   </a>
   <br />
